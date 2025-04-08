@@ -1,3 +1,5 @@
+// Namespace for the PizzaStore database context and models.
+using  PizzaStore.DB;
 // Required for OpenApiInfo class used in Swagger setup.
 using Microsoft.OpenApi.Models;
 
@@ -43,6 +45,12 @@ if (app.Environment.IsDevelopment())
 
 // Define a simple root GET endpoint for testing.
 app.MapGet("/", () => "Hello World!");
+// Define a GET endpoint to retrieve a list of pizzas.
+app.MapGet("/pizzas/{id}", (int id) => PizzaDB.GetPizza(id));
+app.MapGet("/pizzas", () => PizzaDB.GetPizzas());
+app.MapPost("/pizzas", (Pizza pizza) => PizzaDB.CreatePizza(pizza));
+app.MapPut("/pizzas", (Pizza pizza) => PizzaDB.UpdatePizza(pizza));
+app.MapDelete("/pizzas/{id}", (int id) => PizzaDB.RemovePizza(id));
 
 // Start the application and listen for requests.
 app.Run();
