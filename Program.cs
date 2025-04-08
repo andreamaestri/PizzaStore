@@ -25,7 +25,7 @@ builder.Services.AddSwaggerGen(c =>
     c.SwaggerDoc("v1", new OpenApiInfo
     {
         Title = "PizzaStore API",
-        Description = "An API to manage and order pizzas.",
+        Description = "An API to manage and order the pizzas you love.",
         Version = "v1"
     });
 });

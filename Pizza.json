@@ -1,0 +1,123 @@
+{
+    "bases": [
+        {
+            "id": 1,
+            "name": "Tomato Sauce & Mozzarella"
+        },
+        {
+            "id": 2,
+            "name": "Saffron Tomato Base"
+        },
+        {
+            "id": 3,
+            "name": "Garlic Cream Base"
+        }
+    ],
+    "pizzas": [
+  {
+    "Id": 1,
+    "Name": "The Cornish Pasty Pizza",
+    "BaseId": 1,
+    "ToppingsJson": "[\"Minced beef\", \"Diced potato\", \"Swede\", \"Onion\", \"Black pepper\"]",
+    "Description": "All the hearty goodness of Cornwall's pasty tradition reimagined as pizza toppings."
+  },
+  {
+    "Id": 2,
+    "Name": "Stargazy Surprise",
+    "BaseId": 1,
+    "ToppingsJson": "[\"Sardines\", \"Boiled egg slices\", \"Sliced potato\", \"Parsley\"]",
+    "Description": "A bold, traditional tribute to the famous Stargazy pie, tamed for pizza form."
+  },
+  {
+    "Id": 3,
+    "Name": "Yarg & Wild Garlic Whirl",
+    "BaseId": 1,
+    "ToppingsJson": "[\"Crumbled Cornish Yarg cheese\", \"Wild garlic pesto\", \"Rocket leaves\"]",
+    "Description": "Creamy, earthy, and fresh — a tribute to local wild flavours."
+  },
+  {
+    "Id": 4,
+    "Name": "Fisherman's Friend",
+    "BaseId": 1,
+    "ToppingsJson": "[\"Flaky white fish\", \"Capers\", \"Samphire\", \"Lemon zest\"]",
+    "Description": "A fresh-from-the-sea combo with briny bursts and delicate texture."
+  },
+  {
+    "Id": 5,
+    "Name": "The Tin Miner's Treat",
+    "BaseId": 1,
+    "ToppingsJson": "[\"Slow-cooked beef\", \"Potato cubes\", \"Onions\", \"Thyme\"]",
+    "Description": "Hearty and savoury, inspired by miner’s meals of old."
+  },
+  {
+    "Id": 6,
+    "Name": "Lizard Point Lava",
+    "BaseId": 1,
+    "ToppingsJson": "[\"Spicy Cornish sausage\", \"Roasted red peppers\", \"Chilli flakes\"]",
+    "Description": "Fiery and bold like the cliffs it’s named after."
+  },
+  {
+    "Id": 7,
+    "Name": "St Ives Seafood Special",
+    "BaseId": 1,
+    "ToppingsJson": "[\"Crab meat\", \"Mussels\", \"Lemon zest\", \"Parsley\"]",
+    "Description": "An artistic burst of fresh seafood flavour."
+  },
+  {
+    "Id": 8,
+    "Name": "Bodmin Moor Beast",
+    "BaseId": 1,
+    "ToppingsJson": "[\"Hog's pudding\", \"Smoked bacon\", \"Mushrooms\"]",
+    "Description": "A wild combo for big appetites and bolder flavours."
+  },
+  {
+    "Id": 9,
+    "Name": "Rattler Hawaian",
+    "BaseId": 1,
+    "ToppingsJson": "[\"Smoked ham\", \"Pineapple chunks\", \"Cider glaze\"]",
+    "Description": "A Cornish spin on a tropical classic — sweet, savoury and just cheeky enough."
+  },
+  {
+    "Id": 10,
+    "Name": "Saffron & Scallop Gem",
+    "BaseId": 2,
+    "ToppingsJson": "[\"Pan-seared scallops\", \"Garden peas\", \"Chive oil\"]",
+    "Description": "A delicate delight infused with local luxury and a golden glow."
+  },
+  {
+    "Id": 11,
+    "Name": "Penzance Pilchard Patch",
+    "BaseId": 1,
+    "ToppingsJson": "[\"Grilled pilchards\", \"Tomato slices\", \"Black olives\"]",
+    "Description": "Salty, savoury and straight from the Cornish coast."
+  },
+  {
+    "Id": 12,
+    "Name": "Land's End Lobster Luau",
+    "BaseId": 3,
+    "ToppingsJson": "[\"Lobster meat\", \"Garlic butter drizzle\", \"Fresh herbs\"]",
+    "Description": "Indulgent and elegant — where the land ends and flavour begins."
+  },
+  {
+    "Id": 13,
+    "Name": "Falmouth Harbour Haul",
+    "BaseId": 1,
+    "ToppingsJson": "[\"Prawns\", \"Clams\", \"White wine reduction\"]",
+    "Description": "A medley of local shellfish with a gourmet twist."
+  },
+  {
+    "Id": 14,
+    "Name": "Newquay Crab Kick",
+    "BaseId": 1,
+    "ToppingsJson": "[\"Crab meat\", \"Sweetcorn\", \"Fresh coriander\", \"Chilli flakes\"]",
+    "Description": "Bright, zesty and a little fiery, just like a beach BBQ."
+  },
+  {
+    "Id": 15,
+    "Name": "Tintagel Blue & Fig Feast",
+    "BaseId": 1,
+    "ToppingsJson": "[\"Cornish Blue cheese\", \"Fig jam\", \"Prosciutto\"]",
+    "Description": "Sweet meets savoury in a legendary combo fit for a castle feast."
+  }
+]
+}
