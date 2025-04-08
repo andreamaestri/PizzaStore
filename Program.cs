@@ -174,13 +174,11 @@ pizzaApi.MapPut("/{id:int}", async Task<Results<Ok<Pizza>, NotFound, BadRequest>
     if (existingPizza is null)
     {
         return TypedResults.NotFound();
-    }
-
-    // Update properties (could use a mapping tool like AutoMapper in real apps)
+    }    // Update all properties
     existingPizza.Name = updatedPizza.Name;
-    // Update other properties as needed...
-    // existingPizza.Description = updatedPizza.Description;
-    // existingPizza.Price = updatedPizza.Price;
+    existingPizza.Description = updatedPizza.Description;
+    existingPizza.BaseId = updatedPizza.BaseId;
+    existingPizza.Toppings = updatedPizza.Toppings ?? new List<string>();
 
     await db.SaveChangesAsync();
     return TypedResults.Ok(existingPizza); // Return the updated pizza
