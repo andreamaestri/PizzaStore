@@ -10,10 +10,11 @@ using Microsoft.AspNetCore.Http.HttpResults; // Required for TypedResults
 var builder = WebApplication.CreateBuilder(args);
 
 // --- 2. Service Configuration (Dependency Injection) ---
+var connectionString = builder.Configuration.GetConnectionString("Pizzas") ?? "Data Source=Pizzas.db";
 
 // Add Entity Framework Core DbContext for the Pizza database.
-// Using an in-memory database for simplicity in this example.
-builder.Services.AddDbContext<PizzaDb>(options => options.UseInMemoryDatabase("PizzaDbInMemory"));
+// Using an build services with the SQLite.
+builder.Services.AddSqlite<PizzaDb>(connectionString);
 
 // Add API explorer services. This is needed for tools like Swagger to discover API endpoints.
 builder.Services.AddEndpointsApiExplorer();
@@ -53,8 +54,6 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 // --- 3. Build the Application ---
 // Creates the WebApplication instance configured with the defined services.
 var app = builder.Build();
-
-var connectionString = builder.Configuration.GetConnectionString("Pizzas") ?? "Data Source=Pizzas.db";
 
 // Database seeding from JSON
 using (var scope = app.Services.CreateScope())
