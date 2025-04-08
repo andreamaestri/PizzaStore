@@ -12,8 +12,6 @@ namespace PizzaStore.Models
         public string? Name { get; set; }        public int BaseId { get; set; }
         public PizzaBase? Base { get; set; }
         
-        // Store toppings as JSON string - hidden from API responses
-        [JsonIgnore]
         public string? ToppingsJson { get; set; }
         
         [NotMapped]
@@ -31,8 +29,8 @@ namespace PizzaStore.Models
     {
         public int Id { get; set; }
         public string? Name { get; set; }
-        
-        // Navigation property
+          // Navigation property
+        [JsonIgnore]
         public List<Pizza> Pizzas { get; set; } = new List<Pizza>();
     }
     
