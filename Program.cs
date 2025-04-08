@@ -1,3 +1,4 @@
+using PizzaStore.Models;
 // Namespace for the PizzaStore database context and models.
 using  PizzaStore.DB;
 // Required for OpenApiInfo class used in Swagger setup.
@@ -9,10 +10,9 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // --- Service Configuration ---
-builder.Services.AddDbContext<PizzaDb>(options =>
-    options.UseInMemoryDatabase("PizzaStoreDB"));
 // Add API explorer services; needed for Swagger to discover minimal API endpoints.
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddDbContext<PizzaDb>(options => options.UseInMemoryDatabase("items"));
 // Add Swagger generator services to the dependency injection container.
 builder.Services.AddSwaggerGen(c =>
 {
