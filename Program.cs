@@ -30,9 +30,73 @@ builder.Services.AddSwaggerGen(c =>
     });
 });
 
+// Configure JSON serialization to ignore circular references and hide ToppingsJson
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    // Ignore cycles instead of preserving references
+    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    // Use camelCase property names to match JavaScript conventions
+    options.JsonSerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    // Add converter for ignoring ToppingsJson during serialization
+    options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+});
+
+// Configure JSON options for the minimal API endpoints
+builder.Services.ConfigureHttpJsonOptions(options =>
+{
+    // Ignore cycles instead of preserving references
+    options.SerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+    options.SerializerOptions.PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase;
+    options.SerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+});
+
 // --- 3. Build the Application ---
 // Creates the WebApplication instance configured with the defined services.
 var app = builder.Build();
+
+// Database seeding from JSON
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<PizzaDb>();
+    
+    if (!db.Pizzas.Any() && !db.Bases.Any())
+    {
+        try
+        {
+            // Read the JSON file content
+            var jsonData = File.ReadAllText("Pizza.json");
+            var options = new System.Text.Json.JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+            var data = System.Text.Json.JsonSerializer.Deserialize<PizzaJsonStructure>(jsonData, options);
+            
+            // Add bases
+            if (data?.bases != null)
+            {
+                db.Bases.AddRange(data.bases);
+                db.SaveChanges();
+            }
+            
+            // Add pizzas with their bases properly linked
+            if (data?.pizzas != null)
+            {
+                foreach (var pizza in data.pizzas)
+                {
+                    pizza.Base = db.Bases.Find(pizza.BaseId);
+                    db.Pizzas.Add(pizza);
+                }
+                db.SaveChanges();
+            }
+            
+            Console.WriteLine("Database seeded with JSON data!");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error seeding database: {ex.Message}");
+        }
+    }
+}
 
 // --- 4. HTTP Request Pipeline Configuration (Middleware) ---
 
@@ -65,14 +129,17 @@ app.MapGet("/", () => Results.Ok("Welcome to the PizzaStore API!"));
 // Group all pizza-related endpoints under the '/api/pizzas' prefix.
 var pizzaApi = app.MapGroup("/api/pizzas");
 
-// GET /api/pizzas - Retrieve all pizzas
+// GET /api/pizzas - Retrieve all pizzas with their related base
 pizzaApi.MapGet("/", async (PizzaDb db) =>
-    TypedResults.Ok(await db.Pizzas.ToListAsync()));
+    TypedResults.Ok(await db.Pizzas.Include(p => p.Base).ToListAsync()));
 
-// GET /api/pizzas/{id} - Retrieve a specific pizza by its ID
+// GET /api/pizzas/{id} - Retrieve a specific pizza by its ID with its base
 pizzaApi.MapGet("/{id:int}", async Task<Results<Ok<Pizza>, NotFound>> (PizzaDb db, int id) =>
 {
-    var pizza = await db.Pizzas.FindAsync(id);
+    var pizza = await db.Pizzas
+        .Include(p => p.Base)
+        .FirstOrDefaultAsync(p => p.Id == id);
+    
     return pizza is not null
         ? TypedResults.Ok(pizza)
         : TypedResults.NotFound();
@@ -137,6 +204,14 @@ pizzaApi.MapDelete("/{id:int}", async Task<Results<NoContent, NotFound>> (PizzaD
 // --- 6. Run the Application ---
 // Starts the web server and makes the application listen for incoming HTTP requests.
 app.Run();
+
+// --- JSON Structure Class ---
+// This class matches the structure of the Pizza.json file for deserialization
+public class PizzaJsonStructure
+{
+    public List<PizzaBase>? bases { get; set; }
+    public List<Pizza>? pizzas { get; set; }
+}
 
 // --- Helper Models (Assuming these are defined elsewhere, e.g., in Models folder) ---
 /*

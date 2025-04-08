@@ -2,17 +2,18 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace PizzaStore.Models
 {
     public class Pizza
     {
         public int Id { get; set; }
-        public string? Name { get; set; }
-        public int BaseId { get; set; }
+        public string? Name { get; set; }        public int BaseId { get; set; }
         public PizzaBase? Base { get; set; }
         
-        // Store toppings as JSON string
+        // Store toppings as JSON string - hidden from API responses
+        [JsonIgnore]
         public string? ToppingsJson { get; set; }
         
         [NotMapped]
