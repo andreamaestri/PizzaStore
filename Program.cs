@@ -167,7 +167,8 @@ pizzaApi.MapPut("/{id:int}", async Task<Results<Ok<Pizza>, NotFound, BadRequest>
     if (id != updatedPizza.Id)
     {
         // Ensure the ID in the route matches the ID in the body
-        return TypedResults.BadRequest();
+        return TypedResults.BadRequest();+
+        
     }
 
     var existingPizza = await db.Pizzas.FindAsync(id);
