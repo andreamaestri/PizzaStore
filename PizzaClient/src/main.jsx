@@ -8,47 +8,97 @@ import '@fontsource/roboto/700.css'
 import './index.css'
 import Dashboard from './Dashboard.jsx'
 
-// Create a theme instance
+// Create a theme instance with Material Design 3 principles
 const theme = createTheme({
   palette: {
     primary: {
-      main: '#d32f2f', // Pizza red
+      main: '#d32f2f',
       light: '#ff6659',
       dark: '#9a0007',
       contrastText: '#ffffff',
+      // MD3 tonal palette additions
+      container: '#ffdad6', // Light container color
+      onContainer: '#410002', // On container text color
     },
     secondary: {
-      main: '#388e3c', // Pizza green (for olives and peppers)
+      main: '#388e3c',
       light: '#6abf69',
       dark: '#00600f',
       contrastText: '#ffffff',
+      // MD3 tonal palette additions
+      container: '#b6f2af', // Light container color
+      onContainer: '#002105', // On container text color
     },
     background: {
-      default: '#f9f9f9', // Slightly off-white background
+      default: '#f9f9f9',
       paper: '#ffffff',
     },
     error: {
-      main: '#f44336',
+      main: '#ba1a1a',
+      light: '#cf4545',
+      dark: '#930012',
+      contrastText: '#ffffff',
+      container: '#ffdad6',
+      onContainer: '#410002',
     },
     warning: {
-      main: '#ff9800',
+      main: '#e58b00',
+      light: '#ffb951',
+      dark: '#a85f00',
+      contrastText: '#ffffff',
+      container: '#ffddb9',
+      onContainer: '#2a1800',
     },
     info: {
-      main: '#2196f3',
+      main: '#0061a4',
+      light: '#4585c5',
+      dark: '#003b6c',
+      contrastText: '#ffffff',
+      container: '#d1e4ff',
+      onContainer: '#001d36',
     },
     success: {
-      main: '#4caf50',
+      main: '#006e2e',
+      light: '#3a9a58',
+      dark: '#004618',
+      contrastText: '#ffffff',
+      container: '#98f7b1',
+      onContainer: '#00210a',
+    },
+    // MD3 surface tones
+    surface: {
+      main: '#fffbff',
+      dim: '#ddd8d9',
+      bright: '#fff8f8',
+      containerLow: 'rgba(0, 0, 0, 0.05)',
+      containerMedium: 'rgba(0, 0, 0, 0.08)',
+      containerHigh: 'rgba(0, 0, 0, 0.11)',
     },
   },
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+    h1: {
+      fontFamily: '"Product Sans", "Roboto", "Helvetica", "Arial", sans-serif',
+      fontWeight: 600,
+    },
+    h2: {
+      fontFamily: '"Product Sans", "Roboto", "Helvetica", "Arial", sans-serif',
+      fontWeight: 600,
+    },
+    h3: {
+      fontFamily: '"Product Sans", "Roboto", "Helvetica", "Arial", sans-serif',
+      fontWeight: 600,
+    },
     h4: {
-      fontWeight: 600, // Make headings a bit bolder
+      fontFamily: '"Product Sans", "Roboto", "Helvetica", "Arial", sans-serif',
+      fontWeight: 600,
     },
     h5: {
+      fontFamily: '"Product Sans", "Roboto", "Helvetica", "Arial", sans-serif',
       fontWeight: 600,
     },
     h6: {
+      fontFamily: '"Product Sans", "Roboto", "Helvetica", "Arial", sans-serif',
       fontWeight: 500,
     },
     button: {
@@ -62,13 +112,21 @@ const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 8, // Slightly more rounded corners for components
+    borderRadius: 16, // MD3 uses more rounded corners
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
-          textTransform: 'none', // Use normal case for buttons
+          textTransform: 'none',
+          borderRadius: 20, // MD3 buttons are more rounded
+          padding: '10px 24px',
+        },
+        contained: {
+          boxShadow: 'none', // MD3 reduces use of shadows
+        },
+        outlined: {
+          borderWidth: 1,
         },
       },
     },
@@ -76,48 +134,31 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           boxShadow: 'none',
-          borderRadius: 16, // More rounded corners for MD3
+          borderRadius: 24, // More rounded for MD3
         },
         outlined: {
           borderColor: 'rgba(0, 0, 0, 0.08)',
         },
         elevation1: {
-          boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.08), 0px 1px 2px rgba(0, 0, 0, 0.05)',
+          boxShadow: '0px 1px 2px rgba(0, 0, 0, 0.3), 0px 1px 3px 1px rgba(0, 0, 0, 0.15)', // MD3 shadow
         },
         elevation2: {
-          boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.06), 0px 2px 4px rgba(0, 0, 0, 0.04)',
+          boxShadow: '0px 2px 6px rgba(0, 0, 0, 0.15), 0px 1px 2px rgba(0, 0, 0, 0.3)', // MD3 shadow
         },
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 16, // MD3 uses more rounded cards
+          borderRadius: 16,
           padding: 8,
-        },
-      },
-    },
-    MuiButton: {
-      styleOverrides: {
-        root: {
-          textTransform: 'none',
-          borderRadius: 20, // Pill-shaped buttons for MD3
-          paddingLeft: 16,
-          paddingRight: 16,
-          fontWeight: 500,
-        },
-        contained: {
-          boxShadow: 'none',
-          '&:hover': {
-            boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.06), 0px 2px 4px rgba(0, 0, 0, 0.04)',
-          },
         },
       },
     },
     MuiTableHead: {
       styleOverrides: {
         root: {
-          backgroundColor: 'rgba(211, 47, 47, 0.04)', // Lighter primary for table headers
+          backgroundColor: 'rgba(211, 47, 47, 0.04)',
           '& .MuiTableCell-head': {
             fontWeight: 600,
             color: 'rgba(0, 0, 0, 0.87)',
@@ -148,7 +189,7 @@ const theme = createTheme({
     MuiChip: {
       styleOverrides: {
         root: {
-          borderRadius: 8, // Less rounded chips for MD3
+          borderRadius: 8,
         },
         outlined: {
           borderColor: 'rgba(0, 0, 0, 0.12)',
@@ -159,7 +200,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: 12, // More rounded inputs for MD3
+            borderRadius: 12,
             '& fieldset': {
               borderColor: 'rgba(0, 0, 0, 0.12)',
             },
@@ -173,13 +214,33 @@ const theme = createTheme({
     MuiListItem: {
       styleOverrides: {
         root: {
-          borderRadius: 12, // Rounded list items
+          borderRadius: 28, // MD3 uses more rounded corners for list items
           '&.Mui-selected': {
             backgroundColor: 'rgba(211, 47, 47, 0.08)',
-            borderLeft: '4px solid #d32f2f',
             '&:hover': {
               backgroundColor: 'rgba(211, 47, 47, 0.12)',
             },
+          },
+        },
+      },
+    },
+    MuiListItemButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: 28, // MD3 uses more rounded corners
+          '&.Mui-selected': {
+            backgroundColor: theme => theme.palette.primary.container || 'rgba(211, 47, 47, 0.08)',
+            color: theme => theme.palette.primary.onContainer || theme.palette.primary.main,
+            '&:hover': {
+              backgroundColor: theme => theme.palette.primary.container || 'rgba(211, 47, 47, 0.12)',
+              opacity: 0.9,
+            },
+            '& .MuiListItemIcon-root': {
+              color: theme => theme.palette.primary.main,
+            },
+          },
+          '&:hover': {
+            backgroundColor: 'rgba(0, 0, 0, 0.04)',
           },
         },
       },
@@ -190,11 +251,15 @@ const theme = createTheme({
           boxShadow: 'none',
         },
       },
+      defaultProps: {
+        color: 'default', // MD3 often uses surface colors for app bars
+      },
     },
     MuiDrawer: {
       styleOverrides: {
         paper: {
           borderRight: '1px solid rgba(0, 0, 0, 0.08)',
+          backgroundColor: theme => theme.palette.background.paper,
         },
       },
     },
@@ -208,7 +273,34 @@ const theme = createTheme({
     MuiAvatar: {
       styleOverrides: {
         root: {
-          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
+          boxShadow: 'none', // MD3 reduces use of shadows
+        },
+      },
+    },
+    MuiIconButton: {
+      styleOverrides: {
+        root: {
+          borderRadius: '50%', // Ensure perfect circles for icon buttons
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8,
+          height: 32, // MD3 chips are slightly taller
+        },
+        filled: {
+          backgroundColor: theme => theme.palette.primary.container,
+          color: theme => theme.palette.primary.onContainer,
+          '&.MuiChip-colorPrimary': {
+            backgroundColor: theme => theme.palette.primary.container,
+            color: theme => theme.palette.primary.onContainer,
+          },
+          '&.MuiChip-colorSecondary': {
+            backgroundColor: theme => theme.palette.secondary.container,
+            color: theme => theme.palette.secondary.onContainer,
+          },
         },
       },
     },

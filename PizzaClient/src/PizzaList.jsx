@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { 
   Box, Grid, Typography, TextField, Button, Card, CardContent, 
   Stack, Chip, IconButton, Divider, MenuItem, Select,
   InputLabel, FormControl, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, Paper, InputAdornment,
   Tooltip, Dialog, DialogActions, DialogContent, DialogContentText,
-  DialogTitle, Alert, InputBase, alpha, Fab
+  DialogTitle, Alert, InputBase, alpha, Fab, Autocomplete, CircularProgress
 } from '@mui/material';
 import { 
   Add as AddIcon, 
@@ -27,13 +27,63 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     toppings: [] 
   });
   const [editingId, setEditingId] = useState(null);
-  const [bases] = useState([
-    { id: 1, name: 'Regular' },
-    { id: 2, name: 'Thin Crust' },
-    { id: 3, name: 'Cheese Stuffed' },
-    { id: 4, name: 'Garlic Crust' },
-  ]);
-  const [toppingInput, setToppingInput] = useState('');
+  const [bases, setBases] = useState([]);
+  const [basesLoading, setBasesLoading] = useState(true);
+  const [toppingSuggestions, setToppingSuggestions] = useState([]);
+  
+  // Fetch pizza bases from API
+  useEffect(() => {
+    const fetchBases = async () => {
+      try {
+        // Assuming the bases API endpoint follows RESTful conventions
+        const response = await fetch('/api/bases');
+        if (!response.ok) {
+          throw new Error('Failed to fetch bases');
+        }
+        const basesData = await response.json();
+        setBases(basesData);
+      } catch (error) {
+        console.error('Error fetching pizza bases:', error);
+        // Fallback to default bases if API fails
+        setBases([
+          { id: 1, name: 'Tomato Sauce & Mozzarella' },
+          { id: 2, name: 'Saffron Tomato Base' },
+          { id: 3, name: 'Garlic Cream Base' },
+        ]);
+      } finally {
+        setBasesLoading(false);
+      }
+    };
+
+    fetchBases();
+  }, []);
+  
+  // Extract unique toppings from existing pizzas for suggestions
+  useEffect(() => {
+    if (data && data.length > 0) {
+      // Collect all toppings from existing pizzas
+      const allToppings = data
+        .flatMap(pizza => pizza.toppings || [])
+        .filter(topping => topping); // Filter out any null/undefined values
+      
+      // Create a Set to get unique toppings and convert back to array
+      const uniqueToppings = [...new Set(allToppings)];
+      
+      // Add some common toppings if the list is small
+      const commonToppings = [
+        'Mozzarella', 'Pepperoni', 'Mushrooms', 'Bell Peppers', 'Onions', 
+        'Sausage', 'Bacon', 'Ham', 'Pineapple', 'Olives', 'Basil', 
+        'Tomatoes', 'Spinach', 'Garlic', 'Chicken', 'Ground Beef'
+      ];
+      
+      // Combine unique toppings from existing pizzas with common ones
+      // but prioritize the ones from the database
+      setToppingSuggestions([
+        ...uniqueToppings,
+        ...commonToppings.filter(t => !uniqueToppings.includes(t))
+      ]);
+    }
+  }, [data]);
   const [formErrors, setFormErrors] = useState({});
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
@@ -69,24 +119,15 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
       }));
     }
   };
-
-  const handleAddTopping = () => {
-    if (toppingInput.trim()) {
-      setFormData(prevData => ({
-        ...prevData,
-        toppings: [...prevData.toppings, toppingInput.trim()]
-      }));
-      setToppingInput('');
-    }
-  };
-
+  // These functions are no longer needed since the Autocomplete component 
+  // handles adding and removing toppings directly
+  // But we keep handleRemoveTopping for backward compatibility if needed
   const handleRemoveTopping = (index) => {
     setFormData(prevData => ({
       ...prevData,
       toppings: prevData.toppings.filter((_, i) => i !== index)
     }));
   };
-
   const handleSubmit = (event) => {
     event.preventDefault();
     
@@ -102,8 +143,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     }
     
     setFormData({ id: '', name: '', description: '', baseId: 1, toppings: [] });
-    setToppingInput('');
-  };  
+  };
 
   const handleEdit = (item) => {
     setEditingId(item.id);
@@ -213,61 +253,53 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     ))}
                   </Select>
                 </FormControl>
-                
-                <Box>
+                  <Box>
                   <Typography variant="subtitle2" gutterBottom color="text.secondary">
                     Toppings
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
-                    <TextField
-                      size="small"
-                      value={toppingInput}
-                      onChange={(e) => setToppingInput(e.target.value)}
-                      placeholder="Add a topping"
-                      variant="outlined"
-                      fullWidth
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton
-                              onClick={handleAddTopping}
-                              edge="end"
-                              color="primary"
-                              disabled={!toppingInput.trim()}
-                              size="small"
-                            >
-                              <AddIcon />
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && toppingInput.trim()) {
-                          e.preventDefault();
-                          handleAddTopping();
-                        }
-                      }}
-                    />
-                  </Box>
-                  
-                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.8 }}>
-                    {formData.toppings.length === 0 ? (
-                      <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                        No toppings added yet
-                      </Typography>
-                    ) : (
-                      formData.toppings.map((topping, index) => (
+                  </Typography>                  <Autocomplete
+                    multiple
+                    id="toppings-autocomplete"
+                    size="small"
+                    options={toppingSuggestions}
+                    value={formData.toppings}
+                    onChange={(event, newValue) => {
+                      setFormData(prev => ({
+                        ...prev,
+                        toppings: newValue
+                      }));
+                    }}
+                    freeSolo
+                    renderTags={(value, getTagProps) =>
+                      value.map((option, index) => (
                         <Chip
-                          key={index}
-                          label={topping}
-                          onDelete={() => handleRemoveTopping(index)}
-                          color="primary"
                           variant="outlined"
+                          label={option}
                           size="small"
+                          color="primary"
+                          {...getTagProps({ index })}
                         />
                       ))
+                    }
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        variant="outlined"
+                        placeholder={formData.toppings.length === 0 ? "Select or add toppings" : ""}
+                        fullWidth
+                      />
                     )}
-                  </Box>
+                    sx={{
+                      '& .MuiOutlinedInput-root': {
+                        padding: '4px 8px',
+                        borderRadius: 2,
+                      }
+                    }}
+                  />
+                  {formData.toppings.length === 0 && (
+                    <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', mt: 1, fontSize: '0.75rem' }}>
+                      Select from suggested toppings or type your own and press Enter
+                    </Typography>
+                  )}
                 </Box>
                 
                 <Box sx={{ pt: 1, display: 'flex', gap: 2 }}>
