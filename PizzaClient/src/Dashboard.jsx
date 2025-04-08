@@ -464,7 +464,6 @@ function Dashboard() {
       );
     });
   };
-
   // --- Main Return ---
   return (
     <Box
@@ -474,105 +473,19 @@ function Dashboard() {
         overflow: "hidden",
         bgcolor: "background.default",
       }}
-    >
-      {/* --- App Bar --- */}
-      <AppBar position="absolute" open={open && !isMobile}>
-        {" "}
-        {/* Pass open state */}
-        <Toolbar sx={{ pr: "24px" }}>
-          {" "}
-          {/* Keep right padding when drawer closed */}
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="open drawer"
-            onClick={handleDrawerToggle}
-            sx={{
-              marginRight: "36px",
-              ...(open && !isMobile && { display: "none" }), // Hide when drawer open on desktop
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
-          {/* App Title - Can be dynamic */}
-          <Typography
-            component="h1"
-            variant="h6"
-            color="inherit"
-            noWrap
-            sx={{ flexGrow: 1, fontWeight: 600 }} // Use theme font implicitly
-          >
-            {navigationState.find((item) => item.index === selectedIndex)
-              ?.text || "Dashboard"}
-          </Typography>
-          {/* Toolbar Actions Slot */}
-          <CustomToolbarActions />
-          {/* Account Menu */}
-          <Tooltip title="Account settings">
-            <IconButton onClick={handleProfileOpen} sx={{ ml: 1 }}>
-              <Avatar
-                sx={{
-                  width: 32,
-                  height: 32,
-                  bgcolor: "secondary.main",
-                  color: "secondary.contrastText",
-                  fontSize: "0.875rem",
-                }}
-              >
-                A {/* Replace with user initial */}
-              </Avatar>
-            </IconButton>
-          </Tooltip>
-          <Menu
-            anchorEl={profileAnchorEl}
-            open={Boolean(profileAnchorEl)}
-            onClose={handleProfileClose}
-            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-            transformOrigin={{ vertical: "top", horizontal: "right" }}
-            sx={{ mt: 1 }}
-          >
-            <MenuItem onClick={handleProfileClose}>Profile</MenuItem>
-            <MenuItem onClick={handleProfileClose}>My account</MenuItem>
-            <Divider />
-            <MenuItem onClick={handleProfileClose}>Logout</MenuItem>
-          </Menu>
-          {/* Notifications Menu */}
-          <Menu
-            anchorEl={notificationsAnchorEl}
-            open={Boolean(notificationsAnchorEl)}
-            onClose={handleNotificationsClose}
-            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-            transformOrigin={{ vertical: "top", horizontal: "right" }}
-            sx={{ mt: 1 }}
-          >
-            <MenuItem onClick={handleNotificationsClose}>
-              New Order #1234
-            </MenuItem>
-            <MenuItem onClick={handleNotificationsClose}>
-              New Customer Registered
-            </MenuItem>
-            <MenuItem onClick={handleNotificationsClose}>
-              Order #1230 Delivered
-            </MenuItem>
-            <MenuItem onClick={handleNotificationsClose}>
-              Low Inventory Alert
-            </MenuItem>
-          </Menu>
-        </Toolbar>
-      </AppBar>
-
-      {/* --- Drawer --- */}
+    >{/* --- Drawer --- */}
       <Drawer variant="permanent" open={open}>
         {" "}
         {/* Control open state */}
         {/* Drawer Header / Branding */}
-        <Toolbar
+        <Box
           sx={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between", // Space between logo/title and icon
             px: [1], // Padding left/right
-            ...theme.mixins.toolbar, // Necessary height
+            height: 64, // Match the AppBar height
+            minHeight: 64, // Ensure consistent height
           }}
         >
           {/* Show Logo/Title when open */}
@@ -596,7 +509,7 @@ function Dashboard() {
             {/* Show ChevronLeft when open, Menu when closed (and drawer is persistent) */}
             {open ? <ChevronLeftIcon /> : <MenuIcon />}
           </IconButton>
-        </Toolbar>
+        </Box>
         <Divider />
         {/* Navigation List */}
         <List component="nav" sx={{ flexGrow: 1, pt: 1 }}>
@@ -622,9 +535,8 @@ function Dashboard() {
           display: "flex",
           flexDirection: "column",
         }}
-      >
-        {/* Spacer for AppBar */}
-        <Toolbar />
+      >        {/* Spacer for AppBar - using Box instead of Toolbar */}
+        <Box sx={{ height: 64 }} /> {/* Match AppBar height */}
         {/* Content Area with Padding */}
         <Container maxWidth="xl" sx={{ pt: 2, pb: 4, flexGrow: 1 }}>
           {/* Breadcrumbs */}
@@ -656,21 +568,6 @@ function Dashboard() {
               </Box>
             </Typography>
           </Breadcrumbs>
-
-          {/* Main Content Paper - Let content determine height */}
-          <Paper
-            elevation={0} // Flat surface
-            sx={{
-              p: { xs: 2, md: 3 }, // Responsive padding
-              borderRadius: 3, // M3 medium radius
-              // Use surface color from theme
-              backgroundColor: "background.paper",
-              border: "1px solid",
-              borderColor: "divider",
-              // Let content define height, remove fixed height
-              // height: '100%',
-            }}
-          >
             {/* Render selected component or placeholder */}
             {navigationState.find((item) => item.index === selectedIndex)
               ?.component || (
@@ -682,7 +579,6 @@ function Dashboard() {
                 </Typography>
               </Box>
             )}
-          </Paper>
         </Container>
       </Box>
     </Box>

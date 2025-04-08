@@ -1,26 +1,40 @@
-import { useState } from 'react';
+import { useState } from "react";
 import {
-  AppBar, Toolbar, Typography, Box, Drawer, List, ListItem,
-  ListItemIcon, ListItemText, Container, Paper, IconButton, Divider,
-  Avatar, useTheme, useMediaQuery, ListItemButton // Import ListItemButton
-} from '@mui/material';
+  AppBar,
+  Toolbar,
+  Typography,
+  Box,
+  Drawer,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Container,
+  Paper,
+  IconButton,
+  Divider,
+  Avatar,
+  useTheme,
+  useMediaQuery,
+  ListItemButton, // Import ListItemButton
+} from "@mui/material";
 import {
   LocalPizza as PizzaIcon,
   Dashboard as DashboardIcon,
   Menu as MenuIcon,
   Receipt as OrdersIcon,
   People as CustomersIcon,
-  Settings as SettingsIcon
-} from '@mui/icons-material';
-import './App.css'; // Keep your existing CSS for now
-import Pizza from './Pizza'; // Assuming Pizza component exists
+  Settings as SettingsIcon,
+} from "@mui/icons-material";
+import "./App.css";
+import Pizza from "./Pizza";
 
 const drawerWidth = 240;
 
 function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [selectedIndex, setSelectedIndex] = useState(0); // State to track selected item
 
   const handleDrawerToggle = () => {
@@ -38,41 +52,53 @@ function App() {
 
   // Define navigation items
   const navItems = [
-    { text: 'Dashboard', icon: <DashboardIcon />, index: 0 },
-    { text: 'Pizza Menu', icon: <PizzaIcon />, index: 1 },
-    { text: 'Orders', icon: <OrdersIcon />, index: 2 },
-    { text: 'Customers', icon: <CustomersIcon />, index: 3 },
+    { text: "Dashboard", icon: <DashboardIcon />, index: 0 },
+    { text: "Pizza Menu", icon: <PizzaIcon />, index: 1 },
+    { text: "Orders", icon: <OrdersIcon />, index: 2 },
+    { text: "Customers", icon: <CustomersIcon />, index: 3 },
   ];
 
-  const settingsItem = { text: 'Settings', icon: <SettingsIcon />, index: 4 };
+  const settingsItem = { text: "Settings", icon: <SettingsIcon />, index: 4 };
 
   // M3 Inspired Styling for selected ListItemButton
   const selectedItemStyles = {
     // Use a container color - approximate with secondary or primary light/alpha
     // Ideally, define theme.palette.secondary.container or theme.palette.primary.container
-    backgroundColor: theme.palette.mode === 'dark'
-      ? theme.palette.secondary.dark // Example dark mode color
-      : theme.palette.secondary.light, // Example light mode color (adjust as needed)
+    backgroundColor:
+      theme.palette.mode === "dark"
+        ? theme.palette.secondary.dark // Example dark mode color
+        : theme.palette.secondary.light, // Example light mode color (adjust as needed)
     // M3 uses significantly rounded corners for the selection indicator
     borderRadius: theme.shape.borderRadius * 5, // e.g., 4 * 5 = 20px
-    '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+    "& .MuiListItemIcon-root, & .MuiListItemText-primary": {
       // Ensure icon and text color contrast well with the background
-      color: theme.palette.secondary.contrastText || theme.palette.getContrastText(theme.palette.secondary.light),
+      color:
+        theme.palette.secondary.contrastText ||
+        theme.palette.getContrastText(theme.palette.secondary.light),
       fontWeight: 500, // Keep text slightly bolder when selected
     },
     // Hover effect slightly different when selected
-    '&:hover': {
-       backgroundColor: theme.palette.mode === 'dark'
-        ? theme.palette.secondary.dark // Keep same color or slightly darker/lighter
-        : theme.palette.secondary.light,
-       opacity: 0.9, // Slight visual feedback on hover
-    }
+    "&:hover": {
+      backgroundColor:
+        theme.palette.mode === "dark"
+          ? theme.palette.secondary.dark // Keep same color or slightly darker/lighter
+          : theme.palette.secondary.light,
+      opacity: 0.9, // Slight visual feedback on hover
+    },
   };
 
   const drawer = (
     <>
       {/* Drawer Header */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', p: 2, pt: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          p: 2,
+          pt: 3,
+        }}
+      >
         <Avatar
           sx={{
             width: 64,
@@ -80,7 +106,7 @@ function App() {
             // Use theme colors if possible
             bgcolor: theme.palette.primary.main,
             color: theme.palette.primary.contrastText,
-            mb: 1.5
+            mb: 1.5,
           }}
         >
           <PizzaIcon sx={{ fontSize: 36 }} />
@@ -90,29 +116,42 @@ function App() {
         </Typography>
       </Box>
       {/* Use a subtle divider */}
-      <Divider sx={{ borderColor: 'divider', mx: 2, my: 1 }} />
+      <Divider sx={{ borderColor: "divider", mx: 2, my: 1 }} />
 
       {/* Main Navigation List */}
-      <List sx={{ px: 2 }}> {/* Add horizontal padding to the list */}
+      <List sx={{ px: 2 }}>
+        {" "}
+        {/* Add horizontal padding to the list */}
         {navItems.map((item) => (
-          <ListItem key={item.index} disablePadding sx={{ mb: 1 }}> {/* Add margin bottom */}
+          <ListItem key={item.index} disablePadding sx={{ mb: 1 }}>
+            {" "}
+            {/* Add margin bottom */}
             <ListItemButton
               selected={selectedIndex === item.index}
               onClick={() => handleListItemClick(item.index)}
               // Apply M3 styles when selected
-              sx={selectedIndex === item.index ? selectedItemStyles : {
-                borderRadius: theme.shape.borderRadius * 5, // Apply consistent border radius on hover too
-                '&:hover': { // Subtle hover for non-selected items
-                    backgroundColor: theme.palette.action.hover
-                }
-              }}
+              sx={
+                selectedIndex === item.index
+                  ? selectedItemStyles
+                  : {
+                      borderRadius: theme.shape.borderRadius * 5, // Apply consistent border radius on hover too
+                      "&:hover": {
+                        // Subtle hover for non-selected items
+                        backgroundColor: theme.palette.action.hover,
+                      },
+                    }
+              }
             >
-              <ListItemIcon sx={{ minWidth: 40 }}> {/* Adjust icon spacing */}
+              <ListItemIcon sx={{ minWidth: 40 }}>
+                {" "}
+                {/* Adjust icon spacing */}
                 {item.icon}
               </ListItemIcon>
               <ListItemText
                 primary={item.text}
-                primaryTypographyProps={{ fontWeight: selectedIndex === item.index ? 500 : 400 }} // Adjust weight
+                primaryTypographyProps={{
+                  fontWeight: selectedIndex === item.index ? 500 : 400,
+                }} // Adjust weight
               />
             </ListItemButton>
           </ListItem>
@@ -120,27 +159,35 @@ function App() {
       </List>
 
       {/* Divider before settings */}
-      <Divider sx={{ borderColor: 'divider', mx: 2, my: 1 }} />
+      <Divider sx={{ borderColor: "divider", mx: 2, my: 1 }} />
 
       {/* Settings List (pushes to bottom) */}
-      <List sx={{ px: 2, mt: 'auto' }}> {/* mt: 'auto' pushes this list down */}
+      <List sx={{ px: 2, mt: "auto" }}>
+        {" "}
+        {/* mt: 'auto' pushes this list down */}
         <ListItem key={settingsItem.index} disablePadding sx={{ mb: 1 }}>
           <ListItemButton
             selected={selectedIndex === settingsItem.index}
             onClick={() => handleListItemClick(settingsItem.index)}
-            sx={selectedIndex === settingsItem.index ? selectedItemStyles : {
-              borderRadius: theme.shape.borderRadius * 5,
-              '&:hover': {
-                  backgroundColor: theme.palette.action.hover
-              }
-            }}
+            sx={
+              selectedIndex === settingsItem.index
+                ? selectedItemStyles
+                : {
+                    borderRadius: theme.shape.borderRadius * 5,
+                    "&:hover": {
+                      backgroundColor: theme.palette.action.hover,
+                    },
+                  }
+            }
           >
             <ListItemIcon sx={{ minWidth: 40 }}>
               {settingsItem.icon}
             </ListItemIcon>
             <ListItemText
               primary={settingsItem.text}
-              primaryTypographyProps={{ fontWeight: selectedIndex === settingsItem.index ? 500 : 400 }}
+              primaryTypographyProps={{
+                fontWeight: selectedIndex === settingsItem.index ? 500 : 400,
+              }}
             />
           </ListItemButton>
         </ListItem>
@@ -149,57 +196,9 @@ function App() {
   );
 
   return (
-    <Box sx={{ display: 'flex', bgcolor: 'background.default' }}> {/* Ensure main background is set */}
-      <AppBar
-        position="fixed"
-        // M3 often uses surface colors, elevation might be 0 with a border or subtle
-        elevation={0} // Try elevation 0 for a flatter M3 look
-        sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 1,
-          // Use theme background color for AppBar surface
-          backgroundColor: theme.palette.background.paper,
-          // Add a subtle border if elevation is 0
-          borderBottom: `1px solid ${theme.palette.divider}`,
-          // Ensure text/icons have contrast
-          color: theme.palette.text.primary
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            color="inherit"
-            aria-label="open drawer"
-            edge="start"
-            onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
-          >
-            <MenuIcon />
-          </IconButton>
-          {/* Keep the rest of the Toolbar content */}
-          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-            {!isMobile && (
-              <Avatar
-                sx={{
-                  bgcolor: 'primary.main',
-                  color: 'primary.contrastText',
-                  mr: 1.5, // Adjusted margin
-                  width: 36, // Slightly smaller avatar in app bar
-                  height: 36
-                }}
-              >
-                {/* Ensure icon size fits */}
-                <PizzaIcon sx={{ fontSize: 20 }} />
-              </Avatar>
-            )}
-            <Typography variant="h6" noWrap component="div" fontWeight="600" color="text.primary">
-              {/* Use a more concise title potentially */}
-              Pizza Dashboard
-            </Typography>
-          </Box>
-          {/* Add any AppBar actions (e.g., profile menu) here */}
-          {/* <Box sx={{ flexGrow: 1 }} /> */}
-        </Toolbar>
-      </AppBar>
-
+    <Box sx={{ display: "flex", bgcolor: "background.default" }}>
+      {" "}
+      {/* Ensure main background is set */}
       {/* Navigation Drawer */}
       <Box
         component="nav"
@@ -213,14 +212,14 @@ function App() {
           onClose={handleDrawerToggle}
           ModalProps={{ keepMounted: true }} // Better open performance on mobile.
           sx={{
-            display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
+            display: { xs: "block", sm: "none" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
               width: drawerWidth,
               // M3 Drawers often don't have a border, relying on elevation/scrim
-              borderRight: 'none',
+              borderRight: "none",
               // Use surface color
-              backgroundColor: 'background.paper'
+              backgroundColor: "background.paper",
             },
           }}
         >
@@ -230,14 +229,14 @@ function App() {
         <Drawer
           variant="permanent"
           sx={{
-            display: { xs: 'none', sm: 'block' },
-            '& .MuiDrawer-paper': {
-              boxSizing: 'border-box',
+            display: { xs: "none", sm: "block" },
+            "& .MuiDrawer-paper": {
+              boxSizing: "border-box",
               width: drawerWidth,
               // M3 Drawers often don't have a border
-              borderRight: 'none',
-               // Use surface color
-              backgroundColor: 'background.paper'
+              borderRight: "none",
+              // Use surface color
+              backgroundColor: "background.paper",
             },
           }}
           open
@@ -245,7 +244,6 @@ function App() {
           {drawer}
         </Drawer>
       </Box>
-
       {/* Main Content Area */}
       <Box
         component="main"
@@ -255,27 +253,16 @@ function App() {
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           // Ensure content starts below the AppBar
           mt: `64px`, // Adjust if AppBar height changes
-          minHeight: 'calc(100vh - 64px)', // Fill viewport height
+          minHeight: "calc(100vh - 64px)", // Fill viewport height
           // Background color set by parent Box now
         }}
       >
         {/* Use Container for centering and max-width */}
-        <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2 } }}> {/* Adjust padding */}
-          {/* Example Content Paper - Use elevation or outlined based on needs */}
-          <Paper
-            elevation={0} // Use elevation 0 or small values like 1 or 2
-            // variant="outlined" // Alternatively use outlined variant
-            sx={{
-              p: { xs: 2, sm: 3 }, // Responsive padding
-              // Apply M3-like border radius (adjust based on theme)
-              borderRadius: theme.shape.borderRadius * 3, // e.g., 4 * 3 = 12px
-              // Ensure paper background stands out from page background
-              backgroundColor: 'background.paper'
-            }}
-          >
-            {/* Render your main page content here */}
-            <Pizza />
-          </Paper>
+        <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2 } }}>
+          {" "}
+          {/* Adjust padding */}
+          {/* Render your main page content here */}
+          <Pizza />
         </Container>
       </Box>
     </Box>
@@ -283,4 +270,3 @@ function App() {
 }
 
 export default App;
-
