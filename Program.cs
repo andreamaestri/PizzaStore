@@ -54,6 +54,8 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 // Creates the WebApplication instance configured with the defined services.
 var app = builder.Build();
 
+var connectionString = builder.Configuration.GetConnectionString("Pizzas") ?? "Data Source=Pizzas.db";
+
 // Database seeding from JSON
 using (var scope = app.Services.CreateScope())
 {
