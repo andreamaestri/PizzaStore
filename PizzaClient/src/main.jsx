@@ -6,7 +6,7 @@ import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
 import '@fontsource/roboto/700.css'
 import './index.css'
-import App from './App.jsx'
+import Dashboard from './Dashboard.jsx'
 
 // Create a theme instance
 const theme = createTheme({
@@ -75,15 +75,53 @@ const theme = createTheme({
     MuiPaper: {
       styleOverrides: {
         root: {
-          // Subtle shadow as default
-          boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.1)',
+          boxShadow: 'none',
+          borderRadius: 16, // More rounded corners for MD3
+        },
+        outlined: {
+          borderColor: 'rgba(0, 0, 0, 0.08)',
+        },
+        elevation1: {
+          boxShadow: '0px 1px 3px rgba(0, 0, 0, 0.08), 0px 1px 2px rgba(0, 0, 0, 0.05)',
+        },
+        elevation2: {
+          boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.06), 0px 2px 4px rgba(0, 0, 0, 0.04)',
+        },
+      },
+    },
+    MuiCard: {
+      styleOverrides: {
+        root: {
+          borderRadius: 16, // MD3 uses more rounded cards
+          padding: 8,
+        },
+      },
+    },
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          textTransform: 'none',
+          borderRadius: 20, // Pill-shaped buttons for MD3
+          paddingLeft: 16,
+          paddingRight: 16,
+          fontWeight: 500,
+        },
+        contained: {
+          boxShadow: 'none',
+          '&:hover': {
+            boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.06), 0px 2px 4px rgba(0, 0, 0, 0.04)',
+          },
         },
       },
     },
     MuiTableHead: {
       styleOverrides: {
         root: {
-          backgroundColor: 'rgba(211, 47, 47, 0.08)', // Lighter primary for table headers
+          backgroundColor: 'rgba(211, 47, 47, 0.04)', // Lighter primary for table headers
+          '& .MuiTableCell-head': {
+            fontWeight: 600,
+            color: 'rgba(0, 0, 0, 0.87)',
+          },
         },
       },
     },
@@ -94,7 +132,40 @@ const theme = createTheme({
             borderBottom: 0,
           },
           '&:hover': {
-            backgroundColor: 'rgba(0, 0, 0, 0.04)',
+            backgroundColor: 'rgba(0, 0, 0, 0.02)',
+          },
+        },
+      },
+    },
+    MuiTableCell: {
+      styleOverrides: {
+        root: {
+          borderColor: 'rgba(0, 0, 0, 0.06)',
+          padding: '16px',
+        },
+      },
+    },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: 8, // Less rounded chips for MD3
+        },
+        outlined: {
+          borderColor: 'rgba(0, 0, 0, 0.12)',
+        },
+      },
+    },
+    MuiTextField: {
+      styleOverrides: {
+        root: {
+          '& .MuiOutlinedInput-root': {
+            borderRadius: 12, // More rounded inputs for MD3
+            '& fieldset': {
+              borderColor: 'rgba(0, 0, 0, 0.12)',
+            },
+            '&:hover fieldset': {
+              borderColor: 'rgba(0, 0, 0, 0.24)',
+            },
           },
         },
       },
@@ -102,13 +173,42 @@ const theme = createTheme({
     MuiListItem: {
       styleOverrides: {
         root: {
+          borderRadius: 12, // Rounded list items
           '&.Mui-selected': {
-            backgroundColor: 'rgba(211, 47, 47, 0.12)',
+            backgroundColor: 'rgba(211, 47, 47, 0.08)',
             borderLeft: '4px solid #d32f2f',
             '&:hover': {
-              backgroundColor: 'rgba(211, 47, 47, 0.18)',
+              backgroundColor: 'rgba(211, 47, 47, 0.12)',
             },
           },
+        },
+      },
+    },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          boxShadow: 'none',
+        },
+      },
+    },
+    MuiDrawer: {
+      styleOverrides: {
+        paper: {
+          borderRight: '1px solid rgba(0, 0, 0, 0.08)',
+        },
+      },
+    },
+    MuiDivider: {
+      styleOverrides: {
+        root: {
+          borderColor: 'rgba(0, 0, 0, 0.06)',
+        },
+      },
+    },
+    MuiAvatar: {
+      styleOverrides: {
+        root: {
+          boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)',
         },
       },
     },
@@ -119,7 +219,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline /> {/* Normalize CSS */}
-      <App />
+      <Dashboard />
     </ThemeProvider>
   </StrictMode>,
 )
