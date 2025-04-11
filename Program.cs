@@ -163,11 +163,10 @@ pizzaApi.MapPost("/", async Task<Results<Created<Pizza>, BadRequest>> (PizzaDb d
 
 // PUT /api/pizzas/{id} - Update an existing pizza
 pizzaApi.MapPut("/{id:int}", async Task<Results<Ok<Pizza>, NotFound, BadRequest>> (PizzaDb db, int id, Pizza updatedPizza) =>
-{
-    if (id != updatedPizza.Id)
+{    if (id != updatedPizza.Id)
     {
         // Ensure the ID in the route matches the ID in the body
-        return TypedResults.BadRequest();+
+        return TypedResults.BadRequest();
         
     }
 
@@ -192,14 +191,28 @@ pizzaApi.MapDelete("/{id:int}", async Task<Results<NoContent, NotFound>> (PizzaD
     if (pizza is null)
     {
         return TypedResults.NotFound();
-    }
-
-    db.Pizzas.Remove(pizza);
+    }    db.Pizzas.Remove(pizza);
     await db.SaveChangesAsync();
     // Return a 204 No Content status indicating successful deletion.
     return TypedResults.NoContent();
 });
 
+// Create a new endpoint group for pizza bases
+var basesApi = app.MapGroup("/api/bases");
+
+// GET /api/bases - Retrieve all pizza bases
+basesApi.MapGet("/", async (PizzaDb db) =>
+    TypedResults.Ok(await db.Bases.ToListAsync()));
+
+// GET /api/bases/{id} - Retrieve a specific base by ID
+basesApi.MapGet("/{id:int}", async Task<Results<Ok<PizzaBase>, NotFound>> (PizzaDb db, int id) =>
+{
+    var pizzaBase = await db.Bases.FindAsync(id);
+    
+    return pizzaBase is not null
+        ? TypedResults.Ok(pizzaBase)
+        : TypedResults.NotFound();
+});
 
 // --- 6. Run the Application ---
 // Starts the web server and makes the application listen for incoming HTTP requests.

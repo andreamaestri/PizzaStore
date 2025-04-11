@@ -232,13 +232,12 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                   size="small"
                   placeholder="Describe your pizza..."
                 />
-                
-                <FormControl fullWidth size="small">
+                  <FormControl fullWidth size="small">
                   <InputLabel id="base-select-label">Pizza Base</InputLabel>
                   <Select
                     labelId="base-select-label"
                     name="baseId"
-                    value={formData.baseId}
+                    value={bases.some(base => base.id === formData.baseId) ? formData.baseId : ''}
                     label="Pizza Base"
                     onChange={(e) => {
                       const baseId = parseInt(e.target.value, 10);
@@ -247,10 +246,21 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                         baseId
                       }));
                     }}
+                    displayEmpty={basesLoading}
                   >
-                    {bases.map(base => (
-                      <MenuItem key={base.id} value={base.id}>{base.name}</MenuItem>
-                    ))}
+                    {basesLoading ? (
+                      <MenuItem disabled value="">
+                        <em>Loading bases...</em>
+                      </MenuItem>
+                    ) : bases.length > 0 ? (
+                      bases.map(base => (
+                        <MenuItem key={base.id} value={base.id}>{base.name}</MenuItem>
+                      ))
+                    ) : (
+                      <MenuItem disabled value="">
+                        <em>No bases available</em>
+                      </MenuItem>
+                    )}
                   </Select>
                 </FormControl>
                   <Box>

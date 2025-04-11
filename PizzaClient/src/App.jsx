@@ -25,9 +25,11 @@ import {
   Receipt as OrdersIcon,
   People as CustomersIcon,
   Settings as SettingsIcon,
+  Restaurant as ToppingIcon,
 } from "@mui/icons-material";
 import "./App.css";
 import Pizza from "./Pizza";
+import ToppingManager from "./ToppingManager";
 
 const drawerWidth = 240;
 
@@ -54,11 +56,12 @@ function App() {
   const navItems = [
     { text: "Dashboard", icon: <DashboardIcon />, index: 0 },
     { text: "Pizza Menu", icon: <PizzaIcon />, index: 1 },
-    { text: "Orders", icon: <OrdersIcon />, index: 2 },
-    { text: "Customers", icon: <CustomersIcon />, index: 3 },
+    { text: "Topping Manager", icon: <ToppingIcon />, index: 2 },
+    { text: "Orders", icon: <OrdersIcon />, index: 3 },
+    { text: "Customers", icon: <CustomersIcon />, index: 4 },
   ];
 
-  const settingsItem = { text: "Settings", icon: <SettingsIcon />, index: 4 };
+  const settingsItem = { text: "Settings", icon: <SettingsIcon />, index: 5 };
 
   // M3 Inspired Styling for selected ListItemButton
   const selectedItemStyles = {
@@ -257,12 +260,42 @@ function App() {
           // Background color set by parent Box now
         }}
       >
-        {/* Use Container for centering and max-width */}
-        <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2 } }}>
-          {" "}
-          {/* Adjust padding */}
-          {/* Render your main page content here */}
-          <Pizza />
+        {/* Use Container for centering and max-width */}        <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2 } }}>
+          {/* Render content based on selected navigation item */}
+          {selectedIndex === 0 && (
+            <Typography variant="h4" component="h1" gutterBottom>
+              Dashboard
+              <Typography variant="subtitle1" color="text.secondary">
+                Welcome to the Pizza Store Admin Dashboard
+              </Typography>
+            </Typography>
+          )}
+          {selectedIndex === 1 && <Pizza />}
+          {selectedIndex === 2 && <ToppingManager />}
+          {selectedIndex === 3 && (
+            <Typography variant="h4" component="h1" gutterBottom>
+              Orders
+              <Typography variant="subtitle1" color="text.secondary">
+                Order management coming soon
+              </Typography>
+            </Typography>
+          )}
+          {selectedIndex === 4 && (
+            <Typography variant="h4" component="h1" gutterBottom>
+              Customers
+              <Typography variant="subtitle1" color="text.secondary">
+                Customer management coming soon
+              </Typography>
+            </Typography>
+          )}
+          {selectedIndex === 5 && (
+            <Typography variant="h4" component="h1" gutterBottom>
+              Settings
+              <Typography variant="subtitle1" color="text.secondary">
+                System settings coming soon
+              </Typography>
+            </Typography>
+          )}
         </Container>
       </Box>
     </Box>

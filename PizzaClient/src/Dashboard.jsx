@@ -44,8 +44,10 @@ import {
   Home as HomeIcon, // Import Breadcrumb icon
   ExpandLess, // Import Expand icons
   ExpandMore,
+  Restaurant as ToppingIcon,
 } from "@mui/icons-material";
 import Pizza from "./Pizza"; // Assuming Pizza component exists
+import ToppingManager from "./ToppingManager"; // Import ToppingManager component
 
 const drawerWidth = 240;
 
@@ -118,6 +120,12 @@ const initialNavigation = [
   },
   {
     index: 2,
+    text: "Toppings",
+    icon: <ToppingIcon />,
+    component: <ToppingManager />,
+  },
+  {
+    index: 3,
     text: "Orders",
     icon: <OrdersIcon />,
     component: null,
@@ -129,20 +137,19 @@ const initialNavigation = [
   {
     kind: "header",
     text: "Management",
-  },
-  {
-    index: 3,
+  },  {
+    index: 4,
     text: "Customers",
     icon: <CustomersIcon />,
     component: null,
     showChildren: false, // Add state for expansion
     children: [
-      { index: 30, text: "All Customers", component: null }, // Unique child indices
-      { index: 31, text: "VIP Members", component: null },
+      { index: 40, text: "All Customers", component: null }, // Unique child indices
+      { index: 41, text: "VIP Members", component: null },
     ],
   },
   {
-    index: 4,
+    index: 5,
     text: "Settings",
     icon: <SettingsIcon />,
     component: null,
