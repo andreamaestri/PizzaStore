@@ -32,7 +32,8 @@ import {
   TableHead,
   TableRow,
   Tooltip,
-  InputAdornment
+  InputAdornment,
+  useTheme
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -61,6 +62,7 @@ const SORT_TYPES = {
 };
 
 function ToppingManager() {
+  const theme = useTheme();
   // State for toppings list and operations
   const [toppings, setToppings] = useState([]);
   const [toppingUsage, setToppingUsage] = useState({}); // Track usage count for each topping
@@ -180,9 +182,7 @@ function ToppingManager() {
     // Case insensitive, trimmed duplicate check
     if (toppingExists(trimmedTopping)) {
       setDuplicateError(true);
-      setError(new Error('This topping already exists.'));
       setTimeout(() => {
-        setError(null);
         setDuplicateError(false);
       }, 3000);
       return;
@@ -194,7 +194,7 @@ function ToppingManager() {
     
     // Add to toppings list with the current sort applied
     const newToppings = [...toppings, trimmedTopping];
-    setToppings(sortToppings(newToppings, sortType));
+    setToppings(sortToppings(newToppings, sortType, toppingUsage));
     
     // Clear input
     setNewTopping('');
@@ -406,16 +406,21 @@ function ToppingManager() {
 
   return (
     <Box>
-      <Typography variant="h5" gutterBottom color="primary" fontWeight="medium">
+      <Typography variant="h5" gutterBottom color="primary.main" fontWeight="medium">
         Topping Manager
       </Typography>
       
       <Paper 
         elevation={0} 
         variant="outlined" 
-        sx={{ p: 3, borderRadius: 2, mb: 3 }}
+        sx={{ 
+          p: { xs: 2, sm: 3 },
+          
+          borderColor: 'divider',
+          mb: 3 
+        }}
       >
-        {/* Add Topping Form */}        <Box sx={{ mb: 3 }}>
+        {/* Add Topping Form */}        <Box sx={{ mb: 2 }}>
           <Typography variant="subtitle1" fontWeight={500} gutterBottom>
             Add New Topping
           </Typography>
@@ -426,7 +431,6 @@ function ToppingManager() {
               value={newTopping}
               onChange={(e) => {
                 setNewTopping(e.target.value);
-                // Reset duplicate error when typing
                 if (duplicateError) setDuplicateError(false);
               }}
               placeholder="Enter topping name"
@@ -439,15 +443,16 @@ function ToppingManager() {
               error={duplicateError}
               helperText={duplicateError ? 'This topping already exists' : ''}
               InputProps={{
-                endAdornment: newTopping.trim() !== '' && (
-                  <IconButton
-                    size="small"
-                    onClick={() => setNewTopping('')}
-                    edge="end"
-                    sx={{ visibility: newTopping ? 'visible' : 'hidden' }}
-                  >
-                    <CloseIcon fontSize="small" />
-                  </IconButton>
+                endAdornment: newTopping && (
+                  <InputAdornment position="end">
+                    <IconButton
+                      size="small"
+                      onClick={() => setNewTopping('')}
+                      edge="end"
+                    >
+                      <CloseIcon fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>
                 )
               }}
             />
@@ -455,17 +460,11 @@ function ToppingManager() {
               variant="contained"
               startIcon={<AddIcon />}
               onClick={handleAddTopping}
-              disableElevation
               disabled={loading || !newTopping.trim()}
             >
               Add
             </Button>
           </Box>
-          {toppingExists(newTopping.trim()) && newTopping.trim() !== '' && (
-            <Typography color="error" variant="caption" sx={{ mt: 1, display: 'block' }}>
-              Similar topping already exists. Duplicates are prevented.
-            </Typography>
-          )}
         </Box>
         
         <Divider sx={{ my: 2 }} />
@@ -473,8 +472,10 @@ function ToppingManager() {
         {/* Search and Actions Row */}        <Box 
           sx={{ 
             display: 'flex', 
+            flexWrap: 'wrap',
             justifyContent: 'space-between', 
             alignItems: 'center', 
+            gap: 2,
             mb: 2 
           }}
         >
@@ -486,7 +487,6 @@ function ToppingManager() {
               label={toppings.length}
               size="small"
               color="primary"
-              variant="filled"
               sx={{ ml: 1 }}
             />
           </Box>
@@ -501,7 +501,7 @@ function ToppingManager() {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <SearchIcon fontSize="small" />
+                    <SearchIcon fontSize="small" color="action" />
                   </InputAdornment>
                 ),
                 endAdornment: filterText && (
@@ -518,10 +518,7 @@ function ToppingManager() {
                 )
               }}
               sx={{
-                minWidth: '180px',
-                '& .MuiOutlinedInput-root': {
-                  borderRadius: 2
-                }
+                minWidth: { xs: '150px', sm: '180px' },
               }}
             />
             
@@ -547,6 +544,11 @@ function ToppingManager() {
                     onClick={fetchToppings}
                     disabled={loading}
                     size="small"
+                    sx={{ 
+                      borderLeft: 0,
+                      borderTopLeftRadius: 0, 
+                      borderBottomLeftRadius: 0 
+                    }}
                   >
                     <RefreshIcon fontSize="small" />
                   </IconButton>
@@ -557,10 +559,9 @@ function ToppingManager() {
             <Menu
               id="sort-menu"
               anchorEl={sortMenuAnchor}
-              keepMounted
               open={Boolean(sortMenuAnchor)}
               onClose={handleSortMenuClose}
-              elevation={2}
+              MenuListProps={{ 'aria-labelledby': 'sort-button' }}
               anchorOrigin={{
                 vertical: 'bottom',
                 horizontal: 'right',
@@ -573,7 +574,7 @@ function ToppingManager() {
               <MenuItem 
                 onClick={() => handleSortChange(SORT_TYPES.ALPHA_ASC)}
                 selected={sortType === SORT_TYPES.ALPHA_ASC}
-                sx={{ minWidth: '180px' }}
+                dense
               >
                 <ListItemIcon>
                   <ArrowUpIcon fontSize="small" />
@@ -583,6 +584,7 @@ function ToppingManager() {
               <MenuItem 
                 onClick={() => handleSortChange(SORT_TYPES.ALPHA_DESC)}
                 selected={sortType === SORT_TYPES.ALPHA_DESC}
+                dense
               >
                 <ListItemIcon>
                   <ArrowDownIcon fontSize="small" />
@@ -592,6 +594,7 @@ function ToppingManager() {
               <MenuItem 
                 onClick={() => handleSortChange(SORT_TYPES.MOST_USED)}
                 selected={sortType === SORT_TYPES.MOST_USED}
+                dense
               >
                 <ListItemIcon>
                   <PopularIcon fontSize="small" />
@@ -601,6 +604,7 @@ function ToppingManager() {
               <MenuItem 
                 onClick={() => handleSortChange(SORT_TYPES.RECENT)}
                 selected={sortType === SORT_TYPES.RECENT}
+                dense
               >
                 <ListItemIcon>
                   <RecentIcon fontSize="small" />
@@ -615,7 +619,7 @@ function ToppingManager() {
         {loading && toppings.length === 0 && renderLoading()}
         
         {/* Error State */}
-        {error && !loading && !(error.message?.includes('already exists')) && renderError()}
+        {error && !loading && renderError()}
 
         {/* Topping List */}
         {(!loading || toppings.length > 0) && !error && (
@@ -624,32 +628,35 @@ function ToppingManager() {
               elevation={0}
               variant="outlined"
               sx={{ 
-                borderRadius: 1, 
+                borderRadius: theme.shape.borderRadius / 2,
                 p: 3, 
                 textAlign: 'center',
                 display: 'flex',
                 flexDirection: 'column',
-                alignItems: 'center' 
+                alignItems: 'center',
+                borderColor: 'divider',
+                bgcolor: 'background.paper'
               }}
             >
+              <SearchIcon color="disabled" sx={{ fontSize: 40, mb: 1 }} />
               <Typography variant="body1" color="text.secondary">
-                {filterText ? 'No toppings match your search' : 'No toppings available. Add your first topping!'}
+                {filterText ? 'No toppings match search' : 'No toppings added yet'}
               </Typography>
               {!filterText && (
                 <Button
                   startIcon={<AddIcon />}
                   color="primary"
-                  variant="contained"
+                  variant="text"
                   size="small"
-                  sx={{ mt: 2 }}
-                  onClick={() => document.querySelector('input[placeholder="Enter topping name"]').focus()}
+                  sx={{ mt: 1 }}
+                  onClick={() => document.querySelector('input[placeholder="Enter topping name"]')?.focus()}
                 >
-                  Add Your First Topping
+                  Add First Topping
                 </Button>
               )}
             </Paper>
           ) : (
-            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: 1 }}>
+            <TableContainer component={Paper} variant="outlined" sx={{ borderRadius: theme.shape.borderRadius / 2, borderColor: 'divider' }}>
               <Table size="small" aria-label="toppings table">
                 <TableHead>
                   <TableRow>
@@ -666,7 +673,6 @@ function ToppingManager() {
                       key={topping}
                       hover
                       sx={{
-                        bgcolor: index % 2 === 0 ? 'background.paper' : alpha('#f5f5f5', 0.3),
                         '&:last-child td, &:last-child th': { border: 0 },
                       }}
                     >                      <TableCell component="th" scope="row">
@@ -677,7 +683,6 @@ function ToppingManager() {
                             value={editText[topping] || ''}
                             onChange={(e) => {
                                 setEditText(prev => ({ ...prev, [topping]: e.target.value }));
-                                // Clear error on change
                                 if (editError[topping]) {
                                     setEditError(prev => ({ ...prev, [topping]: null }));
                                 }
@@ -689,24 +694,18 @@ function ToppingManager() {
                                 handleSaveEdit(topping);
                               }
                             }}
-                            error={!!editError[topping]} // Show error state if message exists
-                            helperText={editError[topping] || ''} // Display the error message
+                            error={!!editError[topping]}
+                            helperText={editError[topping] || ''}
                           />
                         ) : (
                           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                            <Chip 
-                              label={topping} 
-                              variant="outlined" 
-                              color="secondary"
-                              size="small"
-                              sx={{ mr: 1 }}
-                            />
+                            <Typography variant="body2" sx={{ mr: 1 }}>{topping}</Typography>
                             {sortType === SORT_TYPES.RECENT && recentToppings.includes(topping) && (
                               <Chip 
                                 label="New" 
                                 size="small" 
                                 color="info"
-                                sx={{ fontSize: '0.6rem', height: 20 }}
+                                sx={{ fontSize: '0.65rem', height: 18 }}
                               />
                             )}
                           </Box>
@@ -722,44 +721,80 @@ function ToppingManager() {
                           />
                         )}
                       </TableCell>
-                      <TableCell align="right">
-                        {editMode[topping] ? (
+                      <TableCell align="right">                        {editMode[topping] ? (
                           <>
-                            <IconButton 
-                              color="primary" 
-                              onClick={() => handleSaveEdit(topping)}
-                              size="small"
-                            >
-                              <DoneIcon fontSize="small" />
-                            </IconButton>
-                            <IconButton 
-                              color="inherit" 
-                              onClick={() => handleCancelEdit(topping)}
-                              size="small"
-                            >
-                              <CloseIcon fontSize="small" />
-                            </IconButton>
+                            {/* MD3 Contained Icon Button for Save with descriptive tooltip */}
+                            <Tooltip title="Save changes">
+                              <span>
+                                <IconButton 
+                                  className="contained"
+                                  color="primary" 
+                                  onClick={() => handleSaveEdit(topping)}
+                                  size="small"
+                                  aria-label="save topping changes"
+                                  sx={{
+                                    bgcolor: alpha(theme.palette.primary.main, 0.08),
+                                    '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.12) }
+                                  }}
+                                >
+                                  <DoneIcon fontSize="inherit" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
+                            {/* MD3 Standard Icon Button for Cancel with descriptive tooltip */}
+                            <Tooltip title="Cancel editing">
+                              <span>
+                                <IconButton 
+                                  className="standard"
+                                  color="inherit" 
+                                  onClick={() => handleCancelEdit(topping)}
+                                  size="small"
+                                  aria-label="cancel editing"
+                                  sx={{ ml: 0.5 }}
+                                >
+                                  <CloseIcon fontSize="inherit" />
+                                </IconButton>
+                              </span>
+                            </Tooltip>
                           </>
                         ) : (
                           <>
-                            <Tooltip title="Edit">
-                              <IconButton 
-                                onClick={() => handleStartEdit(topping)}
-                                size="small"
-                                color="primary"
-                              >
-                                <EditIcon fontSize="small" />
-                              </IconButton>
+                            {/* MD3 Standard Icon Button for Edit with descriptive tooltip */}
+                            <Tooltip title="Edit topping name">
+                              <span>
+                                <IconButton 
+                                  className="standard"
+                                  onClick={() => handleStartEdit(topping)}
+                                  size="small"
+                                  color="primary"
+                                  aria-label="edit topping name"
+                                  disabled={loading}
+                                  sx={{
+                                    '&:hover': { bgcolor: alpha(theme.palette.primary.main, 0.08) }
+                                  }}
+                                >
+                                  <EditIcon fontSize="inherit" />
+                                </IconButton>
+                              </span>
                             </Tooltip>
-                            <Tooltip title="Delete">
-                              <IconButton 
-                                onClick={() => handleDeleteRequest(topping)}
-                                size="small"
-                                color="error"
-                                sx={{ ml: 1 }}
-                              >
-                                <DeleteIcon fontSize="small" />
-                              </IconButton>
+                            {/* MD3 Standard Icon Button for Delete with descriptive tooltip */}
+                            <Tooltip title="Remove topping">
+                              <span>
+                                <IconButton 
+                                  className="standard"
+                                  onClick={() => handleDeleteRequest(topping)}
+                                  size="small"
+                                  color="error"
+                                  aria-label="remove topping"
+                                  sx={{ 
+                                    ml: 0.5,
+                                    '&:hover': { bgcolor: alpha(theme.palette.error.main, 0.08) }
+                                  }}
+                                  disabled={loading}
+                                >
+                                  <DeleteIcon fontSize="inherit" />
+                                </IconButton>
+                              </span>
                             </Tooltip>
                           </>
                         )}
@@ -775,18 +810,20 @@ function ToppingManager() {
       <Dialog
         open={deleteDialog}
         onClose={() => setDeleteDialog(false)}
+        aria-labelledby="delete-topping-dialog-title"
+        aria-describedby="delete-topping-dialog-description"
       >
-        <DialogTitle>Delete Topping?</DialogTitle>
+        <DialogTitle id="delete-topping-dialog-title">Delete Topping?</DialogTitle>
         <DialogContent>
-          <DialogContentText>
-            Are you sure you want to delete "{toppingToDelete}"? This will remove the topping from all pizzas that use it.
+          <DialogContentText id="delete-topping-dialog-description">
+            Are you sure you want to delete "<strong>{toppingToDelete}</strong>"? This will remove the topping from all pizzas that use it. This action cannot be undone.
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteDialog(false)} color="inherit">
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setDeleteDialog(false)} variant="text">
             Cancel
           </Button>
-          <Button onClick={handleConfirmDelete} color="error" variant="contained" disableElevation>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained" autoFocus>
             Delete
           </Button>
         </DialogActions>      

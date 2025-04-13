@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { CssBaseline, ThemeProvider, createTheme } from '@mui/material'
+import { CssBaseline, ThemeProvider, createTheme, alpha } from '@mui/material'
 import '@fontsource/roboto/300.css'
 import '@fontsource/roboto/400.css'
 import '@fontsource/roboto/500.css'
@@ -112,21 +112,53 @@ const theme = createTheme({
     },
   },
   shape: {
-    borderRadius: 16, // MD3 uses more rounded corners
+    borderRadius: 8, // Base border radius (small)
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
           textTransform: 'none',
-          borderRadius: 20, // MD3 buttons are more rounded
           padding: '10px 24px',
         },
+        // High emphasis - Primary actions (Filled button)
         contained: {
           boxShadow: 'none', // MD3 reduces use of shadows
+          fontWeight: 500,
+          // Filled buttons are for primary, final, or unblocking actions
         },
+        // Medium emphasis - Important but secondary actions (Filled tonal & Outlined)
+        containedSecondary: {
+          // This serves as "Filled tonal" in MD3
+          backgroundColor: 'rgba(211, 47, 47, 0.1)',
+          color: '#d32f2f',
+          boxShadow: 'none',
+          '&:hover': {
+            backgroundColor: 'rgba(211, 47, 47, 0.2)',
+            boxShadow: 'none',
+          },
+        },
+        // Medium emphasis - Outlined button
         outlined: {
           borderWidth: 1,
+          // Use for actions that need attention but aren't primary
+        },
+        // Low emphasis - Text button for optional/supplementary actions
+        text: {
+          // Use for lowest emphasis, alternative options
+        },
+      },
+      defaultProps: {
+        disableElevation: true, // MD3 generally avoids shadows on buttons
+      },
+    },
+    MuiFab: {
+      styleOverrides: {
+        root: {
+          boxShadow: '0px 3px 5px -1px rgba(0,0,0,0.2), 0px 6px 10px 0px rgba(0,0,0,0.14)',
+          '&:hover': {
+            boxShadow: '0px 5px 8px -3px rgba(0,0,0,0.2), 0px 8px 16px 2px rgba(0,0,0,0.14)',
+          },
         },
       },
     },
@@ -134,7 +166,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           boxShadow: 'none',
-          borderRadius: 24, // More rounded for MD3
+          borderRadius: 12,
         },
         outlined: {
           borderColor: 'rgba(0, 0, 0, 0.08)',
@@ -150,7 +182,6 @@ const theme = createTheme({
     MuiCard: {
       styleOverrides: {
         root: {
-          borderRadius: 16,
           padding: 8,
         },
       },
@@ -200,7 +231,7 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
-            borderRadius: 12,
+            borderRadius: 4,
             '& fieldset': {
               borderColor: 'rgba(0, 0, 0, 0.12)',
             },
@@ -226,24 +257,45 @@ const theme = createTheme({
     },
     MuiListItemButton: {
       styleOverrides: {
-        root: {
-          borderRadius: 28, // MD3 uses more rounded corners
-          '&.Mui-selected': {
-            backgroundColor: theme => theme.palette.primary.container || 'rgba(211, 47, 47, 0.08)',
-            color: theme => theme.palette.primary.onContainer || theme.palette.primary.main,
-            '&:hover': {
-              backgroundColor: theme => theme.palette.primary.container || 'rgba(211, 47, 47, 0.12)',
-              opacity: 0.9,
-            },
-            '& .MuiListItemIcon-root': {
-              color: theme => theme.palette.primary.main,
-            },
-          },
+        root: ({ theme }) => ({
+          borderRadius: 28, // MD3 uses more rounded corners (pill shape)
           '&:hover': {
-            backgroundColor: 'rgba(0, 0, 0, 0.04)',
+            backgroundColor: theme.palette.action.hover, // Standard hover
           },
-        },
+          '&.Mui-selected': {
+            backgroundColor: theme.palette.primary.container,
+            color: theme.palette.primary.onContainer,
+            '&:hover': {
+              // Slightly darken or adjust the container color on hover when selected
+              backgroundColor: alpha(theme.palette.primary.container, 0.9),
+            },
+            // Target Icon and Text within the selected Button
+            '& .MuiListItemIcon-root': {
+              color: theme.palette.primary.onContainer, // Use onContainer color for icon
+            },
+            '& .MuiListItemText-primary': {
+              fontWeight: 500, // Make text slightly bolder when selected
+            },
+          },
+        }),
       },
+    },
+    MuiListItemIcon: {
+        styleOverrides: {
+            root: ({ theme }) => ({
+                // Default icon color (can be adjusted if needed)
+                color: theme.palette.action.active,
+                minWidth: 40, // Ensure consistent spacing
+            }),
+        },
+    },
+    MuiListItemText: {
+        styleOverrides: {
+            primary: ({ theme }) => ({
+                // Default text color
+                color: theme.palette.text.primary,
+            }),
+        },
     },
     MuiAppBar: {
       styleOverrides: {
@@ -280,28 +332,72 @@ const theme = createTheme({
     MuiIconButton: {
       styleOverrides: {
         root: {
-          borderRadius: '50%', // Ensure perfect circles for icon buttons
+          borderRadius: '50%', // Ensure perfect circles for standard icon buttons
+          padding: 8,
+          // Support for both outlined and filled states
+          '&.standard': {
+            // Standard icon button (default)
+            color: 'rgba(0, 0, 0, 0.54)', // Default icon color
+            '&:hover': {
+              backgroundColor: 'rgba(0, 0, 0, 0.04)', // Light hover effect
+            },
+          },
+          '&.contained': {
+            // Contained icon button (with background)
+            backgroundColor: 'rgba(0, 0, 0, 0.08)',
+            '&:hover': {
+              backgroundColor: 'rgba(0, 0, 0, 0.12)',
+            },
+          },
+          '&.selected': {
+            // Selected state (can apply to either standard or contained)
+            color: theme => theme.palette.primary.main,
+            backgroundColor: theme => alpha(theme.palette.primary.main, 0.12),
+            '&:hover': {
+              backgroundColor: theme => alpha(theme.palette.primary.main, 0.18),
+            },
+          },
+          '&.selected.contained': {
+            // Selected and contained
+            backgroundColor: theme => alpha(theme.palette.primary.main, 0.15),
+            '&:hover': {
+              backgroundColor: theme => alpha(theme.palette.primary.main, 0.25),
+            },
+          },
+        },
+        sizeMedium: {
+          // Default medium size for better touch targets
+          padding: 8,
+        },
+        sizeSmall: {
+          // Smaller size with proper padding
+          padding: 6,
         },
       },
     },
     MuiChip: {
       styleOverrides: {
-        root: {
+        root: ({ theme }) => ({
           borderRadius: 8,
           height: 32, // MD3 chips are slightly taller
-        },
-        filled: {
-          backgroundColor: theme => theme.palette.primary.container,
-          color: theme => theme.palette.primary.onContainer,
+        }),
+        filled: ({ theme }) => ({
+          backgroundColor: theme.palette.primary.container,
+          color: theme.palette.primary.onContainer,
           '&.MuiChip-colorPrimary': {
-            backgroundColor: theme => theme.palette.primary.container,
-            color: theme => theme.palette.primary.onContainer,
+            backgroundColor: theme.palette.primary.container,
+            color: theme.palette.primary.onContainer,
           },
           '&.MuiChip-colorSecondary': {
-            backgroundColor: theme => theme.palette.secondary.container,
-            color: theme => theme.palette.secondary.onContainer,
+            backgroundColor: theme.palette.secondary.container,
+            color: theme.palette.secondary.onContainer,
           },
-        },
+          // Add overrides for other colors if needed (error, warning, etc.)
+        }),
+        outlined: ({ theme }) => ({
+           borderColor: theme.palette.outline, // Use theme outline color if defined, else fallback
+           // Add specific color overrides if needed
+        }),
       },
     },
   },

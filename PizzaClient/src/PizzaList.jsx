@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { 
-  Box, Grid, Typography, TextField, Button, Card, CardContent, 
+  Box, Typography, TextField, Button, Card, CardContent, 
   Stack, Chip, IconButton, Divider, MenuItem, Select,
   InputLabel, FormControl, Table, TableBody, TableCell, 
   TableContainer, TableHead, TableRow, Paper, InputAdornment,
   Tooltip, Dialog, DialogActions, DialogContent, DialogContentText,
-  DialogTitle, Alert, InputBase, alpha, Fab, Autocomplete, CircularProgress
+  DialogTitle, Alert, InputBase, alpha, Fab, Autocomplete, CircularProgress,
+  useTheme, // Import useTheme
+  Grid // Import Grid (standard)
 } from '@mui/material';
 import { 
   Add as AddIcon, 
@@ -19,6 +21,7 @@ import {
 } from '@mui/icons-material';
 
 function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefresh }) {
+  const theme = useTheme(); // Get theme
   const [formData, setFormData] = useState({ 
     id: '', 
     name: '', 
@@ -174,39 +177,37 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
       setDeleteConfirmOpen(false);
       setDeletingId(null);
     }
-  };
-
-  return (
+  };  return (
     <Box>
       <Grid container spacing={3}>
         {/* Pizza Form Section */}
-        <Grid item xs={12} md={4}>
+        <Grid size={12} sm={4}>
           <Paper 
             elevation={0} 
             variant="outlined" 
             sx={{ 
               p: 3, 
               height: '100%', 
-              borderRadius: 2,
+              borderColor: 'divider', // Use theme divider color
             }}
           >
-            <Typography variant="h6" gutterBottom color="primary" fontWeight="medium">
+            <Typography variant="h6" gutterBottom color="primary.main" fontWeight="medium"> {/* Use theme color */}
               {editingId ? `Edit ${name}` : `Add New ${name}`}
             </Typography>
             
             {editingId && (
               <Alert 
                 severity="info" 
-                variant="outlined" 
-                sx={{ mb: 2 }}
+                variant="outlined" // Use outlined or standard based on theme preference
+                sx={{ mb: 2, borderRadius: theme.shape.borderRadius / 2 }} // Slightly less rounded
                 icon={<EditIcon fontSize="inherit" />}
               >
-                You are editing "{formData.name}"
+                Editing: <strong>{formData.name}</strong>
               </Alert>
             )}
             
             <Box component="form" onSubmit={handleSubmit}>
-              <Stack spacing={2.5}>
+              <Stack spacing={2}>
                 <TextField
                   fullWidth
                   label="Name"
@@ -218,6 +219,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                   required
                   variant="outlined"
                   size="small"
+                  // Theme overrides should handle border radius
                 />
                 
                 <TextField
@@ -230,7 +232,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                   rows={3}
                   variant="outlined"
                   size="small"
-                  placeholder="Describe your pizza..."
+                  placeholder="Describe this pizza..."
+                  // Theme overrides should handle border radius
                 />
                   <FormControl fullWidth size="small">
                   <InputLabel id="base-select-label">Pizza Base</InputLabel>
@@ -247,6 +250,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                       }));
                     }}
                     displayEmpty={basesLoading}
+                    // Theme overrides should handle border radius
                   >
                     {basesLoading ? (
                       <MenuItem disabled value="">
@@ -264,7 +268,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                   </Select>
                 </FormControl>
                   <Box>
-                  <Typography variant="subtitle2" gutterBottom color="text.secondary">
+                  <Typography variant="body2" gutterBottom color="text.secondary">
                     Toppings
                   </Typography>                  <Autocomplete
                     multiple
@@ -282,10 +286,10 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     renderTags={(value, getTagProps) =>
                       value.map((option, index) => (
                         <Chip
-                          variant="outlined"
+                          // Use theme overrides for chip styling
                           label={option}
                           size="small"
-                          color="primary"
+                          color="secondary" // Use secondary color for toppings
                           {...getTagProps({ index })}
                         />
                       ))
@@ -296,33 +300,32 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                         variant="outlined"
                         placeholder={formData.toppings.length === 0 ? "Select or add toppings" : ""}
                         fullWidth
+                        // Theme overrides should handle border radius
                       />
                     )}
                     sx={{
-                      '& .MuiOutlinedInput-root': {
-                        padding: '4px 8px',
-                        borderRadius: 2,
-                      }
+                      // Minimal sx, rely on theme overrides
                     }}
                   />
                   {formData.toppings.length === 0 && (
-                    <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic', mt: 1, fontSize: '0.75rem' }}>
-                      Select from suggested toppings or type your own and press Enter
+                    <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
+                      Select or type & press Enter
                     </Typography>
                   )}
                 </Box>
                 
-                <Box sx={{ pt: 1, display: 'flex', gap: 2 }}>
+                <Box sx={{ pt: 1, display: 'flex', gap: 1.5 }}> {/* Adjusted gap */}
                   <Button
                     type="submit"
                     variant="contained"
                     color="primary"
-                    disableElevation
+                    // disableElevation // Theme override might handle this
                     startIcon={editingId ? <DoneIcon /> : <AddIcon />}
                     disabled={loading}
                     fullWidth
+                    // Theme overrides should handle border radius
                   >
-                    {editingId ? 'Update' : 'Add to Menu'}
+                    {editingId ? 'Update Pizza' : 'Add Pizza'}
                   </Button>
                   
                   {editingId && (
@@ -333,6 +336,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                       startIcon={<CloseIcon />}
                       disabled={loading}
                       fullWidth
+                      // Theme overrides should handle border radius
                     >
                       Cancel
                     </Button>
@@ -341,100 +345,112 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
               </Stack>
             </Box>
           </Paper>
-        </Grid>
-        
-        {/* Pizza List Section */}
-        <Grid item xs={12} md={8}>
-          <Paper 
+        </Grid>        {/* Pizza List Section */}
+        <Grid size={12} sm={8}>
+          <Paper
             elevation={0} 
             variant="outlined" 
             sx={{ 
-              p: 3, 
-              borderRadius: 2,
+              p: { xs: 2, sm: 3 }, // Responsive padding
+               // Use theme border radius
+              borderColor: 'divider', // Use theme divider color
             }}
           >
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-              <Typography variant="h6" gutterBottom color="primary" fontWeight="medium" sx={{ mb: 0 }}>
-                {name} Menu Items ({filteredData.length})
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 2, mb: 2 }}>
+              <Typography variant="h6" color="primary.main" fontWeight="medium" sx={{ mb: 0 }}> {/* Use theme color */}
+                {name} Menu ({filteredData.length})
               </Typography>
               
               <Box sx={{ display: 'flex', gap: 1 }}>
-                <Box
-                  sx={{
-                    position: 'relative',
-                    borderRadius: 1,
-                    backgroundColor: alpha('#f5f5f5', 0.15),
-                    '&:hover': {
-                      backgroundColor: alpha('#f5f5f5', 0.25),
-                    },
-                    border: '1px solid',
-                    borderColor: 'divider',
-                    width: '100%',
-                    [theme => theme.breakpoints.up('sm')]: {
-                      width: 'auto',
-                    },
+                {/* Search Input - Using TextField for consistency */}
+                <TextField
+                  placeholder="Search pizzas..."
+                  value={filterText}
+                  onChange={(e) => setFilterText(e.target.value)}
+                  size="small"
+                  variant="outlined"
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <SearchIcon fontSize="small" color="action" />
+                      </InputAdornment>
+                    ),
+                    endAdornment: filterText && (
+                      <InputAdornment position="end">
+                        <IconButton
+                          size="small"
+                          onClick={() => setFilterText('')}
+                          edge="end"
+                        >
+                          <CloseIcon fontSize="small" />
+                        </IconButton>
+                      </InputAdornment>
+                    )
                   }}
-                >
-                  <Box sx={{ padding: '0 12px', height: '100%', position: 'absolute', pointerEvents: 'none', display: 'flex', alignItems: 'center' }}>
-                    <SearchIcon color="action" sx={{ fontSize: 20 }} />
-                  </Box>
-                  <InputBase
-                    placeholder="Search pizzas..."
-                    value={filterText}
-                    onChange={(e) => setFilterText(e.target.value)}
-                    sx={{
-                      color: 'inherit',
-                      padding: '8px 8px 8px 0',
-                      // vertical padding + font size from searchIcon
-                      paddingLeft: `calc(1em + 28px)`,
-                      width: '100%',
-                      [theme => theme.breakpoints.up('md')]: {
-                        width: '16ch',
-                        '&:focus': {
-                          width: '24ch',
-                        },
-                      },
-                    }}
-                  />
-                </Box>
-                  
-                <Tooltip title="Refresh list">
-                  <IconButton onClick={onRefresh} size="small" color="primary" sx={{ bgcolor: 'background.paper', border: '1px solid', borderColor: 'divider' }}>
-                    <RefreshIcon fontSize="small" />
-                  </IconButton>
+                  sx={{
+                    minWidth: { xs: '100%', sm: '200px' }, // Responsive width
+                    // Theme overrides handle radius
+                  }}
+                />
+                    {/* MD3 Contained Icon Button with Clear Tooltip */}
+                <Tooltip title="Refresh pizza list">
+                  <span>
+                    <IconButton 
+                      onClick={onRefresh} 
+                      size="small" 
+                      className="contained"
+                      color="primary" 
+                      disabled={loading}
+                      aria-label="refresh pizza list"
+                      sx={{ 
+                        bgcolor: alpha(theme.palette.primary.main, 0.08),
+                        '&:hover': { 
+                          bgcolor: alpha(theme.palette.primary.main, 0.12) 
+                        }
+                      }}
+                    >
+                      <RefreshIcon fontSize="small" />
+                    </IconButton>
+                  </span>
                 </Tooltip>
               </Box>
             </Box>
             
-            <TableContainer component={Paper} variant="outlined" sx={{ mt: 2, border: '1px solid', borderColor: 'divider' }}>
-              <Table aria-label="pizza menu table">
+            <TableContainer component={Paper} variant="outlined" sx={{ mt: 2, borderRadius: theme.shape.borderRadius / 2, borderColor: 'divider' }}>
+              <Table aria-label="pizza menu table" size="small">
                 <TableHead>
                   <TableRow>
                     <TableCell>Name</TableCell>
-                    <TableCell>Description</TableCell>
-                    <TableCell>Base</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>Description</TableCell>
+                    <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>Base</TableCell>
                     <TableCell>Toppings</TableCell>
                     <TableCell align="right">Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredData.length === 0 ? (
+                  {loading && data.length === 0 ? (
+                     <TableRow>
+                       <TableCell colSpan={5} align="center" sx={{ py: 4 }}>
+                         <CircularProgress size={24} />
+                       </TableCell>
+                     </TableRow>
+                  ) : filteredData.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={5} align="center">
                         <Box sx={{ py: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="body1" sx={{ color: 'text.secondary', mb: 1 }}>
-                            {filterText ? 'No pizzas match your search' : 'No pizza items found. Add your first pizza!'}
+                          <SearchIcon color="disabled" sx={{ fontSize: 40 }} />
+                          <Typography variant="body1" sx={{ color: 'text.secondary' }}>
+                            {filterText ? 'No pizzas match search' : 'No pizzas added yet'}
                           </Typography>
                           {!filterText && (
                             <Button 
                               startIcon={<AddIcon />} 
-                              variant="contained" 
+                              variant="text" // Use text button for less emphasis
                               color="primary"
-                              disableElevation
                               size="small"
-                              onClick={() => document.getElementById('name')?.focus()}
+                              onClick={() => document.getElementById('name')?.focus()} // Focus the name field
                             >
-                              Add Your First Pizza
+                              Add First Pizza
                             </Button>
                           )}
                         </Box>
@@ -442,55 +458,83 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     </TableRow>
                   ) : (
                     filteredData.map((item) => (
-                      <TableRow key={item.id} hover>
+                      <TableRow key={item.id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
                         <TableCell>
-                          <Typography variant="body1" fontWeight={500}>
+                          <Typography variant="body2" fontWeight={500}>
                             {item.name}
                           </Typography>
                         </TableCell>
-                        <TableCell>
-                          <Typography variant="body2" color="text.secondary">
-                            {item.description || '—'}
+                        <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
+                          <Typography variant="body2" color="text.secondary" noWrap title={item.description}>
+                            {item.description ? (item.description.length > 50 ? item.description.substring(0, 50) + '...' : item.description) : '—'}
                           </Typography>
                         </TableCell>
-                        <TableCell>
-                          {bases.find(base => base.id === item.baseId)?.name || 'Regular'}
+                        <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
+                          <Typography variant="body2" color="text.secondary">
+                            {bases.find(base => base.id === item.baseId)?.name || 'Regular'}
+                          </Typography>
                         </TableCell>
                         <TableCell>
                           {item.toppings && item.toppings.length > 0 ? (
                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                              {item.toppings.map((topping, idx) => (
+                              {item.toppings.slice(0, 3).map((topping, idx) => ( // Show max 3 toppings initially
                                 <Chip 
                                   key={idx} 
                                   label={topping} 
                                   size="small" 
-                                  variant="outlined"
                                   color="secondary"
+                                  // Theme overrides handle styling
                                 />
                               ))}
+                              {item.toppings.length > 3 && (
+                                <Tooltip title={item.toppings.slice(3).join(', ')}>
+                                  <Chip label={`+${item.toppings.length - 3}`} size="small" />
+                                </Tooltip>
+                              )}
                             </Box>
                           ) : (
-                            <Typography variant="body2" color="text.secondary">No toppings</Typography>
+                            <Typography variant="caption" color="text.disabled">None</Typography>
                           )}
                         </TableCell>
-                        <TableCell align="right">
-                          <Tooltip title="Edit">
-                            <IconButton 
-                              color="primary" 
-                              onClick={() => handleEdit(item)}
-                              size="small"
-                            >
-                              <EditIcon fontSize="small" />
-                            </IconButton>
+                        <TableCell align="right">                          {/* MD3 Standard Icon Button for Edit with descriptive tooltip */}
+                          <Tooltip title="Edit pizza details">
+                            <span>
+                              <IconButton 
+                                className="standard"
+                                color="primary" 
+                                onClick={() => handleEdit(item)}
+                                size="small"
+                                aria-label="edit pizza details"
+                                disabled={loading}
+                                sx={{
+                                  '&:hover': {
+                                    backgroundColor: alpha(theme.palette.primary.main, 0.08)
+                                  }
+                                }}
+                              >
+                                <EditIcon fontSize="inherit" />
+                              </IconButton>
+                            </span>
                           </Tooltip>
-                          <Tooltip title="Delete">
-                            <IconButton 
-                              color="error" 
-                              onClick={() => handleDeleteConfirm(item.id)}
-                              size="small"
-                            >
-                              <DeleteIcon fontSize="small" />
-                            </IconButton>
+                          {/* MD3 Standard Icon Button for Delete with descriptive tooltip */}
+                          <Tooltip title="Delete pizza">
+                            <span>
+                              <IconButton 
+                                className="standard"
+                                color="error" 
+                                onClick={() => handleDeleteConfirm(item.id)}
+                                size="small"
+                                aria-label="delete pizza"
+                                disabled={loading}
+                                sx={{
+                                  '&:hover': {
+                                    backgroundColor: alpha(theme.palette.error.main, 0.08)
+                                  }
+                                }}
+                              >
+                                <DeleteIcon fontSize="inherit" />
+                              </IconButton>
+                            </span>
                           </Tooltip>
                         </TableCell>
                       </TableRow>
@@ -503,31 +547,31 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
         </Grid>
       </Grid>
       
-      {/* Mobile add button */}
-      <Box sx={{ display: { xs: 'flex', md: 'none' }, position: 'fixed', bottom: 20, right: 20 }}>
+      {/* Mobile add button - Consider removing if form is always visible */}
+      {/* <Box sx={{ display: { xs: 'flex', md: 'none' }, position: 'fixed', bottom: 20, right: 20 }}>
         <Fab color="primary" aria-label="add" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
           <AddIcon />
         </Fab>
-      </Box>
+      </Box> */}
       
       {/* Delete confirmation dialog */}
       <Dialog
         open={deleteConfirmOpen}
         onClose={() => setDeleteConfirmOpen(false)}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
+        aria-labelledby="delete-pizza-dialog-title"
+        aria-describedby="delete-pizza-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
+        <DialogTitle id="delete-pizza-dialog-title">
           Confirm Delete
         </DialogTitle>
         <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            Are you sure you want to remove this pizza from the menu? This action cannot be undone.
+          <DialogContentText id="delete-pizza-dialog-description">
+            Are you sure you want to remove the pizza "<strong>{data.find(item => item.id === deletingId)?.name || 'this pizza'}</strong>"? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setDeleteConfirmOpen(false)} color="inherit">Cancel</Button>
-          <Button onClick={confirmDelete} color="error" variant="contained" disableElevation autoFocus>
+        <DialogActions sx={{ p: 2 }}> {/* Add padding */}
+          <Button onClick={() => setDeleteConfirmOpen(false)} variant="text">Cancel</Button> {/* M3 style */}
+          <Button onClick={confirmDelete} color="error" variant="contained" autoFocus> {/* M3 style */}
             Delete
           </Button>
         </DialogActions>

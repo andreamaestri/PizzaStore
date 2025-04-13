@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   styled, // Import styled
   useTheme,
+  alpha, // Import alpha for potential fallback if needed, though theme should provide colors
 } from "@mui/material/styles";
 import {
   Box,
@@ -302,26 +303,6 @@ function Dashboard() {
       const hasChildren = item.children && item.children.length > 0;
       const isExpanded = hasChildren && item.showChildren;
 
-      // M3 Selected Item Style (using secondary container if available)
-      const selectedSx = {
-        // Use theme colors for M3 state layer
-        backgroundColor:
-          theme.palette.secondary?.container ||
-          alpha(theme.palette.primary.main, 0.1), // Fallback to primary alpha
-        color:
-          theme.palette.secondary?.onContainer || theme.palette.primary.main, // Text color
-        "&:hover": {
-          backgroundColor:
-            theme.palette.secondary?.container ||
-            alpha(theme.palette.primary.main, 0.15), // Slightly darker hover
-        },
-        "& .MuiListItemIcon-root": {
-          // Icon color when selected
-          color:
-            theme.palette.secondary?.onContainer || theme.palette.primary.main,
-        },
-      };
-
       return (
         <Box key={`nav-${item.index || `item-${index}`}`}>
           <ListItem
@@ -338,25 +319,23 @@ function Dashboard() {
                   ? toggleChildren(item.index)
                   : handleListItemClick(item.index)
               }
-              selected={isSelected}
+              selected={isSelected && !hasChildren} // Apply selected prop only if not a parent toggle
               sx={{
                 minHeight: 48,
                 justifyContent: open ? "initial" : "center",
                 px: 2.5,
-                borderRadius: 5, // M3 pill shape
+                borderRadius: 5, // M3 pill shape (theme override might also set this)
                 transition: theme.transitions.create(
                   ["background-color", "color"],
                   {
                     duration: theme.transitions.duration.shorter,
                   }
                 ),
-                // Apply selected styles
-                ...(isSelected && !hasChildren && selectedSx), // Only apply if selected AND not a parent
-                // Hover style for non-selected items
+                // Selected styles are now primarily handled by theme overrides for MuiListItemButton
+                // Hover style for non-selected items (theme override might handle this too)
                 "&:hover": {
-                  backgroundColor: isSelected
-                    ? undefined
-                    : theme.palette.action.hover, // Use theme hover unless selected
+                   // Let theme override handle hover, or define a subtle one if needed
+                   // backgroundColor: isSelected ? undefined : theme.palette.action.hover,
                 },
               }}
             >
@@ -365,11 +344,7 @@ function Dashboard() {
                   minWidth: 0,
                   mr: open ? 3 : "auto",
                   justifyContent: "center",
-                  color:
-                    isSelected && !hasChildren
-                      ? theme.palette.secondary?.onContainer ||
-                        theme.palette.primary.main
-                      : "inherit", // Use selected color or default
+                  // Color will be handled by theme override based on selected state
                   transition: theme.transitions.create(["color"], {
                     duration: theme.transitions.duration.shorter,
                   }),
@@ -381,13 +356,9 @@ function Dashboard() {
                 primary={item.text}
                 sx={{
                   opacity: open ? 1 : 0,
-                  color:
-                    isSelected && !hasChildren
-                      ? theme.palette.secondary?.onContainer ||
-                        theme.palette.primary.main
-                      : "inherit",
+                  // Color and font weight handled by theme override based on selected state
                   "& .MuiTypography-root": {
-                    fontWeight: isSelected && !hasChildren ? 600 : 400, // Bolder when selected
+                    // fontWeight: isSelected && !hasChildren ? 600 : 400, // Let theme handle weight
                     fontSize: "0.875rem",
                   },
                 }}
@@ -419,20 +390,7 @@ function Dashboard() {
                 {/* Indent children */}
                 {item.children.map((child) => {
                   const isChildSelected = selectedIndex === child.index;
-                  const childSelectedSx = {
-                    // Style for selected child
-                    backgroundColor:
-                      theme.palette.secondary?.container ||
-                      alpha(theme.palette.primary.main, 0.1),
-                    color:
-                      theme.palette.secondary?.onContainer ||
-                      theme.palette.primary.main,
-                    "&:hover": {
-                      backgroundColor:
-                        theme.palette.secondary?.container ||
-                        alpha(theme.palette.primary.main, 0.15),
-                    },
-                  };
+
                   return (
                     <ListItem
                       key={`child-${child.index}`}
@@ -445,19 +403,13 @@ function Dashboard() {
                         dense // Make children slightly smaller
                         sx={{
                           pl: 4, // Indent text
-                          borderRadius: 5,
-                          ...(isChildSelected && childSelectedSx), // Apply selected style
+                          borderRadius: 5, // Match parent radius (theme override might set this)
                         }}
                       >
                         <ListItemText
                           primary={child.text}
                           primaryTypographyProps={{
                             fontSize: "0.8rem", // Slightly smaller font
-                            fontWeight: isChildSelected ? 600 : 400,
-                            color: isChildSelected
-                              ? theme.palette.secondary?.onContainer ||
-                                theme.palette.primary.main
-                              : "inherit",
                           }}
                         />
                       </ListItemButton>

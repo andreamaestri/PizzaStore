@@ -72,7 +72,7 @@ function App() {
         ? theme.palette.secondary.dark // Example dark mode color
         : theme.palette.secondary.light, // Example light mode color (adjust as needed)
     // M3 uses significantly rounded corners for the selection indicator
-    borderRadius: theme.shape.borderRadius * 5, // e.g., 4 * 5 = 20px
+     // e.g., 4 * 5 = 20px
     "& .MuiListItemIcon-root, & .MuiListItemText-primary": {
       // Ensure icon and text color contrast well with the background
       color:
