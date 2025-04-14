@@ -9,19 +9,22 @@ namespace PizzaStore.Models
     public class Pizza
     {
         public int Id { get; set; }
-        public string? Name { get; set; }        public int BaseId { get; set; }
+        public string? Name { get; set; }
+        public int BaseId { get; set; }
         public PizzaBase? Base { get; set; }
-        
+
+        public decimal Price { get; set; } // Dynamic pricing support
+
         public string? ToppingsJson { get; set; }
-        
+
         [NotMapped]
         public List<string> Toppings
         {
-            get => string.IsNullOrEmpty(ToppingsJson) ? new List<string>() : 
+            get => string.IsNullOrEmpty(ToppingsJson) ? new List<string>() :
                   JsonSerializer.Deserialize<List<string>>(ToppingsJson) ?? new List<string>();
             set => ToppingsJson = JsonSerializer.Serialize(value);
         }
-        
+
         public string? Description { get; set; }
     }
     

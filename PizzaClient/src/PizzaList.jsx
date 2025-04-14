@@ -1,45 +1,45 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { 
-  Box, Typography, TextField, Button, Card, CardContent, 
+import {
+  Box, Typography, TextField, Button, Card, CardContent,
   Stack, Chip, IconButton, Divider, MenuItem, Select,
-  InputLabel, FormControl, Table, TableBody, TableCell, 
+  InputLabel, FormControl, Table, TableBody, TableCell,
   TableContainer, TableHead, TableRow, Paper, InputAdornment,
   Tooltip, Dialog, DialogActions, DialogContent, DialogContentText,
   DialogTitle, Alert, InputBase, alpha, Fab, Autocomplete, CircularProgress,
-  useTheme, // Import useTheme
-  Grid // Import Grid (standard)
+  useTheme,
+  Grid
 } from '@mui/material';
-import { 
-  Add as AddIcon, 
-  Delete as DeleteIcon, 
+import {
+  Add as AddIcon,
+  Delete as DeleteIcon,
   Edit as EditIcon,
   Done as DoneIcon,
   Close as CloseIcon,
   Refresh as RefreshIcon,
   Search as SearchIcon,
-  ErrorOutline as ErrorOutlineIcon // Import error icon
+  ErrorOutline as ErrorOutlineIcon,
+  ShoppingCart as ShoppingCartIcon
 } from '@mui/icons-material';
 
 function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefresh }) {
-  const theme = useTheme(); // Get theme
-  const [formData, setFormData] = useState({ 
-    id: '', 
-    name: '', 
-    description: '', 
-    baseId: 1, 
-    toppings: [] 
+  const theme = useTheme();
+  const [formData, setFormData] = useState({
+    id: '',
+    name: '',
+    description: '',
+    baseId: 1,
+    toppings: [],
+    price: ''
   });
   const [editingId, setEditingId] = useState(null);
   const [bases, setBases] = useState([]);
   const [basesLoading, setBasesLoading] = useState(true);
-  const [basesApiError, setBasesApiError] = useState(null); // State for API errors
-    // Fetch pizza bases from API
+  const [basesApiError, setBasesApiError] = useState(null);
   useEffect(() => {
     const fetchBases = async () => {
       setBasesLoading(true);
-      setBasesApiError(null); // Reset error on fetch
+      setBasesApiError(null);
       try {
-        // Assuming the bases API endpoint follows RESTful conventions
         const response = await fetch('/api/bases');
         if (!response.ok) {
           throw new Error(`Failed to fetch bases (Status: ${response.status})`);
@@ -49,7 +49,6 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
       } catch (error) {
         console.error('Error fetching pizza bases:', error);
         setBasesApiError(error.message || 'Could not load pizza bases.');
-        // Keep fallback bases if API fails
         setBases([
           { id: 1, name: 'Tomato Sauce & Mozzarella' },
           { id: 2, name: 'Saffron Tomato Base' },
@@ -59,10 +58,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
         setBasesLoading(false);
       }
     };
-
     fetchBases();
   }, []);
-    // Generate topping suggestions (Memoized)
   const toppingSuggestions = useMemo(() => {
     if (!data || data.length === 0) {
       return [
@@ -72,8 +69,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
       ];
     }
     const allToppings = data
-      .flatMap(pizza => pizza.toppings || [])
-      .filter(topping => topping);
+      .flatMap(pizza => pizza.toppings || []);
     const uniqueToppings = [...new Set(allToppings)];
     const commonToppings = [
       'Mozzarella', 'Pepperoni', 'Mushrooms', 'Bell Peppers', 'Onions',
@@ -84,12 +80,11 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
       ...uniqueToppings,
       ...commonToppings.filter(t => !uniqueToppings.includes(t))
     ];
-  }, [data]); // Recalculate only when data changes
+  }, [data]);
   const [formErrors, setFormErrors] = useState({});
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
   const [filterText, setFilterText] = useState('');
-    // Filter data (Memoized)
   const filteredData = useMemo(() => {
     if (!data) return [];
     const lowerCaseFilter = filterText.toLowerCase();
@@ -97,7 +92,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
       item.name.toLowerCase().includes(lowerCaseFilter) ||
       (item.description && item.description.toLowerCase().includes(lowerCaseFilter))
     );
-  }, [data, filterText]); // Recalculate when data or filterText changes
+  }, [data, filterText]);
 
   // Validate form (Memoized)
   const validateForm = useCallback(() => {
@@ -105,9 +100,13 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     if (!formData.name.trim()) {
       errors.name = 'Pizza name is required';
     }
+    if (formData.price === '' || isNaN(Number(formData.price)) || Number(formData.price) < 0) {
+      errors.price = 'Valid price required';
+    }
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
-  }, [formData.name]); // Dependency on formData.name
+  }, [formData.name, formData.price]);
+
   // Handle form changes (Memoized)
   const handleFormChange = useCallback((event) => {
     const { name, value } = event.target;
@@ -115,44 +114,36 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
       ...prevData,
       [name]: value,
     }));
-
-    // Clear error when field is edited
     setFormErrors(prev => {
-      if (!prev[name]) return prev; // No change if error doesn't exist
+      if (!prev[name]) return prev;
       const newErrors = { ...prev };
       delete newErrors[name];
       return newErrors;
     });
-  }, []); // No dependencies needed as setters are stable
-  
-  // Removing handleRemoveTopping as it's no longer needed with Autocomplete  // Handle form submission (Memoized)
+  }, []);
+
+  // Handle form submission (Memoized)
   const handleSubmit = useCallback((event) => {
     event.preventDefault();
-
     if (!validateForm()) {
       return;
     }
-
-    // Ensure baseId is a number if it exists
     const submissionData = {
       ...formData,
-      baseId: formData.baseId ? parseInt(formData.baseId, 10) : null, // Ensure baseId is number or null
-      toppings: formData.toppings || [] // Ensure toppings is an array
+      baseId: formData.baseId ? parseInt(formData.baseId, 10) : null,
+      toppings: formData.toppings || [],
+      price: Number(formData.price)
     };
-
     if (editingId) {
-      onUpdate(submissionData); // Pass the validated/cleaned data
+      onUpdate(submissionData);
       setEditingId(null);
     } else {
-      // For creation, ensure ID is not sent if it's empty or null
       const { id, ...createData } = submissionData;
       onCreate(createData);
     }
-
-    // Reset form
-    setFormData({ id: '', name: '', description: '', baseId: 1, toppings: [] });
-    setFormErrors({}); // Clear errors after successful submission
-  }, [editingId, formData, onUpdate, onCreate, validateForm]); // Dependencies
+    setFormData({ id: '', name: '', description: '', baseId: 1, toppings: [], price: '' });
+    setFormErrors({});
+  }, [editingId, formData, onUpdate, onCreate, validateForm]);
 
   // Handle edit action (Memoized)
   const handleEdit = useCallback((item) => {
@@ -161,24 +152,25 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
       id: item.id,
       name: item.name,
       description: item.description || '',
-      baseId: item.baseId || 1, // Default to 1 if null/undefined
-      toppings: item.toppings || []
+      baseId: item.baseId || 1,
+      toppings: item.toppings || [],
+      price: item.price !== undefined ? String(item.price) : ''
     });
-    setFormErrors({}); // Clear errors when starting edit
-  }, []); // No dependencies needed
+    setFormErrors({});
+  }, []);
 
   // Handle cancel edit action (Memoized)
   const handleCancelEdit = useCallback(() => {
     setEditingId(null);
-    setFormData({ id: '', name: '', description: '', baseId: 1, toppings: [] });
+    setFormData({ id: '', name: '', description: '', baseId: 1, toppings: [], price: '' });
     setFormErrors({});
-  }, []); // No dependencies needed
+  }, []);
 
   // Handle delete confirmation dialog opening (Memoized)
   const handleDeleteConfirm = useCallback((id) => {
     setDeletingId(id);
     setDeleteConfirmOpen(true);
-  }, []); // No dependencies needed
+  }, []);
 
   // Handle actual deletion (Memoized)
   const confirmDelete = useCallback(() => {
@@ -187,55 +179,58 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
       setDeleteConfirmOpen(false);
       setDeletingId(null);
     }
-  }, [deletingId, onDelete]); // Dependencies
+  }, [deletingId, onDelete]);
 
   // Handle Autocomplete changes (Memoized) - Specific for toppings
   const handleToppingsChange = useCallback((event, newValue) => {
     setFormData(prev => ({
       ...prev,
-      // Ensure toppings are always strings and filter out empty ones if freeSolo adds them
       toppings: newValue.map(t => String(t).trim()).filter(Boolean)
     }));
-  }, []); // No dependencies needed
+  }, []);
 
   // Handle Base Select changes (Memoized)
   const handleBaseChange = useCallback((event) => {
     const baseId = parseInt(event.target.value, 10);
     setFormData(prev => ({
       ...prev,
-      baseId: isNaN(baseId) ? '' : baseId // Handle potential NaN
+      baseId: isNaN(baseId) ? '' : baseId
     }));
-  }, []); // No dependencies needed
+  }, []);
+
+  // Handle ordering (interactive ordering feature)
+  const handleOrder = (pizza) => {
+    alert(`Order placed for: ${pizza.name} (${pizza.price ? pizza.price.toLocaleString(undefined, { style: 'currency', currency: 'USD' }) : 'N/A'})`);
+    // In production, replace with order API call or dialog
+  };
 
   return (
     <Box>
       <Grid container spacing={3}>
         {/* Pizza Form Section */}
-        <Grid item xs={12} sm={4}> {/* Use item prop and xs */}
-          <Paper 
-            elevation={0} 
-            variant="outlined" 
-            sx={{ 
-              p: 3, 
-              height: '100%', 
-              borderColor: 'divider', // Use theme divider color
+        <Grid item xs={12} sm={4}>
+          <Paper
+            elevation={0}
+            variant="outlined"
+            sx={{
+              p: 3,
+              height: '100%',
+              borderColor: 'divider',
             }}
           >
-            <Typography variant="h6" gutterBottom color="text.primary" fontWeight="medium"> {/* Use text.primary for titles */}
+            <Typography variant="h6" gutterBottom color="text.primary" fontWeight="medium">
               {editingId ? `Edit ${name}` : `Add New ${name}`}
             </Typography>
-            
             {editingId && (
-              <Alert 
-                severity="info" 
-                variant="outlined" // Use outlined or standard based on theme preference
-                sx={{ mb: 2, borderRadius: theme.shape.borderRadius }} // Consistent border radius
+              <Alert
+                severity="info"
+                variant="outlined"
+                sx={{ mb: 2, borderRadius: theme.shape.borderRadius }}
                 icon={<EditIcon fontSize="inherit" />}
               >
                 Editing: <strong>{formData.name}</strong>
               </Alert>
             )}
-            
             <Box component="form" onSubmit={handleSubmit}>
               <Stack spacing={2}>
                 <TextField
@@ -247,11 +242,9 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                   error={!!formErrors.name}
                   helperText={formErrors.name}
                   required
-                  variant="outlined" // Standard M3 text field
+                  variant="outlined"
                   size="small"
-                  // Theme overrides should handle border radius
                 />
-                
                 <TextField
                   fullWidth
                   label="Description"
@@ -260,12 +253,11 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                   onChange={handleFormChange}
                   multiline
                   rows={3}
-                  variant="outlined" // Standard M3 text field
+                  variant="outlined"
                   size="small"
                   placeholder="Describe this pizza..."
-                  // Theme overrides should handle border radius
                 />
-                  <FormControl fullWidth size="small" variant="outlined"> {/* Add variant */}
+                <FormControl fullWidth size="small" variant="outlined">
                   <InputLabel id="base-select-label">Pizza Base</InputLabel>
                   <Select
                     labelId="base-select-label"
@@ -274,7 +266,6 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     label="Pizza Base"
                     onChange={handleBaseChange}
                     displayEmpty={basesLoading}
-                    // Theme overrides should handle border radius
                   >
                     {basesLoading ? (
                       <MenuItem disabled value="">
@@ -291,7 +282,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     )}
                   </Select>
                 </FormControl>
-                  <Box>
+                <Box>
                   <Typography variant="body2" gutterBottom color="text.secondary">
                     Toppings
                   </Typography>
@@ -302,35 +293,27 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     options={toppingSuggestions}
                     value={formData.toppings}
                     onChange={handleToppingsChange}
-                    freeSolo // Allows adding new toppings
+                    freeSolo
                     renderTags={(value, getTagProps) =>
                       value.map((option, index) => (
                         <Chip
-                          // Use theme overrides for chip styling
                           label={option}
                           size="small"
-                          variant="outlined" // M3 often uses outlined chips
-                          color="secondary" // Use secondary color for toppings
+                          variant="outlined"
+                          color="secondary"
                           {...getTagProps({ index })}
-                          sx={{ borderRadius: theme.shape.borderRadius / 2 }} // Slightly less rounded chips
+                          sx={{ borderRadius: theme.shape.borderRadius / 2 }}
                         />
                       ))
                     }
                     renderInput={(params) => (
                       <TextField
                         {...params}
-                        variant="outlined" // Standard M3 text field
+                        variant="outlined"
                         placeholder={formData.toppings.length === 0 ? "Select or add toppings" : ""}
                         fullWidth
-                        // Theme overrides should handle border radius
                       />
                     )}
-                    sx={{
-                      // Minimal sx, rely on theme overrides
-                      '& .MuiOutlinedInput-root': { // Style the Autocomplete input like other TextFields
-                        // padding: '8.5px 14px', // Adjust if needed based on theme
-                      }
-                    }}
                   />
                   {formData.toppings.length === 0 && (
                     <Typography variant="caption" color="text.secondary" sx={{ mt: 0.5, display: 'block' }}>
@@ -338,30 +321,42 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     </Typography>
                   )}
                 </Box>
-                
-                <Box sx={{ pt: 1, display: 'flex', gap: 1.5 }}> {/* Adjusted gap */}
+                <TextField
+                  fullWidth
+                  label="Price"
+                  name="price"
+                  value={formData.price}
+                  onChange={handleFormChange}
+                  error={!!formErrors.price}
+                  helperText={formErrors.price || 'Set the pizza price (USD)'}
+                  required
+                  variant="outlined"
+                  size="small"
+                  type="number"
+                  inputProps={{ min: 0, step: 0.01 }}
+                />
+                <Box sx={{ pt: 1, display: 'flex', gap: 1.5 }}>
                   <Button
                     type="submit"
-                    variant="contained" // M3 filled button
+                    variant="contained"
                     color="primary"
-                    disableElevation // M3 filled buttons are flat
+                    disableElevation
                     startIcon={editingId ? <DoneIcon /> : <AddIcon />}
                     disabled={loading}
                     fullWidth
-                    sx={{ borderRadius: theme.shape.borderRadius * 5 }} // M3 pill shape
+                    sx={{ borderRadius: theme.shape.borderRadius * 5 }}
                   >
                     {editingId ? 'Update Pizza' : 'Add Pizza'}
                   </Button>
-                  
                   {editingId && (
                     <Button
-                      variant="outlined" // M3 outlined button
-                      color="inherit" // Use inherit or secondary
+                      variant="outlined"
+                      color="inherit"
                       onClick={handleCancelEdit}
                       startIcon={<CloseIcon />}
                       disabled={loading}
                       fullWidth
-                      sx={{ borderRadius: theme.shape.borderRadius * 5 }} // M3 pill shape
+                      sx={{ borderRadius: theme.shape.borderRadius * 5 }}
                     >
                       Cancel
                     </Button>
@@ -372,28 +367,26 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
           </Paper>
         </Grid>
         {/* Pizza List Section */}
-        <Grid item xs={12} sm={8}> {/* Use item prop and xs */}
+        <Grid item xs={12} sm={8}>
           <Paper
-            elevation={0} 
-            variant="outlined" 
-            sx={{ 
-              p: { xs: 2, sm: 3 }, // Responsive padding            
-              borderColor: 'divider', // Use theme divider color
+            elevation={0}
+            variant="outlined"
+            sx={{
+              p: { xs: 2, sm: 3 },
+              borderColor: 'divider',
             }}
           >
             <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 2, mb: 2 }}>
-              <Typography variant="h6" color="text.primary" fontWeight="medium" sx={{ mb: 0 }}> {/* Use text.primary */}
+              <Typography variant="h6" color="text.primary" fontWeight="medium" sx={{ mb: 0 }}>
                 {name} Menu ({filteredData.length})
               </Typography>
-              
               <Box sx={{ display: 'flex', gap: 1 }}>
-                {/* Search Input - Using TextField for consistency */}
                 <TextField
                   placeholder="Search pizzas..."
                   value={filterText}
                   onChange={(e) => setFilterText(e.target.value)}
                   size="small"
-                  variant="outlined" // Standard M3 text field
+                  variant="outlined"
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -406,7 +399,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                           size="small"
                           onClick={() => setFilterText('')}
                           edge="end"
-                          aria-label="clear search" // Add aria-label
+                          aria-label="clear search"
                         >
                           <CloseIcon fontSize="small" />
                         </IconButton>
@@ -414,38 +407,33 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     )
                   }}
                   sx={{
-                    minWidth: { xs: '100%', sm: '200px' }, // Responsive width
-                    // Theme overrides handle radius
-                    '& .MuiOutlinedInput-root': { // Ensure consistent radius with buttons
-                       borderRadius: theme.shape.borderRadius * 5,
+                    minWidth: { xs: '100%', sm: '200px' },
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: theme.shape.borderRadius * 5,
                     },
                   }}
                 />
-                {/* MD3 Standard Icon Button with Clear Tooltip */}
                 <Tooltip title="Refresh pizza list">
-                  <span> {/* Span needed for disabled button tooltip */}
-                    <IconButton 
-                      onClick={onRefresh} 
-                      size="medium" // Standard size for icon buttons
-                      color="primary" 
+                  <span>
+                    <IconButton
+                      onClick={onRefresh}
+                      size="medium"
+                      color="primary"
                       disabled={loading}
                       aria-label="refresh pizza list"
-                      sx={{ 
-                        // Standard icon button hover/focus styles
-                        '&:hover': { 
-                          bgcolor: alpha(theme.palette.primary.main, 0.08) 
+                      sx={{
+                        '&:hover': {
+                          bgcolor: alpha(theme.palette.primary.main, 0.08)
                         }
                       }}
                     >
-                      <RefreshIcon /> {/* Use standard size icon */}
+                      <RefreshIcon />
                     </IconButton>
                   </span>
                 </Tooltip>
               </Box>
             </Box>
-            
-            {/* M3 Table Styling: Use Paper variant="outlined" for container */}    
-             <TableContainer component={Paper} variant="outlined" sx={{ mt: 2, borderColor: 'divider' }}>
+            <TableContainer component={Paper} variant="outlined" sx={{ mt: 2, borderColor: 'divider' }}>
               <Table aria-label="pizza menu table" size="small">
                 <TableHead sx={{ bgcolor: alpha(theme.palette.text.primary, 0.04) }}>
                   <TableRow>
@@ -453,32 +441,33 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, fontWeight: 500, color: 'text.secondary', borderBottomColor: 'divider' }}>Description</TableCell>
                     <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' }, fontWeight: 500, color: 'text.secondary', borderBottomColor: 'divider' }}>Base</TableCell>
                     <TableCell sx={{ fontWeight: 500, color: 'text.secondary', borderBottomColor: 'divider' }}>Toppings</TableCell>
+                    <TableCell sx={{ fontWeight: 500, color: 'text.secondary', borderBottomColor: 'divider' }}>Price</TableCell>
                     <TableCell align="right" sx={{ fontWeight: 500, color: 'text.secondary', borderBottomColor: 'divider' }}>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {loading && data.length === 0 ? (
-                     <TableRow>
-                       <TableCell colSpan={5} align="center" sx={{ py: 4, border: 0 }}> {/* Remove border */}
-                         <CircularProgress size={24} />
-                       </TableCell>
-                     </TableRow>
+                    <TableRow>
+                      <TableCell colSpan={6} align="center" sx={{ py: 4, border: 0 }}>
+                        <CircularProgress size={24} />
+                      </TableCell>
+                    </TableRow>
                   ) : filteredData.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={5} align="center" sx={{ border: 0 }}> {/* Remove border */}
+                      <TableCell colSpan={6} align="center" sx={{ border: 0 }}>
                         <Box sx={{ py: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
                           <SearchIcon color="disabled" sx={{ fontSize: 40 }} />
                           <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                             {filterText ? 'No pizzas match search' : 'No pizzas added yet'}
                           </Typography>
                           {!filterText && (
-                            <Button 
-                              startIcon={<AddIcon />} 
-                              variant="text" // Use text button for less emphasis
+                            <Button
+                              startIcon={<AddIcon />}
+                              variant="text"
                               color="primary"
                               size="small"
-                              onClick={() => document.querySelector('input[name="name"]')?.focus()} // Focus the name field
-                              sx={{ mt: 1 }} // Add margin top
+                              onClick={() => document.querySelector('input[name="name"]')?.focus()}
+                              sx={{ mt: 1 }}
                             >
                               Add First Pizza
                             </Button>
@@ -488,22 +477,22 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     </TableRow>
                   ) : (
                     filteredData.map((item) => (
-                      <TableRow 
-                        key={item.id} 
-                        hover // Keep hover effect
-                        sx={{ 
-                          '&:last-child td, &:last-child th': { border: 0 }, // Remove border on last row
-                          '& td, & th': { borderBottomColor: 'divider' } // Use divider color for borders
+                      <TableRow
+                        key={item.id}
+                        hover
+                        sx={{
+                          '&:last-child td, &:last-child th': { border: 0 },
+                          '& td, & th': { borderBottomColor: 'divider' }
                         }}
                       >
                         <TableCell>
-                          <Typography variant="body2" fontWeight={500} color="text.primary"> {/* Use text.primary */}
+                          <Typography variant="body2" fontWeight={500} color="text.primary">
                             {item.name}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ display: { xs: 'none', md: 'table-cell' } }}>
                           <Typography variant="body2" color="text.secondary" noWrap title={item.description}>
-                            {item.description ? (item.description.length > 50 ? item.description.substring(0, 50) + '…' : item.description) : '—'} {/* Use ellipsis character */}
+                            {item.description ? (item.description.length > 50 ? item.description.substring(0, 50) + '…' : item.description) : '—'}
                           </Typography>
                         </TableCell>
                         <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
@@ -514,23 +503,23 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                         <TableCell>
                           {item.toppings && item.toppings.length > 0 ? (
                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                              {item.toppings.slice(0, 3).map((topping, idx) => ( // Show max 3 toppings initially
-                                <Chip 
-                                  key={idx} 
-                                  label={topping} 
-                                  size="small" 
-                                  variant="outlined" // M3 outlined chip
+                              {item.toppings.slice(0, 3).map((topping, idx) => (
+                                <Chip
+                                  key={idx}
+                                  label={topping}
+                                  size="small"
+                                  variant="outlined"
                                   color="secondary"
-                                  sx={{ borderRadius: theme.shape.borderRadius / 2 }} // Slightly less rounded
+                                  sx={{ borderRadius: theme.shape.borderRadius / 2 }}
                                 />
                               ))}
                               {item.toppings.length > 3 && (
                                 <Tooltip title={item.toppings.slice(3).join(', ')}>
-                                  <Chip 
-                                    label={`+${item.toppings.length - 3}`} 
-                                    size="small" 
-                                    variant="outlined" // Consistent chip style
-                                    sx={{ borderRadius: theme.shape.borderRadius / 2 }} 
+                                  <Chip
+                                    label={`+${item.toppings.length - 3}`}
+                                    size="small"
+                                    variant="outlined"
+                                    sx={{ borderRadius: theme.shape.borderRadius / 2 }}
                                   />
                                 </Tooltip>
                               )}
@@ -539,19 +528,43 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                             <Typography variant="caption" color="text.disabled">None</Typography>
                           )}
                         </TableCell>
+                        <TableCell>
+                          <Typography variant="body2" color="text.primary" fontWeight={500}>
+                            {typeof item.price === 'number'
+                              ? item.price.toLocaleString(undefined, { style: 'currency', currency: 'USD' })
+                              : '—'}
+                          </Typography>
+                        </TableCell>
                         <TableCell align="right">
-                          {/* MD3 Standard Icon Button for Edit */}
+                          <Tooltip title="Order pizza">
+                            <span>
+                              <IconButton
+                                color="success"
+                                onClick={() => handleOrder(item)}
+                                size="small"
+                                aria-label="order pizza"
+                                sx={{
+                                  mr: 1,
+                                  '&:hover': {
+                                    backgroundColor: alpha(theme.palette.success.main, 0.08)
+                                  }
+                                }}
+                              >
+                                <ShoppingCartIcon fontSize="inherit" />
+                              </IconButton>
+                            </span>
+                          </Tooltip>
                           <Tooltip title="Edit pizza details">
-                            <span> {/* Span needed for disabled button tooltip */}
-                              <IconButton 
-                                color="primary" 
+                            <span>
+                              <IconButton
+                                color="primary"
                                 onClick={() => handleEdit(item)}
-                                size="small" // Keep small for table density
+                                size="small"
                                 aria-label="edit pizza details"
                                 disabled={loading}
                                 sx={{
                                   '&:hover': {
-                                    backgroundColor: alpha(theme.palette.primary.main, 0.08) // Subtle hover
+                                    backgroundColor: alpha(theme.palette.primary.main, 0.08)
                                   }
                                 }}
                               >
@@ -559,18 +572,17 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                               </IconButton>
                             </span>
                           </Tooltip>
-                          {/* MD3 Standard Icon Button for Delete */}
                           <Tooltip title="Delete pizza">
-                            <span> {/* Span needed for disabled button tooltip */}
-                              <IconButton 
-                                color="error" 
+                            <span>
+                              <IconButton
+                                color="error"
                                 onClick={() => handleDeleteConfirm(item.id)}
-                                size="small" // Keep small for table density
+                                size="small"
                                 aria-label="delete pizza"
                                 disabled={loading}
                                 sx={{
                                   '&:hover': {
-                                    backgroundColor: alpha(theme.palette.error.main, 0.08) // Subtle hover
+                                    backgroundColor: alpha(theme.palette.error.main, 0.08)
                                   }
                                 }}
                               >
@@ -588,17 +600,13 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
           </Paper>
         </Grid>
       </Grid>
-      
-      {/* Mobile add button - Consider removing if form is always visible */}
-      {/* ... (FAB code remains commented out) ... */}
-      
       {/* Delete confirmation dialog */}
       <Dialog
         open={deleteConfirmOpen}
         onClose={() => setDeleteConfirmOpen(false)}
         aria-labelledby="delete-pizza-dialog-title"
         aria-describedby="delete-pizza-dialog-description"
-        PaperProps={{ sx: { borderRadius: theme.shape.borderRadius * 2.5 } }} // M3 Dialog border radius
+        PaperProps={{ sx: { borderRadius: theme.shape.borderRadius * 2.5 } }}
       >
         <DialogTitle id="delete-pizza-dialog-title">
           Confirm Delete
@@ -608,22 +616,22 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
             Are you sure you want to remove the pizza "<strong>{data.find(item => item.id === deletingId)?.name || 'this pizza'}</strong>"? This action cannot be undone.
           </DialogContentText>
         </DialogContent>
-        <DialogActions sx={{ p: 2 }}> {/* Add padding */}
-          <Button 
-            onClick={() => setDeleteConfirmOpen(false)} 
-            variant="text" // M3 text button
-            sx={{ borderRadius: theme.shape.borderRadius * 5 }} // M3 pill shape
+        <DialogActions sx={{ p: 2 }}>
+          <Button
+            onClick={() => setDeleteConfirmOpen(false)}
+            variant="text"
+            sx={{ borderRadius: theme.shape.borderRadius * 5 }}
           >
             Cancel
-          </Button> 
-          <Button 
-            onClick={confirmDelete} 
-            color="error" 
-            variant="contained" // M3 filled button
-            disableElevation // M3 filled buttons are flat
+          </Button>
+          <Button
+            onClick={confirmDelete}
+            color="error"
+            variant="contained"
+            disableElevation
             autoFocus
-            sx={{ borderRadius: theme.shape.borderRadius * 5 }} // M3 pill shape
-          > 
+            sx={{ borderRadius: theme.shape.borderRadius * 5 }}
+          >
             Delete
           </Button>
         </DialogActions>
