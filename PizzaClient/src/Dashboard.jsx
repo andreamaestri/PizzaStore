@@ -48,7 +48,7 @@ import {
   Restaurant as ToppingIcon,
 } from "@mui/icons-material";
 import Pizza from "./Pizza"; // Assuming Pizza component exists
-import ToppingManager from "./ToppingManager"; // Import ToppingManager component
+import ToppingManager from "./components/toppings/ToppingManager"; // Import ToppingManager component
 
 const drawerWidth = 240;
 

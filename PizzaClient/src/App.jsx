@@ -29,7 +29,7 @@ import {
 } from "@mui/icons-material";
 import "./App.css";
 import Pizza from "./Pizza";
-import ToppingManager from "./ToppingManager";
+import ToppingManager from "./components/toppings/ToppingManager";
 
 const drawerWidth = 240;
 
