@@ -1,10 +1,11 @@
 // Namespace for the Pizza model and DbContext
 using PizzaStore.Models;
-// Required for OpenApiInfo class used in Swagger setup.
+// Required for OpenApiInfo class used in Swagger setup
 using Microsoft.OpenApi.Models;
-// Required for Entity Framework Core functionalities like ToListAsync, AddAsync etc.
+// Required for Entity Framework Core functionalities like ToListAsync, AddAsync etc
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Http.HttpResults; // Required for TypedResults
+// Required for TypedResults
+using Microsoft.AspNetCore.Http.HttpResults;
 
 // --- 1. Application Builder Setup ---
 var builder = WebApplication.CreateBuilder(args);

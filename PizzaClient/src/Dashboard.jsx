@@ -52,8 +52,13 @@ import ToppingManager from "./components/toppings/ToppingManager"; // Import Top
 
 const drawerWidth = 240;
 
+// --- Styled Components --- //
+// Using MUI's `styled` API allows for creating reusable components with encapsulated styles
+// and provides a clean way to manage dynamic styles based on props (like `open`).
 // --- Styled Components for Smooth Transitions (MUI Docs Pattern) ---
 
+// Styled AppBar component that adjusts margin and width based on the drawer's open state.
+// Inherits M3-like styles from the theme overrides.
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -77,6 +82,8 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
+// Styled Drawer component that handles transitions for opening and closing.
+// Adjusts width and overflow based on the `open` prop.
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -106,6 +113,8 @@ const Drawer = styled(MuiDrawer, {
 }));
 
 // Initial Navigation State Structure
+// Defines the structure for navigation items, including potential dividers, headers, badges, and nested children.
+// Storing this configuration centrally makes it easier to manage the sidebar layout.
 const initialNavigation = [
   {
     index: 0, // Add index for easier state management
@@ -160,24 +169,37 @@ const initialNavigation = [
 function Dashboard() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+// State to control the drawer's open/closed status. Defaults based on screen size.
   const [open, setOpen] = useState(!isMobile); // Default open on desktop, closed on mobile
+// State to track the index of the currently selected navigation item.
   const [selectedIndex, setSelectedIndex] = useState(1); // Default to Pizza page (index 1)
+// Holds the navigation structure, allowing dynamic updates (e.g., expanding children).
   const [navigationState, setNavigationState] = useState(initialNavigation); // Navigation in state
+// State for managing the anchor element of the notifications popover/menu.
   const [notificationsAnchorEl, setNotificationsAnchorEl] = useState(null);
+// State for managing the anchor element of the user profile popover/menu.
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
 
   // NOTE: Proper dark mode requires lifting state to control ThemeProvider mode
+// Local state for dark mode toggle. For a persistent theme change,
+// this state and the toggle logic should be lifted to a context provider
+// that wraps the `ThemeProvider` and controls its `mode`.
   const [darkMode, setDarkMode] = useState(theme.palette.mode === "dark");
 
   // Adjust drawer state based on screen size changes
+// Effect to automatically open/close the drawer when the screen size changes
+// across the mobile breakpoint (`sm`).
   useEffect(() => {
     setOpen(!isMobile);
   }, [isMobile]);
 
+// Toggles the drawer's open/closed state.
   const handleDrawerToggle = () => {
     setOpen(!open);
   };
 
+// Handles clicks on main navigation items, updating the selected index.
+// Closes the drawer automatically on mobile.
   const handleListItemClick = (index) => {
     setSelectedIndex(index);
     // Close drawer on mobile after selection
@@ -187,6 +209,8 @@ function Dashboard() {
   };
 
   // Toggle nested item visibility
+// Toggles the `showChildren` property for a specific navigation item by its index,
+// controlling the visibility of nested sub-items.
   const toggleChildren = (index) => {
     setNavigationState((prevState) =>
       prevState.map((item) =>
@@ -197,13 +221,16 @@ function Dashboard() {
     );
   };
 
+// Opens the notifications menu, anchoring it to the clicked element.
   const handleNotificationsOpen = (event) =>
     setNotificationsAnchorEl(event.currentTarget);
   const handleNotificationsClose = () => setNotificationsAnchorEl(null);
+// Opens the user profile menu, anchoring it to the clicked element.
   const handleProfileOpen = (event) => setProfileAnchorEl(event.currentTarget);
   const handleProfileClose = () => setProfileAnchorEl(null);
 
   // --- Branding & Slots ---
+// Defines branding elements (logo and title) used in the drawer header.
   const branding = {
     logo: (
       <Avatar
@@ -221,9 +248,9 @@ function Dashboard() {
   };
 
   // Slot for Toolbar Actions
-  const CustomToolbarActions = () => (
-    <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-      {" "}
+// Defines a component slot for actions displayed in the AppBar's toolbar.
+// This promotes composition and allows easy customization of toolbar content.
+  const CustomToolbarActions = () => (      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
       {/* Use gap */}
       <Tooltip title="Search">
         <IconButton color="inherit">
@@ -236,6 +263,9 @@ function Dashboard() {
         <IconButton
           onClick={() => {
             setDarkMode(!darkMode);
+// TODO: Implement the actual theme mode switching logic.
+// This requires access to the function provided by the theme context
+// to update the `mode` in the `ThemeProvider`.
             // TODO: Add logic here to call the function that updates the theme mode in ThemeProvider
             console.warn(
               "Dark mode toggle requires ThemeProvider context update."
@@ -257,9 +287,9 @@ function Dashboard() {
   );
 
   // Slot for Sidebar Footer
-  const SidebarFooter = () => (
-    <Box sx={{ p: 2, textAlign: "center", mt: "auto" }}>
-      {" "}
+// Defines a component slot for content displayed at the bottom of the sidebar.
+// Useful for version info, links, etc.
+  const SidebarFooter = () => (    <Box sx={{ p: 2, textAlign: "center", mt: "auto" }}>
       {/* Push footer down */}
       <Typography variant="caption" color="text.secondary">
         Pizza Admin v1.0.0
@@ -268,6 +298,8 @@ function Dashboard() {
   );
 
   // --- Navigation Renderer ---
+// Function to render the navigation items based on the `navigationState` array.
+// Handles different item types (divider, header, regular item, item with children).
   const renderNavigation = (items) => {
     return items.map((item, index) => {
       // Divider
@@ -314,11 +346,13 @@ function Dashboard() {
             }}
           >
             <ListItemButton
+// Click handler: Toggles children if the item has them, otherwise handles regular navigation.
               onClick={() =>
                 hasChildren
                   ? toggleChildren(item.index)
                   : handleListItemClick(item.index)
               }
+// `selected` prop is applied only to leaf nodes (items without children) to avoid highlighting parent toggles.
               selected={isSelected && !hasChildren} // Apply selected prop only if not a parent toggle
               sx={{
                 minHeight: 48,
@@ -331,6 +365,8 @@ function Dashboard() {
                     duration: theme.transitions.duration.shorter,
                   }
                 ),
+// Selected styles are primarily driven by theme overrides for `MuiListItemButton`
+// based on the `.Mui-selected` class, promoting consistency.
                 // Selected styles are now primarily handled by theme overrides for MuiListItemButton
                 // Hover style for non-selected items (theme override might handle this too)
                 "&:hover": {
@@ -383,10 +419,10 @@ function Dashboard() {
           </ListItem>
 
           {/* Render Children */}
-          {hasChildren && (
+{/* Renders nested child items within a `Collapse` component for smooth expansion/collapse,
+only when the parent is expanded (`isExpanded`) and the drawer is open (`open`). */}          {hasChildren && (
             <Collapse in={isExpanded && open} timeout="auto" unmountOnExit>
               <List component="div" disablePadding sx={{ pl: open ? 2 : 0 }}>
-                {" "}
                 {/* Indent children */}
                 {item.children.map((child) => {
                   const isChildSelected = selectedIndex === child.index;
@@ -432,11 +468,12 @@ function Dashboard() {
         overflow: "hidden",
         bgcolor: "background.default",
       }}
-    >{/* --- Drawer --- */}
+    >
+      {/* --- Drawer --- */}
+      {/* The main Drawer component, controlled by the `open` state. */}
       <Drawer variant="permanent" open={open}>
-        {" "}
-        {/* Control open state */}
         {/* Drawer Header / Branding */}
+        {/* Header section of the drawer, containing branding and the toggle button. */}
         <Box
           sx={{
             display: "flex",
@@ -471,16 +508,17 @@ function Dashboard() {
         </Box>
         <Divider />
         {/* Navigation List */}
+        {/* Renders the main navigation list using the `renderNavigation` function. */}
         <List component="nav" sx={{ flexGrow: 1, pt: 1 }}>
-          {" "}
-          {/* Allow list to grow */}
           {renderNavigation(navigationState)}
         </List>
         {/* Sidebar Footer Slot */}
+        {/* Renders the sidebar footer slot, only when the drawer is open. */}
         {open && <SidebarFooter />}
       </Drawer>
-
+      
       {/* --- Main Content --- */}
+      {/* The main content area of the dashboard. */}
       <Box
         component="main"
         sx={{
@@ -494,11 +532,17 @@ function Dashboard() {
           display: "flex",
           flexDirection: "column",
         }}
-      >        {/* Spacer for AppBar - using Box instead of Toolbar */}
+      >
+        {/* Spacer for AppBar - using Box instead of Toolbar */}
+        {/* A simple Box used as a spacer to push content below the fixed/absolute AppBar. */}
+        {/* Ensures content isn't hidden behind the AppBar. */}
         <Box sx={{ height: 64 }} /> {/* Match AppBar height */}
+        
         {/* Content Area with Padding */}
         <Container maxWidth="xl" sx={{ pt: 2, pb: 4, flexGrow: 1 }}>
           {/* Breadcrumbs */}
+          {/* Breadcrumbs provide context about the user's current location within the application. */}
+          {/* Dynamically displays the path based on the `selectedIndex`. */}
           <Breadcrumbs
             separator={<NavigateNextIcon fontSize="small" />}
             aria-label="breadcrumb"
@@ -527,17 +571,21 @@ function Dashboard() {
               </Box>
             </Typography>
           </Breadcrumbs>
-            {/* Render selected component or placeholder */}
-            {navigationState.find((item) => item.index === selectedIndex)
-              ?.component || (
-              <Box sx={{ p: 4, textAlign: "center" }}>
-                <Typography variant="h5" color="text.secondary">
-                  {navigationState.find((item) => item.index === selectedIndex)
-                    ?.text || "Content"}{" "}
-                  Coming Soon
-                </Typography>
-              </Box>
-            )}
+          
+          {/* Render selected component or placeholder */}
+          {/* Dynamically renders the component associated with the `selectedIndex`. */}
+          {/* Finds the corresponding item in `navigationState` and renders its `component` property. */}
+          {/* Shows a placeholder if the component is not defined (e.g., for 'Coming Soon' pages). */}
+          {navigationState.find((item) => item.index === selectedIndex)
+            ?.component || (
+            <Box sx={{ p: 4, textAlign: "center" }}>
+              <Typography variant="h5" color="text.secondary">
+                {navigationState.find((item) => item.index === selectedIndex)
+                  ?.text || "Content"}{" "}
+                Coming Soon
+              </Typography>
+            </Box>
+          )}
         </Container>
       </Box>
     </Box>

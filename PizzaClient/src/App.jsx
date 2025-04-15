@@ -31,28 +31,30 @@ import "./App.css";
 import Pizza from "./Pizza";
 import ToppingManager from "./components/toppings/ToppingManager";
 
+// TODO: Consider defining drawerWidth within the theme for consistency.
 const drawerWidth = 240;
 
 function App() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [selectedIndex, setSelectedIndex] = useState(0); // State to track selected item
+// Tracks the currently selected navigation item index for highlighting and content rendering.  const [selectedIndex, setSelectedIndex] = useState(0); // State to track selected item
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
   };
 
-  const handleListItemClick = (index) => {
+  {/* Handles clicks on navigation items, updating the selected index and closing the mobile drawer */}  const handleListItemClick = (index) => {
     setSelectedIndex(index);
     // Optionally close mobile drawer on selection
     if (isMobile) {
       setMobileOpen(false);
     }
+    {/* Placeholder for future routing logic. Consider using React Router or a similar library */}
     // Add navigation logic here based on index
   };
-
   // Define navigation items
+  {/* Defines the primary navigation items displayed in the drawer */}
   const navItems = [
     { text: "Dashboard", icon: <DashboardIcon />, index: 0 },
     { text: "Pizza Menu", icon: <PizzaIcon />, index: 1 },
@@ -62,8 +64,13 @@ function App() {
   ];
 
   const settingsItem = { text: "Settings", icon: <SettingsIcon />, index: 5 };
-
   // M3 Inspired Styling for selected ListItemButton
+  {/* 
+    Defines custom styles for the selected ListItemButton, aiming for an M3-inspired look.
+    NOTE: This relies on specific theme palette properties (secondary.dark/light/contrastText).
+    Ensure these are defined in your theme or adjust accordingly.
+    Consider moving these styles into the theme's component overrides for better centralization (MuiListItemButton).
+  */}
   const selectedItemStyles = {
     // Use a container color - approximate with secondary or primary light/alpha
     // Ideally, define theme.palette.secondary.container or theme.palette.primary.container
@@ -90,6 +97,7 @@ function App() {
     },
   };
 
+// Defines the content structure of the navigation drawer.
   const drawer = (
     <>
       {/* Drawer Header */}
@@ -125,6 +133,7 @@ function App() {
       <List sx={{ px: 2 }}>
         {" "}
         {/* Add horizontal padding to the list */}
+// Maps over navItems to render the main navigation links.
         {navItems.map((item) => (
           <ListItem key={item.index} disablePadding sx={{ mb: 1 }}>
             {" "}
@@ -133,6 +142,8 @@ function App() {
               selected={selectedIndex === item.index}
               onClick={() => handleListItemClick(item.index)}
               // Apply M3 styles when selected
+// Conditionally applies selectedItemStyles if the item is selected,
+// otherwise applies default styles including hover effects and border radius.
               sx={
                 selectedIndex === item.index
                   ? selectedItemStyles
@@ -165,6 +176,7 @@ function App() {
       <Divider sx={{ borderColor: "divider", mx: 2, my: 1 }} />
 
       {/* Settings List (pushes to bottom) */}
+// Renders the 'Settings' item, pushed to the bottom using `mt: 'auto'`.
       <List sx={{ px: 2, mt: "auto" }}>
         {" "}
         {/* mt: 'auto' pushes this list down */}
@@ -203,12 +215,14 @@ function App() {
       {" "}
       {/* Ensure main background is set */}
       {/* Navigation Drawer */}
+// Main navigation container holding both mobile and desktop drawers.
       <Box
         component="nav"
         sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
         aria-label="mailbox folders"
       >
         {/* Mobile drawer */}
+// Temporary drawer for mobile viewports, controlled by `mobileOpen` state.
         <Drawer
           variant="temporary"
           open={mobileOpen}
@@ -229,6 +243,7 @@ function App() {
           {drawer}
         </Drawer>
         {/* Desktop drawer */}
+// Permanent drawer for larger viewports (sm and up).
         <Drawer
           variant="permanent"
           sx={{
@@ -248,6 +263,7 @@ function App() {
         </Drawer>
       </Box>
       {/* Main Content Area */}
+// Main content area that displays the component corresponding to the selected navigation item.
       <Box
         component="main"
         sx={{
@@ -255,12 +271,16 @@ function App() {
           p: 3, // Standard padding
           width: { sm: `calc(100% - ${drawerWidth}px)` },
           // Ensure content starts below the AppBar
+// `mt: '64px'` pushes content below the AppBar. Ensure this matches the actual AppBar height.
           mt: `64px`, // Adjust if AppBar height changes
           minHeight: "calc(100vh - 64px)", // Fill viewport height
           // Background color set by parent Box now
         }}
       >
         {/* Use Container for centering and max-width */}        <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2 } }}>
+// Conditional rendering based on `selectedIndex`. This approach works for a small number of items.
+// For more complex routing, consider using a routing library like React Router
+// which maps routes to components declaratively.
           {/* Render content based on selected navigation item */}
           {selectedIndex === 0 && (
             <Typography variant="h4" component="h1" gutterBottom>

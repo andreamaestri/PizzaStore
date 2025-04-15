@@ -7,22 +7,35 @@ import {
 import { Home as HomeIcon, NavigateNext as NavigateNextIcon, LocalPizza as PizzaIcon } from '@mui/icons-material'; // Added PizzaIcon
 import PizzaList from './PizzaList'; // Assuming PizzaList component exists and handles display/form
 
+// Constant for the item type, used in UI text (e.g., notifications, titles)
 const term = "Pizza"; // Used for display text
+// Base URL for the Pizza API endpoint
 const API_URL = '/api/pizzas'; // Example API endpoint
+// Default headers for API requests. Ensure 'Content-Type' matches API expectations
+// Add 'Authorization' header if authentication is required
 const headers = {
     'Content-Type': 'application/json',
     // Add any other required headers like Authorization if needed
 };
 
 function Pizza() {
+    // State to hold the array of pizza data fetched from the API
     const [data, setData] = useState([]);
+    // State to store any error object encountered during API calls
     const [error, setError] = useState(null);
+    // State to indicate if a data fetching or CUD (Create, Update, Delete) operation is in progress
     const [loading, setLoading] = useState(true); // Loading state for fetch/CUD operations
+    // State for managing the visibility, message, and severity of the notification Snackbar
     const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' });
+    // State to control the visibility of the delete confirmation dialog
     const [dialogOpen, setDialogOpen] = useState(false); // State for delete confirmation dialog
+    // State to store the ID of the pizza item marked for deletion, pending confirmation
     const [itemToDeleteId, setItemToDeleteId] = useState(null); // ID of item pending deletion
 
     // --- Data Fetching ---
+    // Fetches pizza data from the API using `useCallback` for memoization
+    // Sets loading state, handles success, and catches errors
+    // Clears previous errors on each fetch attempt
     const fetchPizzaData = useCallback(() => {
         setLoading(true);
         setError(null); // Clear previous errors on fetch
@@ -46,23 +59,33 @@ function Pizza() {
             });
     }, []); // Empty dependency array means this runs once on mount and callback doesn't change
 
+    {/* 
+        `useEffect` hook to trigger the initial data fetch when the component mounts.
+        Depends on `fetchPizzaData`, which is memoized by `useCallback`.
+    */}
     useEffect(() => {
         fetchPizzaData();
-    }, [fetchPizzaData]); // Depend on the stable callback
-
-    // --- Notifications ---
+    }, [fetchPizzaData]); // Depend on the stable callback    // --- Notifications ---
+    {/* Utility function to display a notification message via the Snackbar. */}
     const showNotification = (message, severity = 'success') => {
         setNotification({ open: true, message, severity });
     };
 
+    {/* Handles closing the notification Snackbar. Prevents closing on 'clickaway'. */}
     const handleCloseNotification = (event, reason) => {
         if (reason === 'clickaway') {
             return;
         }
         setNotification({ ...notification, open: false });
-    };
-
-    // --- CRUD Handlers ---
+    };    // --- CRUD Handlers ---
+    {/* 
+        Handles the creation of a new pizza item.
+        Sends a POST request to the API.
+        Updates local state on success, shows notification, handles errors.
+        TODO: Consider implementing optimistic updates for a smoother UX:
+        1. Add the new item to `data` state immediately.
+        2. If the API call fails, remove the item from `data` and show an error.
+    */}
     const handleCreate = (item) => {
         setLoading(true);
         setError(null);
@@ -71,6 +94,9 @@ function Pizza() {
         fetch(API_URL, {
             method: 'POST',
             headers,
+// Construct the payload for the POST request.
+// Ensure properties match the expected API schema.
+// Includes parsing for `baseId` and default for `toppings`.
             body: JSON.stringify({
                 // Ensure payload matches API expectations
                 name: item.name,
@@ -97,6 +123,13 @@ function Pizza() {
             });
     };
 
+// Handles updating an existing pizza item.
+// Sends a PUT request to the API with the updated item data.
+// Updates local state on success, shows notification, handles errors.
+// Stores original data for potential rollback on error.
+// TODO: Consider implementing optimistic updates:
+// 1. Update the item in `data` state immediately.
+// 2. If the API call fails, revert the item in `data` to its original state.
     const handleUpdate = (updatedItem) => {
         setLoading(true);
         setError(null);
@@ -107,6 +140,8 @@ function Pizza() {
         fetch(`${API_URL}/${updatedItem.id}`, {
             method: 'PUT',
             headers,
+// Construct the payload for the PUT request.
+// Ensure all required fields, including the ID, are present.
             body: JSON.stringify({
                 // Ensure payload matches API expectations
                 id: updatedItem.id,
@@ -135,16 +170,26 @@ function Pizza() {
     };
 
     // --- Delete Handling with Confirmation ---
+// Initiates the delete process by setting the item ID and opening the confirmation dialog.
     const handleDeleteRequest = (id) => {
         setItemToDeleteId(id);
         setDialogOpen(true); // Open confirmation dialog
     };
 
+// Closes the delete confirmation dialog and resets the item ID.
     const handleCloseDialog = () => {
         setDialogOpen(false);
         setItemToDeleteId(null);
     };
 
+// Confirms and executes the deletion after user confirmation.
+// Sends a DELETE request to the API.
+// Updates local state on success by filtering out the deleted item.
+// Shows notification, handles errors.
+// Stores original data for potential rollback.
+// TODO: Consider implementing optimistic updates:
+// 1. Remove the item from `data` state immediately.
+// 2. If the API call fails, re-insert the item into `data`.
     const handleConfirmDelete = () => {
         if (!itemToDeleteId) return;
 
@@ -181,6 +226,8 @@ function Pizza() {
     // --- Render Logic ---
 
     // More detailed Skeleton
+// Renders a skeleton loading state, providing visual feedback while data is initially loading.
+// Uses Fade transition for smoother appearance.
     const renderSkeleton = () => (
         <Fade in={true} timeout={500}>
             <Stack spacing={3}>
@@ -198,11 +245,10 @@ function Pizza() {
     );
 
     return (
-        <Stack>
-            {/* --- Loading State (Initial) --- */}
-            {loading && data.length === 0 && !error && renderSkeleton()}
-
-            {/* --- Error State --- */}
+        <Stack>            {/* --- Loading State (Initial) --- */}
+            {/* Displays a skeleton loader only during the *initial* data fetch (loading is true and data is empty). */}
+            {loading && data.length === 0 && !error && renderSkeleton()}            {/* --- Error State --- */}
+            {/* Displays an error message with a retry button if fetching fails. */}
             {error && !loading && (
                 <Fade in={true} timeout={500}>
                     <Alert
@@ -217,20 +263,28 @@ function Pizza() {
                         Failed to load data: {error?.message || 'An unknown error occurred.'} Please try again.
                     </Alert>
                 </Fade>
-            )}
-
-            {/* --- Content (PizzaList) --- */}
+            )}            {/* --- Content (PizzaList) --- */}
             {/* Render PizzaList only when not in initial loading state */}
-            {(!loading || data.length > 0) && !error && (
-                 <Fade in={!loading || data.length > 0} timeout={500}>
+            {/* 
+                Renders the main content (`PizzaList`) once data is available or if loading is finished (even if there's an error, to show the error state within PizzaList if needed).
+                Uses Fade transition. 
+            */}            {(!loading || data.length > 0) && !error && (
+                <Fade in={!loading || data.length > 0} timeout={500}>
                     <Box>
                         {/* Show subtle loading indicator during CUD operations if needed */}
+                        {/* 
+                            Shows a small CircularProgress indicator during subsequent loading states (e.g., CUD operations)
+                            when data is already present. Positioned absolutely for overlay effect.
+                            Alternatively, pass `loading` prop to `PizzaList` to disable internal controls. 
+                        */}
                         {loading && data.length > 0 && (
                             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2, position: 'absolute', top: 80, left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>
                                 <CircularProgress size={24} />
                             </Box>
-                            // Alternative: Pass loading state to PizzaList to disable controls
                         )}
+                        {/* Alternative: Pass loading state to PizzaList to disable controls */}
+
+                        {/* Renders the `PizzaList` component, passing down data, loading state, and CRUD handlers. */}
                         <PizzaList
                             name={term}
                             data={data}
@@ -243,9 +297,8 @@ function Pizza() {
                         />
                     </Box>
                  </Fade>
-            )}
-
-            {/* --- Notification Snackbar --- */}
+            )}            {/* --- Notification Snackbar --- */}
+            {/* Snackbar component to display success or error notifications. */}
             <Snackbar
                 open={notification.open}
                 autoHideDuration={6000} // Slightly longer duration
@@ -262,9 +315,8 @@ function Pizza() {
                 >
                     {notification.message}
                 </Alert>
-            </Snackbar>
-
-            {/* --- Delete Confirmation Dialog --- */}
+            </Snackbar>            {/* --- Delete Confirmation Dialog --- */}
+            {/* Dialog component for confirming item deletion, enhancing safety. */}
             <Dialog
                 open={dialogOpen}
                 onClose={handleCloseDialog}
@@ -274,17 +326,19 @@ function Pizza() {
                 <DialogTitle id="alert-dialog-title">
                     Confirm Deletion
                 </DialogTitle>
-                <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
+                <DialogContent>                    <DialogContentText id="alert-dialog-description">
+                        {/* Dynamically displays the name of the pizza being deleted in the confirmation message. */}
                         Are you sure you want to remove the pizza "{data.find(item => item.id === itemToDeleteId)?.name || 'this item'}" from the menu? This action cannot be undone.
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions sx={{ p: 2 }}>
                     {/* M3: Cancel button is often text */}
+// Cancel button (Text variant as per M3 style).
                     <Button onClick={handleCloseDialog} variant="text">
                         Cancel
                     </Button>
                     {/* M3: Destructive action often uses error color */}
+// Delete button (Contained variant with error color for destructive actions).
                     <Button onClick={handleConfirmDelete} variant="contained" color="error" autoFocus>
                         Delete
                     </Button>

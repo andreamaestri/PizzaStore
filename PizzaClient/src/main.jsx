@@ -8,8 +8,15 @@ import '@fontsource/roboto/700.css'
 import './index.css'
 import Dashboard from './Dashboard.jsx'
 
+// --- Material UI Theme Configuration (M3 Inspired) --- //
+// Creates a custom theme instance using MUI's `createTheme`.
+// This theme aims to follow Material Design 3 (M3) principles where possible.
 // Create a theme instance with Material Design 3 principles
 const theme = createTheme({
+// Defines the color palette for the application.
+// Includes primary, secondary, error, warning, info, success colors.
+// Adds M3 specific tonal palette properties like 'container' and 'onContainer'
+// for better color role definition and accessibility.
   palette: {
     primary: {
       main: '#d32f2f',
@@ -29,6 +36,7 @@ const theme = createTheme({
       container: '#b6f2af', // Light container color
       onContainer: '#002105', // On container text color
     },
+// Background colors for the main application surface and paper elements.
     background: {
       default: '#f9f9f9',
       paper: '#ffffff',
@@ -66,6 +74,8 @@ const theme = createTheme({
       onContainer: '#00210a',
     },
     // MD3 surface tones
+// M3 introduces surface color roles for different elevation levels or states.
+// These are approximations; MUI v5 doesn't have full M3 surface roles built-in.
     surface: {
       main: '#fffbff',
       dim: '#ddd8d9',
@@ -75,6 +85,8 @@ const theme = createTheme({
       containerHigh: 'rgba(0, 0, 0, 0.11)',
     },
   },
+// Configures typography settings, including default font family and specific styles
+// for headings (using 'Product Sans' as a preference), buttons, etc.
   typography: {
     fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
     h1: {
@@ -111,10 +123,19 @@ const theme = createTheme({
       fontSize: '0.9rem',
     },
   },
+// Defines the base border radius used throughout the application components.
   shape: {
     borderRadius: 8, // Base border radius (small)
   },
+// --- Component Style Overrides --- //
+// Customizes the default styles and props for various MUI components
+// to align with the desired M3 look and feel or application-specific requirements.
   components: {
+// Overrides for MuiButton:
+// - `textTransform: 'none'` prevents uppercase text.
+// - Adjusts padding.
+// - Removes default elevation (`boxShadow: 'none'`) for contained buttons.
+// - Defines styles for different emphasis levels (contained, containedSecondary as 'filled tonal', outlined, text).
     MuiButton: {
       styleOverrides: {
         root: {
@@ -152,6 +173,8 @@ const theme = createTheme({
         disableElevation: true, // MD3 generally avoids shadows on buttons
       },
     },
+// Overrides for MuiFab (Floating Action Button):
+// - Defines custom box-shadow for a more pronounced M3-style elevation.
     MuiFab: {
       styleOverrides: {
         root: {
@@ -162,6 +185,10 @@ const theme = createTheme({
         },
       },
     },
+// Overrides for MuiPaper:
+// - Removes default box shadow.
+// - Sets a larger base border radius.
+// - Defines custom M3-like shadows for specific elevation levels (elevation1, elevation2).
     MuiPaper: {
       styleOverrides: {
         root: {
@@ -179,6 +206,7 @@ const theme = createTheme({
         },
       },
     },
+// Overrides for MuiCard: Adds default padding.
     MuiCard: {
       styleOverrides: {
         root: {
@@ -186,6 +214,7 @@ const theme = createTheme({
         },
       },
     },
+// Overrides for MuiTableHead: Sets background color and header cell styles.
     MuiTableHead: {
       styleOverrides: {
         root: {
@@ -197,6 +226,7 @@ const theme = createTheme({
         },
       },
     },
+// Overrides for MuiTableRow: Removes bottom border on last row, adds hover effect.
     MuiTableRow: {
       styleOverrides: {
         root: {
@@ -209,6 +239,7 @@ const theme = createTheme({
         },
       },
     },
+// Overrides for MuiTableCell: Adjusts border color and padding.
     MuiTableCell: {
       styleOverrides: {
         root: {
@@ -217,6 +248,7 @@ const theme = createTheme({
         },
       },
     },
+// Overrides for MuiChip: Sets border radius and outlined border color.
     MuiChip: {
       styleOverrides: {
         root: {
@@ -227,6 +259,7 @@ const theme = createTheme({
         },
       },
     },
+// Overrides for MuiTextField (specifically OutlinedInput): Adjusts border radius and border colors.
     MuiTextField: {
       styleOverrides: {
         root: {
@@ -242,6 +275,8 @@ const theme = createTheme({
         },
       },
     },
+// Overrides for MuiListItem: Sets a larger border radius and defines selected state styles.
+// NOTE: MuiListItemButton overrides below are likely more effective for M3 styling.
     MuiListItem: {
       styleOverrides: {
         root: {
@@ -255,6 +290,11 @@ const theme = createTheme({
         },
       },
     },
+// Overrides for MuiListItemButton:
+// - Sets a large border radius for a pill shape.
+// - Defines hover styles.
+// - Defines selected state styles using theme palette container/onContainer colors.
+// - Styles the icon and text within the selected button.
     MuiListItemButton: {
       styleOverrides: {
         root: ({ theme }) => ({
@@ -280,6 +320,7 @@ const theme = createTheme({
         }),
       },
     },
+// Overrides for MuiListItemIcon: Sets default color and minimum width.
     MuiListItemIcon: {
         styleOverrides: {
             root: ({ theme }) => ({
@@ -289,6 +330,7 @@ const theme = createTheme({
             }),
         },
     },
+// Overrides for MuiListItemText: Sets default primary text color.
     MuiListItemText: {
         styleOverrides: {
             primary: ({ theme }) => ({
@@ -297,6 +339,7 @@ const theme = createTheme({
             }),
         },
     },
+// Overrides for MuiAppBar: Removes default shadow, sets default color to 'default' (surface color).
     MuiAppBar: {
       styleOverrides: {
         root: {
@@ -307,6 +350,7 @@ const theme = createTheme({
         color: 'default', // MD3 often uses surface colors for app bars
       },
     },
+// Overrides for MuiDrawer: Adjusts paper border and background color.
     MuiDrawer: {
       styleOverrides: {
         paper: {
@@ -315,6 +359,7 @@ const theme = createTheme({
         },
       },
     },
+// Overrides for MuiDivider: Adjusts border color for subtlety.
     MuiDivider: {
       styleOverrides: {
         root: {
@@ -322,6 +367,7 @@ const theme = createTheme({
         },
       },
     },
+// Overrides for MuiAvatar: Removes default shadow.
     MuiAvatar: {
       styleOverrides: {
         root: {
@@ -329,6 +375,8 @@ const theme = createTheme({
         },
       },
     },
+// Overrides for MuiIconButton: Ensures circular shape, adjusts padding,
+// defines styles for different states (standard, contained, selected) using alpha transparency.
     MuiIconButton: {
       styleOverrides: {
         root: {
@@ -375,6 +423,8 @@ const theme = createTheme({
         },
       },
     },
+// Overrides for MuiChip (redefined, potentially overrides previous): Sets border radius, height,
+// and styles for filled/outlined variants using theme container/onContainer colors.
     MuiChip: {
       styleOverrides: {
         root: ({ theme }) => ({
@@ -403,7 +453,14 @@ const theme = createTheme({
   },
 });
 
+// --- Application Root Rendering --- //
+// Gets the root DOM element.
 createRoot(document.getElementById('root')).render(
+// Renders the application using React 18's `createRoot` API.
+// - `StrictMode`: Helps identify potential problems in the app during development.
+// - `ThemeProvider`: Applies the custom `theme` to the entire component tree.
+// - `CssBaseline`: Provides baseline CSS normalization (like normalize.css).
+// - `Dashboard`: The main application component.
   <StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline /> {/* Normalize CSS */}

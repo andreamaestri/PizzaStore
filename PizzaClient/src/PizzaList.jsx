@@ -21,8 +21,20 @@ import {
   ShoppingCart as ShoppingCartIcon
 } from '@mui/icons-material';
 
+/**
+ * PizzaList Component: Displays a list of pizzas and provides CRUD functionality.
+ *
+ * @param {string} name - The display name for the items (e.g., "Pizza").
+ * @param {Array} data - The array of pizza objects to display.
+ * @param {boolean} loading - Indicates if a CRUD operation is in progress.
+ * @param {Function} onCreate - Callback function to handle creating a new pizza.
+ * @param {Function} onUpdate - Callback function to handle updating an existing pizza.
+ * @param {Function} onDelete - Callback function to handle deleting a pizza.
+ * @param {Function} onRefresh - Callback function to manually refresh the pizza list.
+ */
 function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefresh }) {
   const theme = useTheme();
+// State to manage the form data for adding or editing a pizza.
   const [formData, setFormData] = useState({
     id: '',
     name: '',
@@ -31,10 +43,17 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     toppings: [],
     price: ''
   });
+// State to track the ID of the pizza currently being edited (null if adding).
   const [editingId, setEditingId] = useState(null);
+// State to control the visibility of the add/edit dialog (if using a dialog approach).
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+// State to store the available pizza bases fetched from the API.
   const [bases, setBases] = useState([]);
+// State to indicate if pizza bases are currently being fetched.
   const [basesLoading, setBasesLoading] = useState(true);
+// State to store any error message encountered while fetching bases.
   const [basesApiError, setBasesApiError] = useState(null);
+// Effect to fetch available pizza bases when the component mounts.
   useEffect(() => {
     const fetchBases = async () => {
       setBasesLoading(true);
@@ -49,6 +68,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
       } catch (error) {
         console.error('Error fetching pizza bases:', error);
         setBasesApiError(error.message || 'Could not load pizza bases.');
+// Use fallback data for bases if the API call fails.
         setBases([
           { id: 1, name: 'Tomato Sauce & Mozzarella' },
           { id: 2, name: 'Saffron Tomato Base' },
@@ -60,6 +80,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     };
     fetchBases();
   }, []);
+// Memoized list of topping suggestions for the Autocomplete component.
+// Combines unique toppings from existing pizzas with a common default list.
   const toppingSuggestions = useMemo(() => {
     if (!data || data.length === 0) {
       return [
@@ -81,10 +103,15 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
       ...commonToppings.filter(t => !uniqueToppings.includes(t))
     ];
   }, [data]);
+// State to store validation errors for the form fields.
   const [formErrors, setFormErrors] = useState({});
+// State to control the visibility of the delete confirmation dialog.
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+// State to store the ID of the pizza pending deletion confirmation.
   const [deletingId, setDeletingId] = useState(null);
+// State to store the current text entered in the search/filter input.
   const [filterText, setFilterText] = useState('');
+// Memoized array of pizzas filtered based on the `filterText`.
   const filteredData = useMemo(() => {
     if (!data) return [];
     const lowerCaseFilter = filterText.toLowerCase();
@@ -95,6 +122,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
   }, [data, filterText]);
 
   // Validate form (Memoized)
+// Memoized function to validate the form data (name and price).
   const validateForm = useCallback(() => {
     const errors = {};
     if (!formData.name.trim()) {
@@ -108,6 +136,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
   }, [formData.name, formData.price]);
 
   // Handle form changes (Memoized)
+// Memoized function to handle changes in form input fields.
+// Updates `formData` state and clears corresponding validation errors.
   const handleFormChange = useCallback((event) => {
     const { name, value } = event.target;
     setFormData(prevData => ({
@@ -123,6 +153,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
   }, []);
 
   // Handle form submission (Memoized)
+// Memoized function to handle form submission (add or update).
+// Validates the form, prepares data, calls `onCreate` or `onUpdate`, and resets the form.
   const handleSubmit = useCallback((event) => {
     event.preventDefault();
     if (!validateForm()) {
@@ -138,14 +170,17 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
       onUpdate(submissionData);
       setEditingId(null);
     } else {
+// Destructure ID before calling onCreate, as it's not needed for creation.
       const { id, ...createData } = submissionData;
       onCreate(createData);
+      setAddDialogOpen(false); // Close the dialog after adding
     }
     setFormData({ id: '', name: '', description: '', baseId: 1, toppings: [], price: '' });
     setFormErrors({});
   }, [editingId, formData, onUpdate, onCreate, validateForm]);
 
   // Handle edit action (Memoized)
+// Memoized function to populate the form when the edit button is clicked.
   const handleEdit = useCallback((item) => {
     setEditingId(item.id);
     setFormData({
@@ -160,6 +195,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
   }, []);
 
   // Handle cancel edit action (Memoized)
+// Memoized function to cancel the editing process and reset the form.
   const handleCancelEdit = useCallback(() => {
     setEditingId(null);
     setFormData({ id: '', name: '', description: '', baseId: 1, toppings: [], price: '' });
@@ -167,12 +203,14 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
   }, []);
 
   // Handle delete confirmation dialog opening (Memoized)
+// Memoized function to open the delete confirmation dialog.
   const handleDeleteConfirm = useCallback((id) => {
     setDeletingId(id);
     setDeleteConfirmOpen(true);
   }, []);
 
   // Handle actual deletion (Memoized)
+// Memoized function to confirm and execute the delete action.
   const confirmDelete = useCallback(() => {
     if (deletingId) {
       onDelete(deletingId);
@@ -182,6 +220,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
   }, [deletingId, onDelete]);
 
   // Handle Autocomplete changes (Memoized) - Specific for toppings
+// Memoized function to handle changes in the toppings Autocomplete component.
   const handleToppingsChange = useCallback((event, newValue) => {
     setFormData(prev => ({
       ...prev,
@@ -190,6 +229,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
   }, []);
 
   // Handle Base Select changes (Memoized)
+// Memoized function to handle changes in the pizza base Select component.
   const handleBaseChange = useCallback((event) => {
     const baseId = parseInt(event.target.value, 10);
     setFormData(prev => ({
@@ -199,15 +239,28 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
   }, []);
 
   // Handle ordering (interactive ordering feature)
+// Placeholder function to handle ordering a pizza. Replace with actual order logic.
   const handleOrder = (pizza) => {
     alert(`Order placed for: ${pizza.name} (${pizza.price ? pizza.price.toLocaleString(undefined, { style: 'currency', currency: 'USD' }) : 'N/A'})`);
     // In production, replace with order API call or dialog
   };
-
+  
+  // Handle add dialog open/close (Memoized)
+// Memoized function to toggle the add/edit dialog (if used).
+  const handleAddDialogToggle = useCallback((open) => {
+    setAddDialogOpen(open);
+    if (!open) {
+      // Reset form data when closing without submitting
+      setFormData({ id: '', name: '', description: '', baseId: 1, toppings: [], price: '' });
+      setFormErrors({});
+    }
+  }, []);
   return (
     <Box>
+      {/* Main layout using Grid for responsiveness. */}
       <Grid container spacing={3}>
         {/* Pizza Form Section */}
+        {/* Grid item containing the Add/Edit Pizza form. */}
         <Grid item xs={12} sm={4}>
           <Paper
             elevation={0}
@@ -216,11 +269,12 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
               p: 3,
               height: '100%',
               borderColor: 'divider',
-            }}
-          >
+            }}          >
+            {/* Title for the form section, dynamically changes based on editing state. */}
             <Typography variant="h6" gutterBottom color="text.primary" fontWeight="medium">
               {editingId ? `Edit ${name}` : `Add New ${name}`}
             </Typography>
+            {/* Alert displayed when editing an item, showing the name. */}
             {editingId && (
               <Alert
                 severity="info"
@@ -228,9 +282,9 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                 sx={{ mb: 2, borderRadius: theme.shape.borderRadius }}
                 icon={<EditIcon fontSize="inherit" />}
               >
-                Editing: <strong>{formData.name}</strong>
-              </Alert>
+                Editing: <strong>{formData.name}</strong>              </Alert>
             )}
+            {/* Form element wrapping the input fields. */}
             <Box component="form" onSubmit={handleSubmit}>
               <Stack spacing={2}>
                 <TextField
@@ -254,9 +308,9 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                   multiline
                   rows={3}
                   variant="outlined"
-                  size="small"
-                  placeholder="Describe this pizza..."
+                  size="small"                  placeholder="Describe this pizza..."
                 />
+                {/* Pizza Base selection dropdown. */}
                 <FormControl fullWidth size="small" variant="outlined">
                   <InputLabel id="base-select-label">Pizza Base</InputLabel>
                   <Select
@@ -264,9 +318,9 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     name="baseId"
                     value={bases.some(base => base.id === formData.baseId) ? formData.baseId : ''}
                     label="Pizza Base"
-                    onChange={handleBaseChange}
-                    displayEmpty={basesLoading}
+                    onChange={handleBaseChange}                    displayEmpty={basesLoading}
                   >
+                    {/* Conditional rendering for base options based on loading/error/success states. */}
                     {basesLoading ? (
                       <MenuItem disabled value="">
                         <em>Loading bases...</em>
@@ -282,10 +336,10 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     )}
                   </Select>
                 </FormControl>
-                <Box>
-                  <Typography variant="body2" gutterBottom color="text.secondary">
+                <Box>                  <Typography variant="body2" gutterBottom color="text.secondary">
                     Toppings
                   </Typography>
+                  {/* Autocomplete component for selecting/adding toppings. */}
                   <Autocomplete
                     multiple
                     id="toppings-autocomplete"
@@ -333,8 +387,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                   variant="outlined"
                   size="small"
                   type="number"
-                  inputProps={{ min: 0, step: 0.01 }}
-                />
+                  inputProps={{ min: 0, step: 0.01 }}                />
+                {/* Submit and Cancel buttons for the form. */}
                 <Box sx={{ pt: 1, display: 'flex', gap: 1.5 }}>
                   <Button
                     type="submit"
@@ -363,24 +417,24 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                   )}
                 </Box>
               </Stack>
-            </Box>
-          </Paper>
+            </Box>          </Paper>
         </Grid>
         {/* Pizza List Section */}
+        {/* Grid item containing the list/table of pizzas. */}
         <Grid item xs={12} sm={8}>
           <Paper
             elevation={0}
             variant="outlined"
             sx={{
               p: { xs: 2, sm: 3 },
-              borderColor: 'divider',
-            }}
+              borderColor: 'divider',            }}
           >
+            {/* Header section for the pizza list, including title, search bar, and refresh button. */}
             <Box sx={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 2, mb: 2 }}>
               <Typography variant="h6" color="text.primary" fontWeight="medium" sx={{ mb: 0 }}>
                 {name} Menu ({filteredData.length})
-              </Typography>
-              <Box sx={{ display: 'flex', gap: 1 }}>
+              </Typography>              <Box sx={{ display: 'flex', gap: 1 }}>
+                {/* Search input field. */}
                 <TextField
                   placeholder="Search pizzas..."
                   value={filterText}
@@ -410,9 +464,9 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     minWidth: { xs: '100%', sm: '200px' },
                     '& .MuiOutlinedInput-root': {
                       borderRadius: theme.shape.borderRadius * 5,
-                    },
-                  }}
+                    },                  }}
                 />
+                {/* Refresh button. */}
                 <Tooltip title="Refresh pizza list">
                   <span>
                     <IconButton
@@ -431,10 +485,11 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     </IconButton>
                   </span>
                 </Tooltip>
-              </Box>
-            </Box>
+              </Box>            </Box>
+            {/* Table container for displaying the pizza list. */}
             <TableContainer component={Paper} variant="outlined" sx={{ mt: 2, borderColor: 'divider' }}>
               <Table aria-label="pizza menu table" size="small">
+                {/* Table Head. */}
                 <TableHead sx={{ bgcolor: alpha(theme.palette.text.primary, 0.04) }}>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 500, color: 'text.secondary', borderBottomColor: 'divider' }}>Name</TableCell>
@@ -443,14 +498,13 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     <TableCell sx={{ fontWeight: 500, color: 'text.secondary', borderBottomColor: 'divider' }}>Toppings</TableCell>
                     <TableCell sx={{ fontWeight: 500, color: 'text.secondary', borderBottomColor: 'divider' }}>Price</TableCell>
                     <TableCell align="right" sx={{ fontWeight: 500, color: 'text.secondary', borderBottomColor: 'divider' }}>Actions</TableCell>
-                  </TableRow>
-                </TableHead>
+                  </TableRow>                </TableHead>
+                {/* Table Body - Renders loading indicator, empty state, or pizza rows. */}
                 <TableBody>
-                  {loading && data.length === 0 ? (
+                  {/* Shows a loading spinner if data is loading initially. */}                  {loading && data.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={6} align="center" sx={{ py: 4, border: 0 }}>
-                        <CircularProgress size={24} />
-                      </TableCell>
+                        <CircularProgress size={24} />                      </TableCell>
                     </TableRow>
                   ) : filteredData.length === 0 ? (
                     <TableRow>
@@ -473,9 +527,9 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                             </Button>
                           )}
                         </Box>
-                      </TableCell>
-                    </TableRow>
+                      </TableCell>                    </TableRow>
                   ) : (
+                    /* Maps over the `filteredData` to render each pizza row. */
                     filteredData.map((item) => (
                       <TableRow
                         key={item.id}
@@ -497,9 +551,11 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                         </TableCell>
                         <TableCell sx={{ display: { xs: 'none', sm: 'table-cell' } }}>
                           <Typography variant="body2" color="text.secondary">
+                            {/* Find the base name from the fetched bases array */}
                             {bases.find(base => base.id === item.baseId)?.name || 'Regular'}
                           </Typography>
                         </TableCell>
+{/* Displays pizza toppings, showing the first few and a tooltip for the rest. */}
                         <TableCell>
                           {item.toppings && item.toppings.length > 0 ? (
                             <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
@@ -532,10 +588,11 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                           <Typography variant="body2" color="text.primary" fontWeight={500}>
                             {typeof item.price === 'number'
                               ? item.price.toLocaleString(undefined, { style: 'currency', currency: 'USD' })
-                              : '—'}
-                          </Typography>
+                              : '—'}                          </Typography>
                         </TableCell>
+                        {/* Action buttons cell (Order, Edit, Delete). */}
                         <TableCell align="right">
+                          {/* Order button. */}
                           <Tooltip title="Order pizza">
                             <span>
                               <IconButton
@@ -554,6 +611,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                               </IconButton>
                             </span>
                           </Tooltip>
+// Edit button.
                           <Tooltip title="Edit pizza details">
                             <span>
                               <IconButton
@@ -572,6 +630,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                               </IconButton>
                             </span>
                           </Tooltip>
+// Delete button.
                           <Tooltip title="Delete pizza">
                             <span>
                               <IconButton

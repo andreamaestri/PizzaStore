@@ -11,9 +11,8 @@ namespace PizzaStore.Models
         public int Id { get; set; }
         public string? Name { get; set; }
         public int BaseId { get; set; }
-        public PizzaBase? Base { get; set; }
-
-        public decimal Price { get; set; } // Dynamic pricing support
+        public PizzaBase? Base { get; set; }        // Dynamic pricing support
+        public decimal Price { get; set; }
 
         public string? ToppingsJson { get; set; }
 
@@ -29,10 +28,10 @@ namespace PizzaStore.Models
     }
     
     public class PizzaBase
-    {
-        public int Id { get; set; }
+    {        public int Id { get; set; }
         public string? Name { get; set; }
-          // Navigation property
+        
+        // Navigation property
         [JsonIgnore]
         public List<Pizza> Pizzas { get; set; } = new List<Pizza>();
     }
