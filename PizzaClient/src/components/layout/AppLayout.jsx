@@ -23,6 +23,7 @@ import {
   Tooltip,
   Collapse,
 } from "@mui/material";
+import Breadcrumbs from "./Breadcrumbs";
 import {
   ChevronLeft as ChevronLeftIcon,
   Menu as MenuIcon,
@@ -90,7 +91,8 @@ const AppLayout = ({
   selectedIndex = 0, 
   onSelectItem = () => {},
   appBarContent = null,
-  logoIcon = null
+  logoIcon = null,
+  breadcrumbs = [] // Add breadcrumbs prop
 }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
@@ -239,22 +241,24 @@ const AppLayout = ({
       );
     });
   };
-
   return (
     <Box sx={{ display: "flex", bgcolor: "background.default", minHeight: "100vh" }}>
-      <AppBar position="fixed" open={open}>        <Toolbar sx={{ pl: 2 }}>
-          <IconButton
-            color="inherit"
-            aria-label="toggle drawer"
-            onClick={handleDrawerToggle}
-            sx={{ 
-              mr: 2,
-              ...(open && { visibility: 'visible' }),
-              marginRight: open ? 0 : 2
-            }}
-          >
-            <MenuIcon />
-          </IconButton>
+      <AppBar position="fixed" open={open}>
+        <Toolbar sx={{ pl: 2, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+            <IconButton
+              color="inherit"
+              aria-label="toggle drawer"
+              onClick={handleDrawerToggle}
+              sx={{ 
+                mr: 2,
+                ...(open && { visibility: 'visible' }),
+                marginRight: open ? 0 : 2
+              }}
+            >
+              <MenuIcon />
+            </IconButton>
+          </Box>
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
             {title}
           </Typography>
@@ -298,6 +302,8 @@ const AppLayout = ({
         }}
       >
         <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2 } }}>
+          {/* Add breadcrumbs at the top of the content area */}
+          <Breadcrumbs items={breadcrumbs} />
           {children}
         </Container>
       </Box>
