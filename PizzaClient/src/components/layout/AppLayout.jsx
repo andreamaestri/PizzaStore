@@ -242,14 +242,16 @@ const AppLayout = ({
 
   return (
     <Box sx={{ display: "flex", bgcolor: "background.default", minHeight: "100vh" }}>
-      <AppBar position="fixed" open={open}>
-        <Toolbar>
+      <AppBar position="fixed" open={open}>        <Toolbar sx={{ pl: 2 }}>
           <IconButton
-            edge="start"
             color="inherit"
             aria-label="toggle drawer"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, ...(open && { display: 'none' }) }}
+            sx={{ 
+              mr: 2,
+              ...(open && { visibility: 'visible' }),
+              marginRight: open ? 0 : 2
+            }}
           >
             <MenuIcon />
           </IconButton>

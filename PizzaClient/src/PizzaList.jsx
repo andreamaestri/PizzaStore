@@ -611,7 +611,6 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                               </IconButton>
                             </span>
                           </Tooltip>
-// Edit button.
                           <Tooltip title="Edit pizza details">
                             <span>
                               <IconButton
@@ -630,7 +629,6 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                               </IconButton>
                             </span>
                           </Tooltip>
-// Delete button.
                           <Tooltip title="Delete pizza">
                             <span>
                               <IconButton
