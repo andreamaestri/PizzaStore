@@ -2,7 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import {
     Typography, Box, Alert, Snackbar, CircularProgress,
     Stack, Skeleton, Breadcrumbs, Link, Fade,
-    Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button // Dialog imports
+    Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, // Dialog imports
+    Card, Chip // Import Card and Chip for M3 look
 } from '@mui/material';
 import { Home as HomeIcon, NavigateNext as NavigateNextIcon, LocalPizza as PizzaIcon } from '@mui/icons-material'; // Added PizzaIcon
 import PizzaList from './PizzaList'; // Assuming PizzaList component exists and handles display/form
@@ -245,10 +246,10 @@ function Pizza() {
     );
 
     return (
-        <Stack>            {/* --- Loading State (Initial) --- */}
-            {/* Displays a skeleton loader only during the *initial* data fetch (loading is true and data is empty). */}
-            {loading && data.length === 0 && !error && renderSkeleton()}            {/* --- Error State --- */}
-            {/* Displays an error message with a retry button if fetching fails. */}
+        <Stack>
+            {/* --- Loading State (Initial) --- */}
+            {loading && data.length === 0 && !error && renderSkeleton()}
+            {/* --- Error State --- */}
             {error && !loading && (
                 <Fade in={true} timeout={500}>
                     <Alert
@@ -263,27 +264,19 @@ function Pizza() {
                         Failed to load data: {error?.message || 'An unknown error occurred.'} Please try again.
                     </Alert>
                 </Fade>
-            )}            {/* --- Content (PizzaList) --- */}
+            )}
+            {/* --- Content (PizzaList) --- */}
             {/* Render PizzaList only when not in initial loading state */}
-            {/* 
-                Renders the main content (`PizzaList`) once data is available or if loading is finished (even if there's an error, to show the error state within PizzaList if needed).
-                Uses Fade transition. 
-            */}            {(!loading || data.length > 0) && !error && (
+            {(!loading || data.length > 0) && !error && (
                 <Fade in={!loading || data.length > 0} timeout={500}>
                     <Box>
                         {/* Show subtle loading indicator during CUD operations if needed */}
-                        {/* 
-                            Shows a small CircularProgress indicator during subsequent loading states (e.g., CUD operations)
-                            when data is already present. Positioned absolutely for overlay effect.
-                            Alternatively, pass `loading` prop to `PizzaList` to disable internal controls. 
-                        */}
                         {loading && data.length > 0 && (
                             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2, position: 'absolute', top: 80, left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>
                                 <CircularProgress size={24} />
                             </Box>
                         )}
                         {/* Alternative: Pass loading state to PizzaList to disable controls */}
-
                         {/* Renders the `PizzaList` component, passing down data, loading state, and CRUD handlers. */}
                         <PizzaList
                             name={term}
@@ -296,8 +289,9 @@ function Pizza() {
                             onRefresh={fetchPizzaData} // Allow manual refresh
                         />
                     </Box>
-                 </Fade>
-            )}            {/* --- Notification Snackbar --- */}
+                </Fade>
+            )}
+            {/* --- Notification Snackbar --- */}
             {/* Snackbar component to display success or error notifications. */}
             <Snackbar
                 open={notification.open}
@@ -315,7 +309,8 @@ function Pizza() {
                 >
                     {notification.message}
                 </Alert>
-            </Snackbar>            {/* --- Delete Confirmation Dialog --- */}
+            </Snackbar>
+            {/* --- Delete Confirmation Dialog --- */}
             {/* Dialog component for confirming item deletion, enhancing safety. */}
             <Dialog
                 open={dialogOpen}
@@ -326,22 +321,15 @@ function Pizza() {
                 <DialogTitle id="alert-dialog-title">
                     Confirm Deletion
                 </DialogTitle>
-                <DialogContent>                    <DialogContentText id="alert-dialog-description">
+                <DialogContent>
+                    <DialogContentText id="alert-dialog-description">
                         {/* Dynamically displays the name of the pizza being deleted in the confirmation message. */}
                         Are you sure you want to remove the pizza "{data.find(item => item.id === itemToDeleteId)?.name || 'this item'}" from the menu? This action cannot be undone.
                     </DialogContentText>
                 </DialogContent>
-                <DialogActions sx={{ p: 2 }}>
-                    {/* M3: Cancel button is often text */}
-// Cancel button (Text variant as per M3 style).
-                    <Button onClick={handleCloseDialog} variant="text">
-                        Cancel
-                    </Button>
-                    {/* M3: Destructive action often uses error color */}
-// Delete button (Contained variant with error color for destructive actions).
-                    <Button onClick={handleConfirmDelete} variant="contained" color="error" autoFocus>
-                        Delete
-                    </Button>
+                <DialogActions>
+                    <Button onClick={handleCloseDialog}>Cancel</Button>
+                    <Button onClick={handleConfirmDelete}>Delete</Button>
                 </DialogActions>
             </Dialog>
         </Stack>

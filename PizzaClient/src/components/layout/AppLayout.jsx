@@ -94,6 +94,12 @@ const AppLayout = ({
   logoIcon = null,
   breadcrumbs = [] // Add breadcrumbs prop
 }) => {
+  // --- Toolpad Dashboard Layout Integration ---
+  return (
+
+  );
+// --- End Toolpad Layout ---
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [open, setOpen] = useState(!isMobile);
@@ -245,46 +251,41 @@ const AppLayout = ({
     <Box sx={{ display: "flex", bgcolor: "background.default", minHeight: "100vh" }}>
       <AppBar position="fixed" open={open}>
         <Toolbar sx={{ pl: 2, display: 'flex', alignItems: 'center', justifyContent: 'flex-start' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-            <IconButton
-              color="inherit"
-              aria-label="toggle drawer"
-              onClick={handleDrawerToggle}
-              sx={{ 
-                mr: 2,
-                ...(open && { visibility: 'visible' }),
-                marginRight: open ? 0 : 2
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-          </Box>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            {title}
-          </Typography>
-          {appBarContent}
-        </Toolbar>
+  <IconButton
+    color="inherit"
+    aria-label="open drawer"
+    onClick={handleDrawerToggle}
+    edge="start"
+    sx={{ mr: 2 }}
+  >
+    <MenuIcon />
+  </IconButton>
+  <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+    {title}
+  </Typography>
+  {appBarContent}
+</Toolbar>
       </AppBar>
       
       <Drawer variant="permanent" open={open}>
         <Toolbar
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'flex-end',
-            px: [1],
-          }}
-        >
-          {open && (
-            <Box sx={{ flexGrow: 1, display: "flex", alignItems: "center", ml: 1 }}>
-              <Avatar sx={{ mr: 2 }}>{logoIcon}</Avatar>
-              <Typography variant="h6">{title}</Typography>
-            </Box>
-          )}
-          <IconButton onClick={handleDrawerToggle}>
-            <ChevronLeftIcon />
-          </IconButton>
-        </Toolbar>
+  sx={{
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    px: [1],
+  }}
+>
+  {open && (
+    <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Avatar sx={{ mr: 2 }}>{logoIcon}</Avatar>
+      <Typography variant="h6">{title}</Typography>
+    </Box>
+  )}
+  <IconButton onClick={handleDrawerToggle}>
+    <ChevronLeftIcon />
+  </IconButton>
+</Toolbar>
         <Divider />
         
         <List sx={{ px: 2, flexGrow: 1 }}>

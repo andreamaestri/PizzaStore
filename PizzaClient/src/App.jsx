@@ -10,13 +10,13 @@ import {
   ListItemIcon,
   ListItemText,
   Container,
-  Paper,
-  IconButton,
   Divider,
   Avatar,
+  IconButton,
   useTheme,
   useMediaQuery,
-  ListItemButton, // Import ListItemButton
+  ListItemButton,
+  Link,
 } from "@mui/material";
 import {
   LocalPizza as PizzaIcon,
@@ -31,30 +31,35 @@ import "./App.css";
 import Pizza from "./Pizza";
 import ToppingManager from "./components/toppings/ToppingManager";
 
-// TODO: Consider defining drawerWidth within the theme for consistency.
 const drawerWidth = 240;
 
-function App() {
+// Default branding configuration
+const defaultBranding = {
+  logo: <PizzaIcon sx={{ fontSize: 36 }} />,
+  title: "Pizza Admin",
+  appTitle: "Pizza Store",
+  homeUrl: "/",
+  logoWidth: 64,
+  logoHeight: 64,
+};
+
+function App({ branding = {} }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [selectedIndex, setSelectedIndex] = useState(0);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-// Tracks the currently selected navigation item index for highlighting and content rendering.  const [selectedIndex, setSelectedIndex] = useState(0); // State to track selected item
+  
+  // Merge default branding with custom branding props
+  const brandingConfig = { ...defaultBranding, ...branding };
 
-  const handleDrawerToggle = () => {
-    setMobileOpen(!mobileOpen);
-  };
+  const handleDrawerToggle = () => setMobileOpen((prev) => !prev);
 
-  {/* Handles clicks on navigation items, updating the selected index and closing the mobile drawer */}  const handleListItemClick = (index) => {
+  const handleListItemClick = (index) => {
     setSelectedIndex(index);
-    // Optionally close mobile drawer on selection
-    if (isMobile) {
-      setMobileOpen(false);
-    }
-    {/* Placeholder for future routing logic. Consider using React Router or a similar library */}
-    // Add navigation logic here based on index
+    if (isMobile) setMobileOpen(false);
   };
-  // Define navigation items
-  {/* Defines the primary navigation items displayed in the drawer */}
+
+  // Navigation items for the sidebar
   const navItems = [
     { text: "Dashboard", icon: <DashboardIcon />, index: 0 },
     { text: "Pizza Menu", icon: <PizzaIcon />, index: 1 },
@@ -62,44 +67,47 @@ function App() {
     { text: "Orders", icon: <OrdersIcon />, index: 3 },
     { text: "Customers", icon: <CustomersIcon />, index: 4 },
   ];
-
   const settingsItem = { text: "Settings", icon: <SettingsIcon />, index: 5 };
-  // M3 Inspired Styling for selected ListItemButton
-  {/* 
-    Defines custom styles for the selected ListItemButton, aiming for an M3-inspired look.
-    NOTE: This relies on specific theme palette properties (secondary.dark/light/contrastText).
-    Ensure these are defined in your theme or adjust accordingly.
-    Consider moving these styles into the theme's component overrides for better centralization (MuiListItemButton).
-  */}
+
+  // M3 Inspired selected styles
   const selectedItemStyles = {
-    // Use a container color - approximate with secondary or primary light/alpha
-    // Ideally, define theme.palette.secondary.container or theme.palette.primary.container
     backgroundColor:
       theme.palette.mode === "dark"
-        ? theme.palette.secondary.dark // Example dark mode color
-        : theme.palette.secondary.light, // Example light mode color (adjust as needed)
-    // M3 uses significantly rounded corners for the selection indicator
-     // e.g., 4 * 5 = 20px
+        ? theme.palette.secondary.dark
+        : theme.palette.secondary.light,
+    borderRadius: theme.shape.borderRadius * 5,
     "& .MuiListItemIcon-root, & .MuiListItemText-primary": {
-      // Ensure icon and text color contrast well with the background
       color:
         theme.palette.secondary.contrastText ||
         theme.palette.getContrastText(theme.palette.secondary.light),
-      fontWeight: 500, // Keep text slightly bolder when selected
+      fontWeight: 500,
     },
-    // Hover effect slightly different when selected
     "&:hover": {
       backgroundColor:
         theme.palette.mode === "dark"
-          ? theme.palette.secondary.dark // Keep same color or slightly darker/lighter
+          ? theme.palette.secondary.dark
           : theme.palette.secondary.light,
-      opacity: 0.9, // Slight visual feedback on hover
+      opacity: 0.9,
     },
   };
 
-// Defines the content structure of the navigation drawer.
+  const unselectedItemStyles = {
+    borderRadius: theme.shape.borderRadius * 5,
+    "&:hover": {
+      backgroundColor: theme.palette.action.hover,
+    },
+  };
+
+  // Drawer JSX
   const drawer = (
-    <>
+    <Box
+      sx={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        pt: 0,
+      }}
+    >
       {/* Drawer Header */}
       <Box
         sx={{
@@ -110,76 +118,49 @@ function App() {
           pt: 3,
         }}
       >
-        <Avatar
-          sx={{
-            width: 64,
-            height: 64,
-            // Use theme colors if possible
-            bgcolor: theme.palette.primary.main,
-            color: theme.palette.primary.contrastText,
-            mb: 1.5,
-          }}
-        >
-          <PizzaIcon sx={{ fontSize: 36 }} />
-        </Avatar>
+        <Link href={brandingConfig.homeUrl} underline="none">
+          <Avatar
+            sx={{
+              width: brandingConfig.logoWidth,
+              height: brandingConfig.logoHeight,
+              bgcolor: theme.palette.primary.main,
+              color: theme.palette.primary.contrastText,
+              mb: 1.5,
+            }}
+          >
+            {brandingConfig.logo}
+          </Avatar>
+        </Link>
         <Typography variant="h6" noWrap component="div" fontWeight="600">
-          Pizza Admin
+          {brandingConfig.title}
         </Typography>
       </Box>
-      {/* Use a subtle divider */}
       <Divider sx={{ borderColor: "divider", mx: 2, my: 1 }} />
-
-      {/* Main Navigation List */}
       <List sx={{ px: 2 }}>
-        {" "}
-        {/* Add horizontal padding to the list */}
-// Maps over navItems to render the main navigation links.
         {navItems.map((item) => (
           <ListItem key={item.index} disablePadding sx={{ mb: 1 }}>
-            {" "}
-            {/* Add margin bottom */}
             <ListItemButton
               selected={selectedIndex === item.index}
               onClick={() => handleListItemClick(item.index)}
-              // Apply M3 styles when selected
-// Conditionally applies selectedItemStyles if the item is selected,
-// otherwise applies default styles including hover effects and border radius.
               sx={
                 selectedIndex === item.index
                   ? selectedItemStyles
-                  : {
-                      borderRadius: theme.shape.borderRadius * 5, // Apply consistent border radius on hover too
-                      "&:hover": {
-                        // Subtle hover for non-selected items
-                        backgroundColor: theme.palette.action.hover,
-                      },
-                    }
+                  : unselectedItemStyles
               }
             >
-              <ListItemIcon sx={{ minWidth: 40 }}>
-                {" "}
-                {/* Adjust icon spacing */}
-                {item.icon}
-              </ListItemIcon>
+              <ListItemIcon sx={{ minWidth: 40 }}>{item.icon}</ListItemIcon>
               <ListItemText
                 primary={item.text}
                 primaryTypographyProps={{
                   fontWeight: selectedIndex === item.index ? 500 : 400,
-                }} // Adjust weight
+                }}
               />
             </ListItemButton>
           </ListItem>
         ))}
       </List>
-
-      {/* Divider before settings */}
       <Divider sx={{ borderColor: "divider", mx: 2, my: 1 }} />
-
-      {/* Settings List (pushes to bottom) */}
-// Renders the 'Settings' item, pushed to the bottom using `mt: 'auto'`.
       <List sx={{ px: 2, mt: "auto" }}>
-        {" "}
-        {/* mt: 'auto' pushes this list down */}
         <ListItem key={settingsItem.index} disablePadding sx={{ mb: 1 }}>
           <ListItemButton
             selected={selectedIndex === settingsItem.index}
@@ -187,12 +168,7 @@ function App() {
             sx={
               selectedIndex === settingsItem.index
                 ? selectedItemStyles
-                : {
-                    borderRadius: theme.shape.borderRadius * 5,
-                    "&:hover": {
-                      backgroundColor: theme.palette.action.hover,
-                    },
-                  }
+                : unselectedItemStyles
             }
           >
             <ListItemIcon sx={{ minWidth: 40 }}>
@@ -207,114 +183,123 @@ function App() {
           </ListItemButton>
         </ListItem>
       </List>
-    </>
+    </Box>
   );
 
   return (
-    <Box sx={{ display: "flex", bgcolor: "background.default" }}>
-      {" "}
-      {/* Ensure main background is set */}
-      {/* Navigation Drawer */}
-// Main navigation container holding both mobile and desktop drawers.
+    <Box sx={{ display: "flex", minHeight: "100vh" }}>
+      {/* AppBar */}
+      <AppBar
+        position="fixed"
+        elevation={1}
+        sx={{
+          zIndex: theme.zIndex.drawer + 1,
+          background: theme.palette.background.paper,
+          color: theme.palette.text.primary,
+          borderRadius: "0 0 24px 24px",
+          boxShadow: theme.shadows[2],
+        }}
+      >
+        <Toolbar>
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ mr: 2, borderRadius: "50%" }}
+          >
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" noWrap component="div">
+            {brandingConfig.appTitle}
+          </Typography>
+        </Toolbar>
+      </AppBar>
+
+      {/* Drawer: responsive */}
       <Box
         component="nav"
-        sx={{ width: { sm: drawerWidth }, flexShrink: { sm: 0 } }}
-        aria-label="mailbox folders"
+        sx={{
+          width: { sm: drawerWidth },
+          flexShrink: { sm: 0 },
+        }}
+        aria-label="sidebar navigation"
       >
-        {/* Mobile drawer */}
-// Temporary drawer for mobile viewports, controlled by `mobileOpen` state.
         <Drawer
-          variant="temporary"
-          open={mobileOpen}
-          onClose={handleDrawerToggle}
-          ModalProps={{ keepMounted: true }} // Better open performance on mobile.
+          variant={isMobile ? "temporary" : "permanent"}
+          open={isMobile ? mobileOpen : true}
+          onClose={isMobile ? handleDrawerToggle : undefined}
+          ModalProps={{
+            keepMounted: true, // Better mobile performance
+          }}
           sx={{
-            display: { xs: "block", sm: "none" },
+            display: { xs: "block", sm: "block" },
             "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
               width: drawerWidth,
-              // M3 Drawers often don't have a border, relying on elevation/scrim
+              boxSizing: "border-box",
               borderRight: "none",
-              // Use surface color
               backgroundColor: "background.paper",
             },
           }}
-        >
-          {drawer}
-        </Drawer>
-        {/* Desktop drawer */}
-// Permanent drawer for larger viewports (sm and up).
-        <Drawer
-          variant="permanent"
-          sx={{
-            display: { xs: "none", sm: "block" },
-            "& .MuiDrawer-paper": {
-              boxSizing: "border-box",
-              width: drawerWidth,
-              // M3 Drawers often don't have a border
-              borderRight: "none",
-              // Use surface color
-              backgroundColor: "background.paper",
-            },
-          }}
-          open
         >
           {drawer}
         </Drawer>
       </Box>
-      {/* Main Content Area */}
-// Main content area that displays the component corresponding to the selected navigation item.
+
+      {/* Main Content */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3, // Standard padding
+          p: 3,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          // Ensure content starts below the AppBar
-// `mt: '64px'` pushes content below the AppBar. Ensure this matches the actual AppBar height.
-          mt: `64px`, // Adjust if AppBar height changes
-          minHeight: "calc(100vh - 64px)", // Fill viewport height
-          // Background color set by parent Box now
+          mt: { xs: "56px", sm: "64px" }, // AppBar offset
+          minHeight: "calc(100vh - 64px)",
+          transition: "margin .3s",
         }}
       >
-        {/* Use Container for centering and max-width */}        <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2 } }}>
-// Conditional rendering based on `selectedIndex`. This approach works for a small number of items.
-// For more complex routing, consider using a routing library like React Router
-// which maps routes to components declaratively.
-          {/* Render content based on selected navigation item */}
+        <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2 } }}>
           {selectedIndex === 0 && (
-            <Typography variant="h4" component="h1" gutterBottom>
-              Dashboard
+            <>
+              <Typography variant="h4" component="h1" gutterBottom>
+                Dashboard
+              </Typography>
               <Typography variant="subtitle1" color="text.secondary">
                 Welcome to the Pizza Store Admin Dashboard
               </Typography>
-            </Typography>
+            </>
           )}
           {selectedIndex === 1 && <Pizza />}
           {selectedIndex === 2 && <ToppingManager />}
           {selectedIndex === 3 && (
-            <Typography variant="h4" component="h1" gutterBottom>
-              Orders
+            <>
+              <Typography variant="h4" component="h1" gutterBottom>
+                Orders
+              </Typography>
               <Typography variant="subtitle1" color="text.secondary">
                 Order management coming soon
               </Typography>
-            </Typography>
+            </>
           )}
           {selectedIndex === 4 && (
-            <Typography variant="h4" component="h1" gutterBottom>
-              Customers
+            <>
+              <Typography variant="h4" component="h1" gutterBottom>
+                Customers
+              </Typography>
               <Typography variant="subtitle1" color="text.secondary">
                 Customer management coming soon
               </Typography>
-            </Typography>
+            </>
           )}
           {selectedIndex === 5 && (
-            <Typography variant="h4" component="h1" gutterBottom>
-              Settings
+            <>
+              <Typography variant="h4" component="h1" gutterBottom>
+                Settings
+              </Typography>
               <Typography variant="subtitle1" color="text.secondary">
                 System settings coming soon
               </Typography>
-            </Typography>
+            </>
           )}
         </Container>
       </Box>
