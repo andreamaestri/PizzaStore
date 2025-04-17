@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   useTheme,
   Box,
@@ -11,6 +11,7 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
+import { useNavigate, useLocation, Routes, Route, Navigate } from "react-router-dom";
 import {
   Dashboard as DashboardIcon,
   LocalPizza as PizzaIcon,
@@ -105,34 +106,50 @@ function UserMenu() {
 function Dashboard() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [selectedPath, setSelectedPath] = useState('/pizzas');
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  // Get the component based on the selected path
-  const getContentComponent = (path) => {
-    switch (path) {
-      case '/':
+  // Map segment to route and vice versa
+  const segmentToPath = (segment) =>
+    segment === 'home' ? '/' : `/${segment}`;
+  const pathToSegment = (path) => {
+    if (path === '/' || path === '') return 'home';
+    return path.replace(/^\//, '').split('/')[0];
+  };
+
+  // Sync selectedSegment with route
+  const [selectedSegment, setSelectedSegment] = useState(pathToSegment(location.pathname));
+  useEffect(() => {
+    const seg = pathToSegment(location.pathname);
+    setSelectedSegment(seg);
+  }, [location.pathname]);
+
+  // Get the component based on the current segment
+  const getContentComponent = (segment) => {
+    switch (segment) {
+      case 'home':
         return (
           <Box sx={{ p: 4, textAlign: "center" }}>
             <Typography variant="h5">Dashboard Overview</Typography>
           </Box>
         );
-      case '/pizzas':
+      case 'pizzas':
         return <Pizza />;
-      case '/toppings':
+      case 'toppings':
         return <ToppingManager />;
-      case '/orders':
+      case 'orders':
         return (
           <Box sx={{ p: 4, textAlign: "center" }}>
             <Typography variant="h5">Orders Coming Soon</Typography>
           </Box>
         );
-      case '/customers':
+      case 'customers':
         return (
           <Box sx={{ p: 4, textAlign: "center" }}>
             <Typography variant="h5">Customers Coming Soon</Typography>
           </Box>
         );
-      case '/settings':
+      case 'settings':
         return (
           <Box sx={{ p: 4, textAlign: "center" }}>
             <Typography variant="h5">Settings Coming Soon</Typography>
@@ -148,8 +165,8 @@ function Dashboard() {
   };
 
   // Handle navigation changes from the Toolpad DashboardLayout
-  const handleNavigationChange = (path) => {
-    setSelectedPath(path);
+  const handleNavigationChange = (segment) => {
+    navigate(segmentToPath(segment));
   };
 
   return (
@@ -171,20 +188,75 @@ function Dashboard() {
       }
       onNavigationChange={handleNavigationChange}
     >
-      <PageContainer 
-        title={selectedPath === '/' ? 'Dashboard' : 
-               selectedPath === '/pizzas' ? 'Pizzas' : 
-               selectedPath === '/toppings' ? 'Toppings' : 
-               selectedPath === '/orders' ? 'Orders' : 
-               selectedPath === '/customers' ? 'Customers' : 
-               selectedPath === '/settings' ? 'Settings' : 'Content'} 
-        breadcrumbs={[
-          { label: 'Home', path: '/' },
-          { label: selectedPath.slice(1).charAt(0).toUpperCase() + selectedPath.slice(2) },
-        ]}
-      >
-        {getContentComponent(selectedPath)}
-      </PageContainer>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <PageContainer
+              title="Dashboard"
+              breadcrumbs={[{ label: 'Home', segment: 'home' }]}
+            >
+              {getContentComponent('home')}
+            </PageContainer>
+          }
+        />
+        <Route
+          path="/pizzas"
+          element={
+            <PageContainer
+              title="Pizzas"
+              breadcrumbs={[{ label: 'Home', segment: 'home' }, { label: 'Pizzas' }]}
+            >
+              {getContentComponent('pizzas')}
+            </PageContainer>
+          }
+        />
+        <Route
+          path="/toppings"
+          element={
+            <PageContainer
+              title="Toppings"
+              breadcrumbs={[{ label: 'Home', segment: 'home' }, { label: 'Toppings' }]}
+            >
+              {getContentComponent('toppings')}
+            </PageContainer>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <PageContainer
+              title="Orders"
+              breadcrumbs={[{ label: 'Home', segment: 'home' }, { label: 'Orders' }]}
+            >
+              {getContentComponent('orders')}
+            </PageContainer>
+          }
+        />
+        <Route
+          path="/customers"
+          element={
+            <PageContainer
+              title="Customers"
+              breadcrumbs={[{ label: 'Home', segment: 'home' }, { label: 'Customers' }]}
+            >
+              {getContentComponent('customers')}
+            </PageContainer>
+          }
+        />
+        <Route
+          path="/settings"
+          element={
+            <PageContainer
+              title="Settings"
+              breadcrumbs={[{ label: 'Home', segment: 'home' }, { label: 'Settings' }]}
+            >
+              {getContentComponent('settings')}
+            </PageContainer>
+          }
+        />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
     </DashboardLayout>
   );
 }

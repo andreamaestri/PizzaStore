@@ -40,8 +40,11 @@ function Pizza() {
     const fetchPizzaData = useCallback(() => {
         setLoading(true);
         setError(null); // Clear previous errors on fetch
-        fetch(API_URL)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+        fetch(API_URL, { signal: controller.signal })
             .then(response => {
+                clearTimeout(timeoutId);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -52,41 +55,47 @@ function Pizza() {
                 setLoading(false);
             })
             .catch(error => {
+                clearTimeout(timeoutId);
+                if (error.name === 'AbortError') {
+                    error = new Error('Request timed out. Please try again.');
+                }
                 console.error("Fetch error:", error);
                 setError(error);
                 setLoading(false);
-                // Show persistent error or just notification
                 showNotification(`Failed to load ${term} data: ${error.message}`, 'error');
             });
+        return () => clearTimeout(timeoutId);
     }, []); // Empty dependency array means this runs once on mount and callback doesn't change
 
-    {/* 
-        `useEffect` hook to trigger the initial data fetch when the component mounts.
-        Depends on `fetchPizzaData`, which is memoized by `useCallback`.
-    */}
+    // `useEffect` hook to trigger the initial data fetch when the component mounts.
+    // Depends on `fetchPizzaData`, which is memoized by `useCallback`.
     useEffect(() => {
         fetchPizzaData();
-    }, [fetchPizzaData]); // Depend on the stable callback    // --- Notifications ---
-    {/* Utility function to display a notification message via the Snackbar. */}
+    }, [fetchPizzaData]);
+    
+    // --- Notifications ---
+    // Utility function to display a notification message via the Snackbar.
     const showNotification = (message, severity = 'success') => {
         setNotification({ open: true, message, severity });
     };
 
-    {/* Handles closing the notification Snackbar. Prevents closing on 'clickaway'. */}
+    // Handles closing the notification Snackbar. Prevents closing on 'clickaway'.
     const handleCloseNotification = (event, reason) => {
         if (reason === 'clickaway') {
             return;
         }
         setNotification({ ...notification, open: false });
-    };    // --- CRUD Handlers ---
-    {/* 
+    };
+    
+    // --- CRUD Handlers ---
+    /* 
         Handles the creation of a new pizza item.
         Sends a POST request to the API.
         Updates local state on success, shows notification, handles errors.
         TODO: Consider implementing optimistic updates for a smoother UX:
         1. Add the new item to `data` state immediately.
         2. If the API call fails, remove the item from `data` and show an error.
-    */}
+    */
     const handleCreate = (item) => {
         setLoading(true);
         setError(null);
@@ -95,9 +104,9 @@ function Pizza() {
         fetch(API_URL, {
             method: 'POST',
             headers,
-// Construct the payload for the POST request.
-// Ensure properties match the expected API schema.
-// Includes parsing for `baseId` and default for `toppings`.
+            // Construct the payload for the POST request.
+            // Ensure properties match the expected API schema.
+            // Includes parsing for `baseId` and default for `toppings`.
             body: JSON.stringify({
                 // Ensure payload matches API expectations
                 name: item.name,
@@ -124,13 +133,13 @@ function Pizza() {
             });
     };
 
-// Handles updating an existing pizza item.
-// Sends a PUT request to the API with the updated item data.
-// Updates local state on success, shows notification, handles errors.
-// Stores original data for potential rollback on error.
-// TODO: Consider implementing optimistic updates:
-// 1. Update the item in `data` state immediately.
-// 2. If the API call fails, revert the item in `data` to its original state.
+    // Handles updating an existing pizza item.
+    // Sends a PUT request to the API with the updated item data.
+    // Updates local state on success, shows notification, handles errors.
+    // Stores original data for potential rollback on error.
+    // TODO: Consider implementing optimistic updates:
+    // 1. Update the item in `data` state immediately.
+    // 2. If the API call fails, revert the item in `data` to its original state.
     const handleUpdate = (updatedItem) => {
         setLoading(true);
         setError(null);
@@ -141,8 +150,8 @@ function Pizza() {
         fetch(`${API_URL}/${updatedItem.id}`, {
             method: 'PUT',
             headers,
-// Construct the payload for the PUT request.
-// Ensure all required fields, including the ID, are present.
+            // Construct the payload for the PUT request.
+            // Ensure all required fields, including the ID, are present.
             body: JSON.stringify({
                 // Ensure payload matches API expectations
                 id: updatedItem.id,
@@ -171,26 +180,26 @@ function Pizza() {
     };
 
     // --- Delete Handling with Confirmation ---
-// Initiates the delete process by setting the item ID and opening the confirmation dialog.
+    // Initiates the delete process by setting the item ID and opening the confirmation dialog.
     const handleDeleteRequest = (id) => {
         setItemToDeleteId(id);
         setDialogOpen(true); // Open confirmation dialog
     };
 
-// Closes the delete confirmation dialog and resets the item ID.
+    // Closes the delete confirmation dialog and resets the item ID.
     const handleCloseDialog = () => {
         setDialogOpen(false);
         setItemToDeleteId(null);
     };
 
-// Confirms and executes the deletion after user confirmation.
-// Sends a DELETE request to the API.
-// Updates local state on success by filtering out the deleted item.
-// Shows notification, handles errors.
-// Stores original data for potential rollback.
-// TODO: Consider implementing optimistic updates:
-// 1. Remove the item from `data` state immediately.
-// 2. If the API call fails, re-insert the item into `data`.
+    // Confirms and executes the deletion after user confirmation.
+    // Sends a DELETE request to the API.
+    // Updates local state on success by filtering out the deleted item.
+    // Shows notification, handles errors.
+    // Stores original data for potential rollback.
+    // TODO: Consider implementing optimistic updates:
+    // 1. Remove the item from `data` state immediately.
+    // 2. If the API call fails, re-insert the item into `data`.
     const handleConfirmDelete = () => {
         if (!itemToDeleteId) return;
 
@@ -227,8 +236,8 @@ function Pizza() {
     // --- Render Logic ---
 
     // More detailed Skeleton
-// Renders a skeleton loading state, providing visual feedback while data is initially loading.
-// Uses Fade transition for smoother appearance.
+    // Renders a skeleton loading state, providing visual feedback while data is initially loading.
+    // Uses Fade transition for smoother appearance.
     const renderSkeleton = () => (
         <Fade in={true} timeout={500}>
             <Stack spacing={3}>
@@ -281,55 +290,40 @@ function Pizza() {
                         <PizzaList
                             name={term}
                             data={data}
-                            // Pass loading state to potentially disable controls inside PizzaList
-                            loading={loading && data.length > 0}
+                            loading={loading}
                             onCreate={handleCreate}
                             onUpdate={handleUpdate}
-                            onDelete={handleDeleteRequest} // Use the request handler to trigger dialog
-                            onRefresh={fetchPizzaData} // Allow manual refresh
+                            onDelete={handleDeleteRequest}
+                            onRefresh={fetchPizzaData}
                         />
                     </Box>
                 </Fade>
             )}
             {/* --- Notification Snackbar --- */}
-            {/* Snackbar component to display success or error notifications. */}
             <Snackbar
                 open={notification.open}
-                autoHideDuration={6000} // Slightly longer duration
+                autoHideDuration={4000}
                 onClose={handleCloseNotification}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                TransitionComponent={Fade} // Use Fade transition
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             >
-                <Alert
-                    onClose={handleCloseNotification}
-                    severity={notification.severity}
-                    variant="filled" // Filled variant for better visibility (M3 style)
-                    elevation={6} // Standard elevation for Snackbar Alert
-                    sx={{ width: '100%' }}
-                >
+                <Alert onClose={handleCloseNotification} severity={notification.severity} sx={{ width: '100%' }}>
                     {notification.message}
                 </Alert>
             </Snackbar>
             {/* --- Delete Confirmation Dialog --- */}
-            {/* Dialog component for confirming item deletion, enhancing safety. */}
             <Dialog
                 open={dialogOpen}
                 onClose={handleCloseDialog}
-                aria-labelledby="alert-dialog-title"
-                aria-describedby="alert-dialog-description"
             >
-                <DialogTitle id="alert-dialog-title">
-                    Confirm Deletion
-                </DialogTitle>
+                <DialogTitle>Delete {term}</DialogTitle>
                 <DialogContent>
-                    <DialogContentText id="alert-dialog-description">
-                        {/* Dynamically displays the name of the pizza being deleted in the confirmation message. */}
-                        Are you sure you want to remove the pizza "{data.find(item => item.id === itemToDeleteId)?.name || 'this item'}" from the menu? This action cannot be undone.
+                    <DialogContentText>
+                        Are you sure you want to delete this {term.toLowerCase()}?
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={handleCloseDialog}>Cancel</Button>
-                    <Button onClick={handleConfirmDelete}>Delete</Button>
+                    <Button onClick={handleConfirmDelete} color="error">Delete</Button>
                 </DialogActions>
             </Dialog>
         </Stack>

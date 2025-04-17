@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import { BrowserRouter } from 'react-router-dom';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import LocalPizzaIcon from '@mui/icons-material/LocalPizza';
@@ -62,25 +63,27 @@ const theme = createTheme({
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
-      <AppProvider
-        navigation={[
-          { path: '/', text: 'Dashboard', icon: <DashboardIcon /> },
-          { path: '/pizzas', text: 'Pizzas', icon: <LocalPizzaIcon /> },
-          { path: '/toppings', text: 'Toppings', icon: <RestaurantIcon /> },
-          { path: '/orders', text: 'Orders', icon: <ReceiptIcon /> },
+      <BrowserRouter>
+        <AppProvider
+          navigation={[
+          { segment: 'home', title: 'Home', icon: <DashboardIcon /> },
+          { segment: 'pizzas', title: 'Pizzas', icon: <LocalPizzaIcon /> },
+          { segment: 'toppings', title: 'Toppings', icon: <RestaurantIcon /> },
+          { segment: 'orders', title: 'Orders', icon: <ReceiptIcon /> },
           {
-            path: '/management',
-            text: 'Management',
+            segment: 'management',
+            title: 'Management',
             children: [
-              { path: '/customers', text: 'Customers', icon: <PeopleIcon /> },
-              { path: '/settings', text: 'Settings', icon: <SettingsIcon /> },
+              { segment: 'customers', title: 'Customers', icon: <PeopleIcon /> },
+              { segment: 'settings', title: 'Settings', icon: <SettingsIcon /> },
             ]
           },
         ]}
-    >
+      >
         <CssBaseline />
         <Dashboard />
       </AppProvider>
+      </BrowserRouter>
     </ThemeProvider>
   </StrictMode>
 );
