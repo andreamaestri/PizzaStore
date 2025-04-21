@@ -1,3 +1,5 @@
+@import url('./roboto-flex.css');
+
 @font-face {
   font-family: 'Product Sans';
   font-style: normal;
@@ -11,8 +13,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-@import url('./roboto-flex.css');
 
 body {
   margin: 0;

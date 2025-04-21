@@ -15,6 +15,7 @@ import '@fontsource/roboto/700.css';
 import './index.css';
 import Dashboard from './Dashboard.jsx';
 import { AppProvider } from '@toolpad/core/AppProvider';
+import { BasketProvider } from './context/BasketContext';
 
 
 
@@ -63,9 +64,10 @@ const theme = createTheme({
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider theme={theme}>
-      <BrowserRouter>
-        <AppProvider
-          navigation={[
+      <BasketProvider>
+        <BrowserRouter>
+          <AppProvider
+            navigation={[
           { segment: 'home', title: 'Home', icon: <DashboardIcon /> },
           { segment: 'pizzas', title: 'Pizzas', icon: <LocalPizzaIcon /> },
           { segment: 'toppings', title: 'Toppings', icon: <RestaurantIcon /> },
@@ -84,6 +86,7 @@ createRoot(document.getElementById('root')).render(
         <Dashboard />
       </AppProvider>
       </BrowserRouter>
+      </BasketProvider>
     </ThemeProvider>
   </StrictMode>
 );

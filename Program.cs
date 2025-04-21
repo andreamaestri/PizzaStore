@@ -215,6 +215,83 @@ basesApi.MapGet("/{id:int}", async Task<Results<Ok<PizzaBase>, NotFound>> (Pizza
         : TypedResults.NotFound();
 });
 
+// --- Order Endpoints ---
+var ordersApi = app.MapGroup("/api/orders");
+
+// GET /api/orders - Retrieve all orders with their items
+ordersApi.MapGet("/", async (PizzaDb db) =>
+    TypedResults.Ok(await db.Orders
+        .Include(o => o.Items)
+        .ThenInclude(i => i.Pizza)
+        .ToListAsync()));
+
+// GET /api/orders/{id} - Retrieve a specific order by its ID
+ordersApi.MapGet("/{id:int}", async Task<Results<Ok<Order>, NotFound>> (PizzaDb db, int id) =>
+{
+    var order = await db.Orders
+        .Include(o => o.Items)
+        .ThenInclude(i => i.Pizza)
+        .FirstOrDefaultAsync(o => o.Id == id);
+    return order is not null
+        ? TypedResults.Ok(order)
+        : TypedResults.NotFound();
+});
+
+// POST /api/orders - Create a new order
+ordersApi.MapPost("/", async Task<Results<Created<Order>, BadRequest>> (PizzaDb db, Order order) =>
+{
+    if (order.Items == null || order.Items.Count == 0)
+    {
+        return TypedResults.BadRequest();
+    }
+    decimal totalAmount = 0;
+    foreach (var item in order.Items)
+    {
+        var pizza = await db.Pizzas.FindAsync(item.PizzaId);
+        if (pizza == null)
+        {
+            return TypedResults.BadRequest();
+        }
+        item.UnitPrice = pizza.Price;
+        totalAmount += item.UnitPrice * item.Quantity;
+    }
+    order.TotalAmount = totalAmount;
+    order.OrderDate = DateTime.Now;
+    await db.Orders.AddAsync(order);
+    await db.SaveChangesAsync();
+    return TypedResults.Created($"/api/orders/{order.Id}", order);
+});
+
+// PUT /api/orders/{id}/status - Update an order's status
+ordersApi.MapPut("/{id:int}/status", async Task<Results<Ok<Order>, NotFound, BadRequest>> (PizzaDb db, int id, OrderStatus newStatus) =>
+{
+    var order = await db.Orders.FindAsync(id);
+    if (order is null)
+    {
+        return TypedResults.NotFound();
+    }
+    order.Status = newStatus;
+    await db.SaveChangesAsync();
+    return TypedResults.Ok(order);
+});
+
+// DELETE /api/orders/{id} - Cancel an order
+ordersApi.MapDelete("/{id:int}", async Task<Results<NoContent, NotFound, BadRequest>> (PizzaDb db, int id) =>
+{
+    var order = await db.Orders.FindAsync(id);
+    if (order is null)
+    {
+        return TypedResults.NotFound();
+    }
+    if (order.Status == OrderStatus.Delivered)
+    {
+        return TypedResults.BadRequest();
+    }
+    order.Status = OrderStatus.Cancelled;
+    await db.SaveChangesAsync();
+    return TypedResults.NoContent();
+});
+
 // --- 6. Run the Application ---
 // Starts the web server and makes the application listen for incoming HTTP requests.
 app.Run();

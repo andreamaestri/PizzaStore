@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PizzaStore.Models;
 
@@ -10,9 +11,11 @@ using PizzaStore.Models;
 namespace PizzaStore.Migrations
 {
     [DbContext(typeof(PizzaDb))]
-    partial class PizzaDbModelSnapshot : ModelSnapshot
+    [Migration("20250417144130_AddOrdersModel")]
+    partial class AddOrdersModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.3");
