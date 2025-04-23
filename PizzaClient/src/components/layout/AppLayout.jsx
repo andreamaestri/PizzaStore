@@ -23,7 +23,6 @@ import {
   Tooltip,
   Collapse,
 } from "@mui/material";
-import Breadcrumbs from "./Breadcrumbs";
 import {
   ChevronLeft as ChevronLeftIcon,
   Menu as MenuIcon,
@@ -91,8 +90,7 @@ const AppLayout = ({
   selectedIndex = 0, 
   onSelectItem = () => {},
   appBarContent = null,
-  logoIcon = null,
-  breadcrumbs = [] // Add breadcrumbs prop
+  logoIcon = null
 }) => {
   // --- Toolpad Dashboard Layout Integration ---
   return (
@@ -292,8 +290,7 @@ const AppLayout = ({
           {renderNavItems()}
         </List>
       </Drawer>
-      
-      <Box
+        <Box
         component="main"
         sx={{
           flexGrow: 1,
@@ -303,8 +300,6 @@ const AppLayout = ({
         }}
       >
         <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2 } }}>
-          {/* Add breadcrumbs at the top of the content area */}
-          <Breadcrumbs items={breadcrumbs} />
           {children}
         </Container>
       </Box>

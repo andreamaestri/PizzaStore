@@ -7,13 +7,51 @@ const BasketDrawer = ({ open, onClose, onCheckout }) => {
   const { items, removeFromBasket, updateQuantity, clearBasket } = useBasket();
   const total = items.reduce((sum, i) => sum + i.pizza.price * i.quantity, 0);
   return (
-    <Drawer anchor="right" open={open} onClose={onClose} PaperProps={{ sx: { width: 370 } }}>
-      <Box sx={{ p: 3, pb: 1, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Typography variant="h6">Your Basket</Typography>
-        <IconButton onClick={onClose}><CloseIcon /></IconButton>
+    <Drawer 
+      anchor="right" 
+      open={open} 
+      onClose={onClose}
+      variant="temporary"
+      ModalProps={{
+        keepMounted: true,
+        BackdropProps: { sx: { zIndex: 3400 } }
+      }}
+      PaperProps={{ 
+        sx: { 
+          width: { xs: '100%', sm: 370 }, 
+          height: '100%',
+          zIndex: 3500,
+          boxShadow: '0px 8px 10px -5px rgba(0,0,0,0.2), 0px 16px 24px 2px rgba(0,0,0,0.14), 0px 6px 30px 5px rgba(0,0,0,0.12)'
+        } 
+      }}
+      sx={{ zIndex: 3500 }}
+    >
+      <Box sx={{ 
+        px: 3,
+        py: 2,
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'space-between',
+        borderBottom: '1px solid',
+        borderColor: 'divider',
+        bgcolor: 'primary.light',
+        color: 'primary.contrastText'
+      }}>
+        <Typography variant="h6" sx={{ fontWeight: 500 }}>Your Order</Typography>
+        <IconButton 
+          onClick={onClose} 
+          aria-label="close basket"
+          sx={{ 
+            color: 'inherit',
+            '&:hover': {
+              bgcolor: 'rgba(255, 255, 255, 0.1)'
+            }
+          }}
+        >
+          <CloseIcon />
+        </IconButton>
       </Box>
-      <Divider />
-      <Box sx={{ p: 3, pt: 2, flex: 1, overflow: 'auto' }}>
+      <Box sx={{ p: 3, pt: 2, flex: 1, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
         {items.length === 0 ? (
           <Typography color="text.secondary">Basket is empty.</Typography>
         ) : (

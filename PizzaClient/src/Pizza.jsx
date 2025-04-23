@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 import {
     Typography, Box, Alert, Snackbar, CircularProgress,
-    Stack, Skeleton, Breadcrumbs, Link, Fade,
+    Stack, Skeleton, Fade,
     Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Button, // Dialog imports
     Card, Chip // Import Card and Chip for M3 look
 } from '@mui/material';
-import { Home as HomeIcon, NavigateNext as NavigateNextIcon, LocalPizza as PizzaIcon } from '@mui/icons-material'; // Added PizzaIcon
+import { Home as HomeIcon, LocalPizza as PizzaIcon } from '@mui/icons-material'; // Added PizzaIcon
 import PizzaList from './PizzaList'; // Assuming PizzaList component exists and handles display/form
 
 // Constant for the item type, used in UI text (e.g., notifications, titles)

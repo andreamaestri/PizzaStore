@@ -188,14 +188,10 @@ function Dashboard() {
       }
       onNavigationChange={handleNavigationChange}
     >
-      <Routes>
-        <Route
+      <Routes>        <Route
           path="/"
           element={
-            <PageContainer
-              title="Dashboard"
-              breadcrumbs={[{ label: 'Home', segment: 'home' }]}
-            >
+            <PageContainer>
               {getContentComponent('home')}
             </PageContainer>
           }
@@ -203,21 +199,14 @@ function Dashboard() {
         <Route
           path="/pizzas"
           element={
-            <PageContainer
-              title="Pizzas"
-              breadcrumbs={[{ label: 'Home', segment: 'home' }, { label: 'Pizzas' }]}
-            >
+            <PageContainer>
               {getContentComponent('pizzas')}
             </PageContainer>
           }
-        />
-        <Route
+        />        <Route
           path="/toppings"
           element={
-            <PageContainer
-              title="Toppings"
-              breadcrumbs={[{ label: 'Home', segment: 'home' }, { label: 'Toppings' }]}
-            >
+            <PageContainer>
               {getContentComponent('toppings')}
             </PageContainer>
           }
@@ -225,21 +214,14 @@ function Dashboard() {
         <Route
           path="/orders"
           element={
-            <PageContainer
-              title="Orders"
-              breadcrumbs={[{ label: 'Home', segment: 'home' }, { label: 'Orders' }]}
-            >
+            <PageContainer>
               {getContentComponent('orders')}
             </PageContainer>
           }
-        />
-        <Route
+        />        <Route
           path="/customers"
           element={
-            <PageContainer
-              title="Customers"
-              breadcrumbs={[{ label: 'Home', segment: 'home' }, { label: 'Customers' }]}
-            >
+            <PageContainer>
               {getContentComponent('customers')}
             </PageContainer>
           }
@@ -247,10 +229,7 @@ function Dashboard() {
         <Route
           path="/settings"
           element={
-            <PageContainer
-              title="Settings"
-              breadcrumbs={[{ label: 'Home', segment: 'home' }, { label: 'Settings' }]}
-            >
+            <PageContainer>
               {getContentComponent('settings')}
             </PageContainer>
           }

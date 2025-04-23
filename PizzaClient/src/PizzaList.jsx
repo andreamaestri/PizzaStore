@@ -331,87 +331,164 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
 
   return (
     <Box sx={{ position: 'relative', height: '100%', display: 'flex', flexDirection: 'column' }}>
-      {/* Header Section */}
-      <Box sx={{ 
-        p: 2, 
-        background: `linear-gradient(90deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
-        color: theme.palette.primary.contrastText,
-        borderRadius: 2,
-        mb: 2,
-        boxShadow: 3,
-        display: 'flex',
-        flexWrap: 'wrap',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 1
+      {/* Enhanced Header Section */}
+      <Box sx={{
+        mb: 3,
+        borderRadius: 3,
+        overflow: 'hidden',
+        background: '#fff',
+        border: `1px solid ${alpha(theme.palette.grey[300] || '#e0e0e0', 1)}`,
+        boxShadow: `0 2px 8px ${alpha(theme.palette.grey[900] || '#222', 0.04)}`,
+        position: 'relative',
       }}>
-        <Typography variant="h5" component="h2" sx={{ fontWeight: 700 }}>
-          {name}
-        </Typography>
-        
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, ml: 'auto', flexWrap: 'wrap' }}>
-          {/* Search */}
-          <TextField
-            placeholder="Search pizzas..."
-            size="small"
-            value={searchTerm}
-            onChange={handleSearchChange}
-            sx={{
-              minWidth: { xs: '100%', sm: 200 },
-              '.MuiOutlinedInput-root': {
-                backgroundColor: alpha(theme.palette.background.paper, 0.9),
-                borderRadius: 2,
-                '&:hover .MuiOutlinedInput-notchedOutline': {
-                  borderColor: alpha(theme.palette.common.white, 0.5),
-                },
-                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                  borderColor: theme.palette.common.white,
-                }
-              }
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon color="inherit" />
-                </InputAdornment>
-              ),
-            }}
-          />
-          
-          {/* Add new pizza button */}
-          <Button
-            variant="contained"
-            color="secondary"
-            size="medium"
-            sx={{
-              borderRadius: 2,
-              boxShadow: 2,
-              textTransform: 'none',
-              fontSize: '0.95rem',
-              fontWeight: 600,
-              minWidth: 120
-            }}
-            onClick={() => setAddDialogOpen(true)}
-            startIcon={<AddIcon />}
-          >
-            Add Pizza
-          </Button>
-          
-          {/* Refresh button */}
-          <Tooltip title="Refresh">
-            <IconButton 
-              onClick={onRefresh}
-              color="inherit"
-              sx={{
-                backgroundColor: alpha(theme.palette.background.paper, 0.2),
-                '&:hover': {
-                  backgroundColor: alpha(theme.palette.background.paper, 0.3),
-                }
+        {/* Header content */}
+        <Box sx={{
+          p: { xs: 2.5, sm: 4 },
+          position: 'relative',
+          zIndex: 2,
+        }}>
+          {/* Title and content */}
+          <Box sx={{
+            display: 'flex',
+            flexDirection: { xs: 'column', md: 'row' },
+            alignItems: { xs: 'flex-start', md: 'center' },
+            gap: { xs: 2, md: 4 },
+            mb: { xs: 2, md: 0 }
+          }}>
+            <Box>
+              <Typography
+                variant="h4"
+                component="h2"
+                sx={{
+                  fontWeight: 700,
+                  color: theme.palette.text.primary,
+                  letterSpacing: '-0.01em',
+                  position: 'relative',
+                  display: 'inline-block',
+                  mb: 0.5,
+                  fontFamily: 'Inter, Roboto, Arial',
+                  lineHeight: 1.18,
+                }}
+              >
+                {name}
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={{
+                  color: theme.palette.text.secondary,
+                  maxWidth: 520,
+                  fontWeight: 400,
+                  fontSize: { xs: '1.04rem', sm: '1.10rem' },
+                  mt: 0.5,
+                  fontFamily: 'Inter, Roboto, Arial',
+                }}
+              >
+                Manage your pizza menu with ease. Add, edit, or remove items as needed.
+              </Typography>
+            </Box>
+            
+            <Box 
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 2, 
+                ml: { xs: 0, md: 'auto' },
+                flexWrap: { xs: 'wrap', sm: 'nowrap' },
+                width: { xs: '100%', md: 'auto' },
               }}
             >
-              <RefreshIcon />
-            </IconButton>
-          </Tooltip>
+              {/* Search */}
+              <TextField
+                placeholder="Search pizzas..."
+                size="small"
+                value={searchTerm}
+                onChange={handleSearchChange}
+                sx={{
+                  flexGrow: { xs: 1, md: 0 },
+                  minWidth: { xs: '100%', sm: 240, md: 220 },
+                  '.MuiOutlinedInput-root': {
+                    backgroundColor: alpha(theme.palette.common.white, 0.9),
+                    borderRadius: 2.5,
+                    boxShadow: `0 4px 12px ${alpha(theme.palette.common.black, 0.08)}`,
+                    transition: 'all 0.2s ease-in-out',
+                    '&:hover': {
+                      backgroundColor: theme.palette.common.white,
+                      boxShadow: `0 6px 16px ${alpha(theme.palette.common.black, 0.12)}`,
+                    },
+                    '&.Mui-focused': {
+                      backgroundColor: theme.palette.common.white,
+                      boxShadow: `0 6px 16px ${alpha(theme.palette.common.black, 0.12)}`,
+                    },
+                    '&:hover .MuiOutlinedInput-notchedOutline': {
+                      borderColor: alpha(theme.palette.common.white, 0.5),
+                    },
+                    '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                      borderColor: theme.palette.common.white,
+                    }
+                  }
+                }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <SearchIcon sx={{ color: theme.palette.text.secondary }} />
+                    </InputAdornment>
+                  ),
+                }}
+              />
+              
+              {/* Add new pizza button */}
+              <Button
+                variant="contained"
+                color="secondary"
+                size="medium"
+                sx={{
+                  borderRadius: 2.5,
+                  boxShadow: `0 6px 16px ${alpha(theme.palette.secondary.main, 0.25)}`,
+                  textTransform: 'none',
+                  fontSize: '0.95rem',
+                  fontWeight: 700,
+                  minWidth: 130,
+                  padding: '10px 20px',
+                  transition: 'all 0.2s ease-in-out',
+                  '&:hover': {
+                    boxShadow: `0 8px 20px ${alpha(theme.palette.secondary.main, 0.35)}`,
+                    transform: 'translateY(-1px)'
+                  },
+                  '&:active': {
+                    transform: 'translateY(1px)'
+                  }
+                }}
+                onClick={() => setAddDialogOpen(true)}
+                startIcon={<AddIcon />}
+              >
+                Add Pizza
+              </Button>
+              
+              {/* Refresh button */}
+              <Tooltip title="Refresh List">
+                <IconButton 
+                  onClick={onRefresh}
+                  aria-label="refresh list"
+                  sx={{
+                    backgroundColor: alpha(theme.palette.common.white, 0.2),
+                    color: theme.palette.common.white,
+                    width: 42,
+                    height: 42,
+                    backdropFilter: 'blur(4px)',
+                    boxShadow: `0 4px 10px ${alpha(theme.palette.common.black, 0.1)}`,
+                    '&:hover': {
+                      backgroundColor: alpha(theme.palette.common.white, 0.3),
+                      transform: 'translateY(-1px)',
+                      boxShadow: `0 6px 14px ${alpha(theme.palette.common.black, 0.14)}`,
+                    },
+                    transition: 'all 0.2s ease-in-out',
+                  }}
+                >
+                  <RefreshIcon />
+                </IconButton>
+              </Tooltip>
+            </Box>
+          </Box>
         </Box>
       </Box>
       
@@ -646,13 +723,11 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
       <BasketDrawer
         open={basketOpen}
         onClose={() => setBasketOpen(false)}
-        items={basketItems}
-        onOrderAll={() => {
+        onCheckout={() => {
           setOrderModalOpen(true);
           setSelectedPizza(null);
           setBasketOpen(false);
         }}
-        onClearBasket={clearBasket}
       />
       
       {/* Add/Edit Dialog */}

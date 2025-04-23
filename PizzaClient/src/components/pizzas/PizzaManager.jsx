@@ -11,9 +11,7 @@ import {
   DialogContentText,
   DialogTitle,
   Button,
-  Fab,
-  Breadcrumbs,
-  Link
+  Fab,  Link
 } from '@mui/material';
 import { 
   Add as AddIcon,
@@ -91,29 +89,13 @@ const PizzaManager = () => {
 
   return (
     <>
-      <Box sx={{ mb: 4 }}>
-        <Breadcrumbs 
-          separator={<NavigateNextIcon fontSize="small" />}
-          aria-label="breadcrumb"
-          sx={{ mb: 2 }}
-        >
-          <Link
-            underline="hover"
-            sx={{ display: 'flex', alignItems: 'center' }}
-            color="inherit"
-            href="/"
-          >
-            <HomeIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-            Home
-          </Link>
-          <Typography
-            sx={{ display: 'flex', alignItems: 'center' }}
-            color="text.primary"
-          >
-            <PizzaIcon sx={{ mr: 0.5 }} fontSize="inherit" />
-            Pizza Menu
-          </Typography>
-        </Breadcrumbs>
+      <Box sx={{ mb: 4 }}>        <Breadcrumb 
+          items={[
+            { text: 'Home', href: '/', icon: <HomeIcon fontSize="inherit" /> },
+            { text: 'Pizza Menu', icon: <PizzaIcon fontSize="inherit" /> }
+          ]} 
+          showIcons={true}
+        />
 
         <Stack 
           direction="row" 
