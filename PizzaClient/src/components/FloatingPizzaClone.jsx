@@ -14,7 +14,7 @@ import { useTheme } from '@mui/material';
  * @param {React.ReactNode} props.children - Row content to render inside the clone
  * @param {Function} props.onAnimationEnd - Callback when animation completes
  */
-function FloatingPizzaClone({ rect, target, children, onAnimationEnd }) {
+const FloatingPizzaClone = React.memo(function FloatingPizzaClone({ rect, target, children, onAnimationEnd }) {
   // Get the current theme
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
@@ -175,6 +175,6 @@ function FloatingPizzaClone({ rect, target, children, onAnimationEnd }) {
       {children}
     </motion.div>
   );
-}
+});
 
 export default FloatingPizzaClone;

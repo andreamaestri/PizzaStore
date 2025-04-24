@@ -227,11 +227,35 @@ export function useToppingManager() {
       setMutationLoading(false);
     }
   }, []);
-
   // Initial fetch
   useEffect(() => {
     fetchToppings();
   }, [fetchToppings]);
+  
+  // Update sort parameters based on sort type
+  useEffect(() => {
+    // Map the sort type to DataGrid sorting parameters
+    switch (currentSortType) {
+      case SortType.ALPHA_DESC:
+        setOrderBy('name');
+        setOrder('desc');
+        break;
+      case SortType.MOST_USED:
+        setOrderBy('usage');
+        setOrder('desc');
+        break;
+      case SortType.RECENT:
+        // For recent sorting, we'll still use the special handling in the processedToppings
+        // but we need to set a valid orderBy/order for the DataGrid
+        setOrderBy('name');
+        setOrder('asc');
+        break;
+      case SortType.ALPHA_ASC:
+      default:
+        setOrderBy('name');
+        setOrder('asc');
+    }
+  }, [currentSortType]);
 
   // Table handlers
   const handleRequestSort = useCallback((event, property) => {

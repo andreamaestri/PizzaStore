@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, memo, useMemo } from 'react';
 import {
   Toolbar,
   Typography,
@@ -13,7 +13,8 @@ import {
   Tooltip,
   Chip,
   alpha,
-  useTheme
+  useTheme,
+  Button
 } from '@mui/material';
 import {
   Search as SearchIcon,
@@ -23,6 +24,9 @@ import {
   ArrowDownward as ArrowDownIcon,
   LocalFireDepartment as PopularIcon,
   AccessTime as RecentIcon,
+  Add as AddIcon,
+  Sort as SortIcon,
+  Refresh as RefreshIcon
 } from '@mui/icons-material';
 import { SortType } from '../../../constants/toppingConstants';
 
@@ -38,14 +42,11 @@ const ToppingToolbar = ({
   onSortChange,
   loading,
   onDeleteSelected,
-  totalToppings,
+  onAddTopping,
+  onRefresh
 }) => {
   const theme = useTheme();
   const [sortMenuAnchor, setSortMenuAnchor] = useState(null);
-
-  const handleSortMenuOpen = useCallback((event) => {
-    setSortMenuAnchor(event.currentTarget);
-  }, []);
 
   const handleSortMenuClose = useCallback(() => {
     setSortMenuAnchor(null);
@@ -56,33 +57,225 @@ const ToppingToolbar = ({
     handleSortMenuClose();
   }, [onSortChange, handleSortMenuClose]);
 
-  // Sort menu options configuration
-  const sortOptions = [
+  // Memoized callbacks to prevent unnecessary re-renders
+  const handleClearFilterCallback = useCallback(() => {
+    onClearFilter();
+  }, [onClearFilter]);
+
+  const handleDeleteSelectedCallback = useCallback(() => {
+    onDeleteSelected();
+  }, [onDeleteSelected]);
+
+  const handleFilterTextChange = useCallback((e) => {
+    onFilterTextChange(e.target.value);
+  }, [onFilterTextChange]);
+
+  const handleSortButtonClick = useCallback((e) => {
+    setSortMenuAnchor(e.currentTarget);
+  }, []);
+
+  // Memoized sort options to avoid recreation on every render
+  const sortOptions = useMemo(() => [
     { type: SortType.ALPHA_ASC, label: 'Alphabetical (A-Z)', icon: <ArrowUpIcon /> },
     { type: SortType.ALPHA_DESC, label: 'Alphabetical (Z-A)', icon: <ArrowDownIcon /> },
     { type: SortType.MOST_USED, label: 'Most Used', icon: <PopularIcon /> },
     { type: SortType.RECENT, label: 'Recently Added', icon: <RecentIcon /> },
-  ];
+  ], []);
+  // Memoized styles to prevent recreation on every render
+  const boxStyles = useMemo(() => ({
+    mb: 3,
+    borderRadius: 3,
+    overflow: 'hidden',
+    backgroundColor: 'background.paper',
+    border: '1px solid',
+    borderColor: 'divider',
+    boxShadow: 1,
+    position: 'relative',
+  }), []);
+
+  const innerBoxStyles = useMemo(() => ({
+    p: { xs: 2.5, sm: 4 },
+    position: 'relative',
+    zIndex: 2,
+  }), []);
+
+  const contentBoxStyles = useMemo(() => ({
+    display: 'flex', 
+    alignItems: 'center', 
+    gap: 2, 
+    ml: { xs: 0, md: 'auto' },
+    flexWrap: { xs: 'wrap', sm: 'nowrap' },
+    width: { xs: '100%', md: 'auto' },
+  }), []);
+
+  const buttonsBoxStyles = useMemo(() => ({
+    display: 'flex', 
+    alignItems: 'center', 
+    gap: 2, 
+    ml: { xs: 0, md: 'auto' },
+    flexWrap: { xs: 'wrap', sm: 'nowrap' },
+    width: { xs: '100%', md: 'auto' },
+  }), []);
+  const typographyStyles = useMemo(() => ({
+    fontWeight: 700,
+    color: 'text.primary',
+    letterSpacing: '-0.01em',
+    position: 'relative',
+    display: 'inline-block',
+    mb: 0.5,
+    fontFamily: 'Inter, Roboto, Arial',
+    lineHeight: 1.18,
+  }), []);
+  const bodyTypographyStyles = useMemo(() => ({
+    color: 'text.secondary',
+    maxWidth: 520,
+    fontWeight: 400,
+    fontSize: { xs: '1.04rem', sm: '1.10rem' },
+    mt: 0.5,
+    fontFamily: 'Inter, Roboto, Arial',
+  }), []);
+  const inputAdornmentStyles = useMemo(() => ({
+    color: 'text.secondary'
+  }), []);
+
+  const inputProps = useMemo(() => ({
+    startAdornment: <InputAdornment position="start"><SearchIcon sx={inputAdornmentStyles} /></InputAdornment>,
+    endAdornment: filterText && (
+      <InputAdornment position="end">
+        <IconButton 
+          size="small" 
+          onClick={handleClearFilterCallback} 
+          edge="end" 
+          aria-label="clear search"
+        >
+          <CloseIcon fontSize="small" />
+        </IconButton>
+      </InputAdornment>
+    )
+  }), [filterText, handleClearFilterCallback, inputAdornmentStyles]);  const refreshButton = useMemo(() => (
+    <IconButton 
+      onClick={onRefresh}
+      aria-label="refresh list"
+      sx={{
+        backgroundColor: 'action.selected',
+        color: 'primary.main',
+        '&:hover': {
+          backgroundColor: alpha(theme.palette.primary.main, 0.15),
+        },
+        width: '40px',
+        height: '40px'
+      }}
+    >
+      <RefreshIcon />
+    </IconButton>
+  ), [onRefresh, theme]);
+  const sortButton = useMemo(() => (
+    <Button
+      variant="outlined"
+      size="medium"
+      startIcon={<SortIcon />}
+      onClick={handleSortButtonClick}
+      sx={{ 
+        textTransform: 'none',
+        borderColor: 'divider',
+        color: 'text.primary',
+        '&:hover': {
+          backgroundColor: 'action.hover',
+          borderColor: 'primary.main'
+        }
+      }}
+    >
+      Sort
+    </Button>
+  ), [handleSortButtonClick]);
+  const addButton = useMemo(() => (
+    <Button
+      variant="contained"
+      color="primary"
+      size="medium"
+      sx={{
+        textTransform: 'none',
+        transition: 'all 0.2s ease-in-out',
+        color: 'primary.contrastText'
+      }}
+      onClick={onAddTopping}
+      startIcon={<AddIcon />}
+    >
+      Add
+    </Button>
+  ), [onAddTopping]);
 
   return (
     <>
-      <Toolbar
-        sx={{
-          pl: { sm: 2 },
-          pr: { xs: 1, sm: 1 },
-          display: 'flex',
-          flexWrap: 'wrap',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          gap: 2,
-          mb: 2,
-          ...(numSelected > 0 && {
-            bgcolor: alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
-            borderRadius: theme.shape.borderRadius / 2,
-          }),
-        }}
-      >
-        {numSelected > 0 ? (
+      {/* Header styled like PizzaList */}
+      <Box sx={boxStyles}>
+        <Box sx={innerBoxStyles}>
+          <Box sx={contentBoxStyles}>
+            <Box>
+              <Typography
+                variant="h4"
+                component="h2"
+                sx={typographyStyles}
+              >
+                Toppings Menu
+              </Typography>
+              <Typography
+                variant="body1"
+                sx={bodyTypographyStyles}
+              >
+                Manage your toppings with ease. Add, edit, or remove items as needed.
+              </Typography>
+            </Box>
+            <Box sx={buttonsBoxStyles}>              {/* Search */}
+              <TextField
+                placeholder="Search toppings..."
+                size="small"
+                value={filterText}
+                onChange={handleFilterTextChange}
+                InputProps={inputProps}
+                sx={{ 
+                  '& .MuiInputBase-root': { 
+                    backgroundColor: 'background.default',
+                    color: 'text.primary',
+                    height: '40px',
+                    minWidth: '200px'
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'divider',
+                  },
+                  '& .MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'action.active',
+                  },
+                  '& .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                    borderColor: 'primary.main',
+                  }
+                }}
+              />
+              {/* Add new topping button */}
+              {addButton}
+              {/* Sort button */}
+              {sortButton}
+              {/* Refresh button */}
+              <Tooltip title="Refresh List">
+                {refreshButton}
+              </Tooltip>
+            </Box>
+          </Box>
+        </Box>
+      </Box>      {/* Selection Actions Toolbar */}
+      {numSelected > 0 && (
+        <Toolbar
+          sx={{
+            pl: { sm: 2 },
+            pr: { xs: 1, sm: 1 },
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: 2,
+            bgcolor: theme => alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity),
+            borderRadius: 1,
+          }}
+        >
           <Typography 
             sx={{ flex: '1 1 auto' }} 
             color="inherit" 
@@ -91,69 +284,18 @@ const ToppingToolbar = ({
           >
             {numSelected} selected
           </Typography>
-        ) : (
-          <Box sx={{ display: 'flex', alignItems: 'center', flex: '1 1 auto' }}>
-            <Typography 
-              variant="subtitle1" 
-              fontWeight={500} 
-              id="tableTitle" 
-              component="div"
+          <Tooltip title="Delete selected toppings">
+            <IconButton 
+              onClick={handleDeleteSelectedCallback} 
+              color="error" 
+              disabled={loading}
+              aria-label="delete selected toppings"
             >
-              Available Toppings
-            </Typography>
-            <Chip
-              label={totalToppings}
-              size="small"
-              color="primary"
-              sx={{ ml: 1 }}
-            />
-          </Box>
-        )}
-
-        <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-          {numSelected === 0 && (
-            <TextField
-              placeholder="Search toppings..."
-              value={filterText}
-              onChange={(e) => onFilterTextChange(e.target.value)}
-              size="small"
-              variant="outlined"
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon fontSize="small" color="action" />
-                  </InputAdornment>
-                ),
-                endAdornment: filterText && (
-                  <InputAdornment position="end">
-                    <IconButton 
-                      size="small" 
-                      onClick={onClearFilter} 
-                      edge="end" 
-                      aria-label="clear search"
-                    >
-                      <CloseIcon fontSize="small" />
-                    </IconButton>
-                  </InputAdornment>
-                )
-              }}
-              sx={{ minWidth: { xs: '150px', sm: '180px' } }}
-            />
-          )}
-          {numSelected > 0 && (
-            <Tooltip title="Delete selected toppings">
-              <IconButton 
-                onClick={onDeleteSelected} 
-                color="error" 
-                disabled={loading}
-                aria-label="delete selected toppings"
-              >
-                <DeleteIcon />
-              </IconButton>
-            </Tooltip>
-          )}
-        </Box>
-      </Toolbar>
+              <DeleteIcon />
+            </IconButton>
+          </Tooltip>
+        </Toolbar>
+      )}
 
       {/* Sort Menu */}
       <Menu
@@ -181,4 +323,4 @@ const ToppingToolbar = ({
   );
 };
 
-export default ToppingToolbar;
+export default React.memo(ToppingToolbar);

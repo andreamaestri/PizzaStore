@@ -192,11 +192,21 @@ const OrderModal = ({ open, onClose, pizza, onPlaceOrder }) => {
         </Box>
       </DialogContent>
 
-      <DialogActions>
-        <Button onClick={onClose} color="secondary">
+      <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
+        <Button
+          onClick={onClose}
+          color="secondary"
+          variant="outlined"
+          sx={{ minWidth: 120, fontWeight: 600, borderRadius: 2.5 }}
+        >
           Cancel
         </Button>
-        <Button onClick={handlePlaceOrder} variant="contained" color="primary">
+        <Button
+          onClick={handlePlaceOrder}
+          variant="contained"
+          color="primary"
+          sx={{ minWidth: 140, fontWeight: 600, borderRadius: 2.5 }}
+        >
           Place Order
         </Button>
       </DialogActions>

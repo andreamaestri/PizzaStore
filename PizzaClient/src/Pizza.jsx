@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo, memo } from 'react';
 import {
     Typography, Box, Alert, Snackbar, CircularProgress,
     Stack, Skeleton, Fade,
@@ -19,7 +19,7 @@ const headers = {
     // Add any other required headers like Authorization if needed
 };
 
-function Pizza() {
+const Pizza = memo(function Pizza() {
     // State to hold the array of pizza data fetched from the API
     const [data, setData] = useState([]);
     // State to store any error object encountered during API calls
@@ -73,6 +73,10 @@ function Pizza() {
         fetchPizzaData();
     }, [fetchPizzaData]);
     
+    // --- Memoized Data ---
+    // Memoize the data to ensure stable reference across renders
+    const memoizedData = useMemo(() => data, [data]);
+
     // --- Notifications ---
     // Utility function to display a notification message via the Snackbar.
     const showNotification = (message, severity = 'success') => {
@@ -96,7 +100,7 @@ function Pizza() {
         1. Add the new item to `data` state immediately.
         2. If the API call fails, remove the item from `data` and show an error.
     */
-    const handleCreate = (item) => {
+    const handleCreate = useCallback((item) => {
         setLoading(true);
         setError(null);
         // TODO: Consider Optimistic Update: Add item to local state immediately
@@ -131,7 +135,7 @@ function Pizza() {
                 showNotification(`Failed to add ${item.name || term}: ${error.message}`, 'error');
                 // TODO: Rollback Optimistic Update if implemented
             });
-    };
+    }, [showNotification]);
 
     // Handles updating an existing pizza item.
     // Sends a PUT request to the API with the updated item data.
@@ -140,7 +144,7 @@ function Pizza() {
     // TODO: Consider implementing optimistic updates:
     // 1. Update the item in `data` state immediately.
     // 2. If the API call fails, revert the item in `data` to its original state.
-    const handleUpdate = (updatedItem) => {
+    const handleUpdate = useCallback((updatedItem) => {
         setLoading(true);
         setError(null);
         const originalData = [...data]; // Store original data for potential rollback
@@ -177,14 +181,14 @@ function Pizza() {
                 // TODO: Rollback Optimistic Update if implemented
                 // setData(originalData);
             });
-    };
+    }, [data, showNotification]);
 
     // --- Delete Handling with Confirmation ---
     // Initiates the delete process by setting the item ID and opening the confirmation dialog.
-    const handleDeleteRequest = (id) => {
+    const handleDeleteRequest = useCallback((id) => {
         setItemToDeleteId(id);
         setDialogOpen(true); // Open confirmation dialog
-    };
+    }, []);
 
     // Closes the delete confirmation dialog and resets the item ID.
     const handleCloseDialog = () => {
@@ -200,7 +204,7 @@ function Pizza() {
     // TODO: Consider implementing optimistic updates:
     // 1. Remove the item from `data` state immediately.
     // 2. If the API call fails, re-insert the item into `data`.
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = useCallback(() => {
         if (!itemToDeleteId) return;
 
         const itemToDelete = data.find(item => item.id === itemToDeleteId);
@@ -231,30 +235,24 @@ function Pizza() {
                 // TODO: Rollback Optimistic Update if implemented
                 // setData(originalData);
             });
-    };
+    }, [itemToDeleteId, data, showNotification, handleCloseDialog]);
 
     // --- Render Logic ---
+    
+    // Renders skeletons for loading state
+    function renderSkeleton() {
+        return (
+            <Box sx={{ p: 2 }}>
+                <Skeleton variant="rectangular" height={60} sx={{ mb: 2 }} />
+                <Skeleton variant="text" height={40} sx={{ mb: 1 }} />
+                <Skeleton variant="text" height={40} sx={{ mb: 1 }} />
+                <Skeleton variant="rectangular" height={120} />
+            </Box>
+        );
+    }
 
-    // More detailed Skeleton
-    // Renders a skeleton loading state, providing visual feedback while data is initially loading.
-    // Uses Fade transition for smoother appearance.
-    const renderSkeleton = () => (
-        <Fade in={true} timeout={500}>
-            <Stack spacing={3}>
-                {/* Skeleton for Form/Header */}
-                <Skeleton variant="rectangular" height={80} sx={{ borderRadius: 2 }} />
-                {/* Skeleton for Table */}
-                <Stack spacing={1}>
-                    <Skeleton variant="rectangular" height={40} sx={{ borderRadius: 1 }} />
-                    <Skeleton variant="rectangular" height={40} sx={{ borderRadius: 1 }} />
-                    <Skeleton variant="rectangular" height={40} sx={{ borderRadius: 1 }} />
-                    <Skeleton variant="rectangular" height={40} sx={{ borderRadius: 1 }} />
-                </Stack>
-            </Stack>
-        </Fade>
-    );
-
-    return (
+    // Memoized Stack component to prevent unnecessary re-renders
+    const memoizedStack = useMemo(() => (
         <Stack>
             {/* --- Loading State (Initial) --- */}
             {loading && data.length === 0 && !error && renderSkeleton()}
@@ -276,11 +274,11 @@ function Pizza() {
             )}
             {/* --- Content (PizzaList) --- */}
             {/* Render PizzaList only when not in initial loading state */}
-            {(!loading || data.length > 0) && !error && (
-                <Fade in={!loading || data.length > 0} timeout={500}>
+            {(!loading || memoizedData.length > 0) && !error && (
+                <Fade in={!loading || memoizedData.length > 0} timeout={500}>
                     <Box>
                         {/* Show subtle loading indicator during CUD operations if needed */}
-                        {loading && data.length > 0 && (
+                        {loading && memoizedData.length > 0 && (
                             <Box sx={{ display: 'flex', justifyContent: 'center', mb: 2, position: 'absolute', top: 80, left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>
                                 <CircularProgress size={24} />
                             </Box>
@@ -289,7 +287,7 @@ function Pizza() {
                         {/* Renders the `PizzaList` component, passing down data, loading state, and CRUD handlers. */}
                         <PizzaList
                             name={term}
-                            data={data}
+                            data={memoizedData}
                             loading={loading}
                             onCreate={handleCreate}
                             onUpdate={handleUpdate}
@@ -327,7 +325,25 @@ function Pizza() {
                 </DialogActions>
             </Dialog>
         </Stack>
-    );
-}
+    ), [
+        loading,
+        data,
+        error,
+        renderSkeleton,
+        fetchPizzaData,
+        memoizedData,
+        showNotification,
+        handleCreate,
+        handleUpdate,
+        handleDeleteRequest,
+        term,
+        notification,
+        handleCloseNotification,
+        handleConfirmDelete,
+        dialogOpen
+    ]);
+
+    return memoizedStack;
+});
 
 export default Pizza;

@@ -1,33 +1,31 @@
-import React from 'react';
+import React, { memo, useState, useCallback, useMemo } from 'react';
 import {
   Box,
-  Typography,
   Paper,
   Alert,
   Button,
   Fade,
   CircularProgress,
   Backdrop,
-  Divider,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogContentText,
-  DialogActions
+  DialogActions,
+  Typography,
+  TextField,
+  IconButton
 } from '@mui/material';
 import {
   Search as SearchIcon,
-  Add as AddIcon
+  Add as AddIcon,
+  Close as CloseIcon
 } from '@mui/icons-material';
-import { FetchStatus } from '../../../constants/toppingConstants';
+import { FetchStatus, SortType } from '../../../constants/toppingConstants';
 import { useToppingManager } from '../../../hooks/useToppingManager';
-import ToppingForm from './ToppingForm';
 import ToppingToolbar from './ToppingToolbar';
 import ToppingTable from './ToppingTable';
 
-/**
- * Main component for managing pizza toppings
- */
 const ToppingManager = () => {
   const {
     // State
@@ -47,8 +45,9 @@ const ToppingManager = () => {
     // Setters
     setFilterText,
     setCurrentSortType,
-    setSelected,
     setDeleteDialog,
+    setOrder,
+    setOrderBy,
 
     // Handlers
     handleAddTopping,
@@ -56,26 +55,107 @@ const ToppingManager = () => {
     handleSaveEdit,
     handleCancelEdit,
     handleDelete,
-    handleDuplicateTopping,
     fetchToppings,
     handleRequestSort,
     handleRowClick,
-    handleSelectAllClick
   } = useToppingManager();
+
+  // Map SortType to DataGrid sort model
+  const handleToolbarSortChange = useCallback((newSortType) => {
+    setCurrentSortType(newSortType);
+    switch (newSortType) {
+      case SortType.ALPHA_DESC:
+        setOrderBy('name');
+        setOrder('desc');
+        break;
+      case SortType.MOST_USED:
+        setOrderBy('usage');
+        setOrder('desc');
+        break;
+      case SortType.RECENT:
+        setOrderBy('name');
+        setOrder('asc');
+        break;
+      case SortType.ALPHA_ASC:
+      default:
+        setOrderBy('name');
+        setOrder('asc');
+    }
+  }, [setCurrentSortType, setOrder, setOrderBy]);
+
+  // Memoized toppings array
+  const memoizedToppings = useMemo(() => toppings, [toppings]);
+
+  // Local state for Add Topping dialog
+  const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [newToppingName, setNewToppingName] = useState('');
+  const [toppingError, setToppingError] = useState('');
 
   const isLoading = fetchState.status === FetchStatus.LOADING || mutationLoading;
   const isError = fetchState.status === FetchStatus.FAILED;
   const errorMsg = fetchState.error;
 
-  const renderLoading = () => (
+  // Dialog handlers
+  const handleOpenAddDialog = useCallback(() => {
+    setNewToppingName('');
+    setToppingError('');
+    setAddDialogOpen(true);
+  }, []);
+
+  const handleCloseAddDialog = useCallback(() => {
+    setAddDialogOpen(false);
+    setNewToppingName('');
+    setToppingError('');
+  }, []);
+
+  const handleToppingNameChange = useCallback((e) => {
+    setNewToppingName(e.target.value);
+    if (toppingError) setToppingError('');
+  }, [toppingError]);
+
+  const handleSubmitNewTopping = useCallback(() => {
+    const trimmedName = newToppingName.trim();
+    
+    if (!trimmedName) {
+      setToppingError('Topping name cannot be empty');
+      return;
+    }
+    
+    // Check if topping already exists
+    if (toppings.some(t => t.name.toLowerCase() === trimmedName.toLowerCase())) {
+      setToppingError('This topping already exists');
+      return;
+    }
+    
+    handleAddTopping(trimmedName);
+    handleCloseAddDialog();
+  }, [newToppingName, toppings, handleAddTopping, handleCloseAddDialog]);
+
+  // Memoized onClearFilter callback
+  const handleClearFilter = useCallback(() => {
+    setFilterText('');
+  }, [setFilterText]);
+
+  // Memoized onDeleteRequest callback
+  const handleDeleteRequest = useCallback((name) => {
+    setDeleteDialog({ open: true, toppingName: name, isBulk: false });
+  }, [setDeleteDialog]);
+
+  // Memoized onDeleteSelected callback
+  const handleDeleteSelected = useCallback(() => {
+    setDeleteDialog({ open: true, toppingName: null, isBulk: true });
+  }, [setDeleteDialog]);
+  
+  // Memoized UI components
+  const renderLoading = useMemo(() => (
     <Fade in={true} timeout={500}>
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
         <CircularProgress />
       </Box>
     </Fade>
-  );
+  ), []);
 
-  const renderError = () => (
+  const renderError = useMemo(() => (
     <Fade in={true} timeout={500}>
       <Alert
         severity="error"
@@ -89,14 +169,13 @@ const ToppingManager = () => {
         Failed to load data: {errorMsg || 'An unknown error occurred.'}
       </Alert>
     </Fade>
-  );
-
-  const renderEmptyState = () => (
+  ), [fetchToppings, errorMsg]);
+  const renderEmptyState = useMemo(() => (
     <Paper
       elevation={0}
       variant="outlined"
       sx={{
-        borderRadius: theme => theme.shape.borderRadius / 2,
+        borderRadius: 2,
         p: 3,
         textAlign: 'center',
         display: 'flex',
@@ -117,97 +196,69 @@ const ToppingManager = () => {
           variant="text"
           size="small"
           sx={{ mt: 1 }}
-          onClick={() =>
-            document.querySelector('input[placeholder="Enter topping name"]')?.focus()
-          }
+          onClick={handleOpenAddDialog}
         >
           Add First Topping
         </Button>
       )}
     </Paper>
-  );
+  ), [filterText, toppings.length, handleOpenAddDialog]);
 
   return (
-    <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
-      <Typography variant="h5" gutterBottom color="primary.main" fontWeight="medium">
-        Topping Manager
-      </Typography>
-
-      {/* Global Loading/Backdrop for Mutations */}
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>      {/* Global Loading/Backdrop for Mutations */}
       <Backdrop
-        sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+        sx={{ color: 'common.white', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={mutationLoading}
       >
-        <CircularProgress color="inherit" />
+        {useMemo(() => <CircularProgress color="inherit" />, [])}
       </Backdrop>
 
-      <Paper
-        elevation={0}
-        variant="outlined"
-        sx={{
-          p: { xs: 2, sm: 3 },
-          borderColor: 'divider',
-          mb: 3
-        }}
-      >
-        {/* Add Topping Form */}
-        <ToppingForm
-          onAdd={handleAddTopping}
-          loading={isLoading}
-          existingToppings={toppings.map((t) => t.name)}
-        />
+      {/* Non-scrollable header */}
+      <ToppingToolbar
+        numSelected={selected.length}
+        filterText={filterText}
+        onFilterTextChange={setFilterText}
+        onClearFilter={handleClearFilter}
+        sortType={currentSortType}
+        onSortChange={handleToolbarSortChange}
+        loading={isLoading}
+        onDeleteSelected={handleDeleteSelected}
+        onAddTopping={handleOpenAddDialog}
+        onRefresh={fetchToppings}
+      />
 
-        <Divider sx={{ my: 2 }} />
-
-        {/* Toolbar: Search, Sort, Actions */}
-        <ToppingToolbar
-          numSelected={selected.length}
-          filterText={filterText}
-          onFilterTextChange={setFilterText}
-          onClearFilter={() => setFilterText('')}
-          sortType={currentSortType}
-          onSortChange={setCurrentSortType}
-          loading={isLoading}
-          onDeleteSelected={() =>
-            setDeleteDialog({ open: true, toppingName: null, isBulk: true })
-          }
-          totalToppings={toppings.length}
-        />
-
+      {/* Scrollable Content Area */}
+      <Box sx={{ flexGrow: 1, overflow: 'auto', position: 'relative' }}>
         {/* Loading State */}
-        {fetchState.status === FetchStatus.LOADING && toppings.length === 0 && renderLoading()}
+        {fetchState.status === FetchStatus.LOADING && memoizedToppings.length === 0 && renderLoading}
 
         {/* Error State */}
-        {isError && renderError()}
+        {isError && renderError}
 
-        {/* Table or Empty State */}
+        {/* Table / Empty State */}
         {fetchState.status !== FetchStatus.LOADING && !isError && (
-          toppings.length === 0 ? (
-            renderEmptyState()
-          ) : (
-            <ToppingTable
-              toppingsData={toppings}
-              order={order}
-              orderBy={orderBy}
-              selected={selected}
-              onRowClick={handleRowClick}
-              onRequestSort={handleRequestSort}
-              onSelectAllClick={handleSelectAllClick}
-              onEditStart={handleStartEdit}
-              onEditSave={handleSaveEdit}
-              onEditCancel={handleCancelEdit}
-              onDeleteRequest={(name) =>
-                setDeleteDialog({ open: true, toppingName: name, isBulk: false })
-              }
-              editMode={editMode}
-              editState={editState}
-              loading={isLoading}
-              recentToppings={recentToppings}
-              onDuplicate={handleDuplicateTopping}
-            />
+          memoizedToppings.length === 0 ? renderEmptyState : (
+            <div>
+              <ToppingTable
+                toppingsData={memoizedToppings}
+                order={order}
+                orderBy={orderBy}
+                selected={selected}
+                onRowClick={handleRowClick}
+                onRequestSort={handleRequestSort}
+                onEditStart={handleStartEdit}
+                onEditSave={handleSaveEdit}
+                onEditCancel={handleCancelEdit}
+                onDeleteRequest={handleDeleteRequest}
+                editMode={editMode}
+                editState={editState}
+                loading={isLoading}
+                recentToppings={recentToppings}
+              />
+            </div>
           )
         )}
-      </Paper>
+      </Box>
 
       {/* Delete Confirmation Dialog */}
       <Dialog
@@ -253,8 +304,64 @@ const ToppingManager = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      {/* Add Topping Dialog */}
+      <Dialog 
+        open={addDialogOpen} 
+        onClose={handleCloseAddDialog}
+        fullWidth
+        maxWidth="xs"
+      >
+        <DialogTitle>
+          Add New Topping          <IconButton
+            aria-label="close"
+            onClick={handleCloseAddDialog}
+            sx={{
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: 'text.secondary', // Use theme token for dark mode compatibility
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Topping Name"
+            fullWidth
+            variant="outlined"
+            value={newToppingName}
+            onChange={handleToppingNameChange}
+            error={!!toppingError}
+            helperText={toppingError}
+            placeholder="Enter topping name"
+            sx={{ mt: 1 }}
+            onKeyPress={(e) => {
+              if (e.key === 'Enter') {
+                handleSubmitNewTopping();
+              }
+            }}
+          />
+        </DialogContent>
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Button onClick={handleCloseAddDialog} variant="text">
+            Cancel
+          </Button>
+          <Button 
+            onClick={handleSubmitNewTopping} 
+            variant="contained" 
+            color="primary"
+            disabled={!newToppingName.trim() || !!toppingError}
+          >
+            Add Topping
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
 
-export default ToppingManager;
+export default memo(ToppingManager);

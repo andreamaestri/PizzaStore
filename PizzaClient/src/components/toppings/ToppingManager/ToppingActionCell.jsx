@@ -127,9 +127,11 @@ const ToppingActionCell = ({
                 sx={{
                   ...actionButtonStyle,
                   color: theme.palette.primary.main,
+                  borderRadius: 2.5,
                   '&:not(:disabled)': {
+                    backgroundColor: alpha(theme.palette.primary.main, 0.08),
                     '&:hover': {
-                      backgroundColor: alpha(theme.palette.primary.main, 0.1),
+                      backgroundColor: alpha(theme.palette.primary.main, 0.18),
                     }
                   },
                   '&.Mui-disabled': {
@@ -155,9 +157,11 @@ const ToppingActionCell = ({
                   ...actionButtonStyle,
                   ml: 1,
                   color: theme.palette.error.main,
+                  borderRadius: 2.5,
                   '&:not(:disabled)': {
+                    backgroundColor: alpha(theme.palette.error.main, 0.08),
                     '&:hover': {
-                      backgroundColor: alpha(theme.palette.error.main, 0.1),
+                      backgroundColor: alpha(theme.palette.error.main, 0.18),
                     }
                   },
                   '&.Mui-disabled': {

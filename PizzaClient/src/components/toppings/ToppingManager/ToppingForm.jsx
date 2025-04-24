@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import {
   Box,
   Typography,
@@ -17,6 +17,8 @@ import { toppingExists } from '../../../utils/sortUtils';
  * Form component for adding new toppings
  */
 const ToppingForm = ({ onAdd, loading, existingToppings }) => {
+  const memoizedExistingToppings = useMemo(() => existingToppings, [existingToppings]);
+
   const [newTopping, setNewTopping] = useState('');
   const [duplicateError, setDuplicateError] = useState(false);
 
@@ -24,7 +26,7 @@ const ToppingForm = ({ onAdd, loading, existingToppings }) => {
     const trimmedTopping = newTopping.trim();
     if (!trimmedTopping) return;
 
-    if (toppingExists(trimmedTopping, existingToppings)) {
+    if (toppingExists(trimmedTopping, memoizedExistingToppings)) {
       setDuplicateError(true);
       setTimeout(() => setDuplicateError(false), 3000);
       return;
@@ -33,7 +35,7 @@ const ToppingForm = ({ onAdd, loading, existingToppings }) => {
     onAdd(trimmedTopping);
     setNewTopping('');
     setDuplicateError(false);
-  }, [newTopping, existingToppings, onAdd]);
+  }, [newTopping, memoizedExistingToppings, onAdd]);
 
   const handleInputChange = useCallback((e) => {
     setNewTopping(e.target.value);
@@ -84,10 +86,12 @@ const ToppingForm = ({ onAdd, loading, existingToppings }) => {
         />
         <Button
           variant="contained"
+          color="primary"
           startIcon={<AddIcon />}
           onClick={handleAddClick}
           disabled={loading || !newTopping.trim()}
           aria-label="add topping"
+          sx={{ minWidth: 120, fontWeight: 600, borderRadius: 2.5 }}
         >
           Add
         </Button>

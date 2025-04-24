@@ -210,8 +210,10 @@ const PizzaForm = ({
         <Stack direction="row" spacing={2} sx={{ mt: 3, justifyContent: 'flex-end' }}>
           <Button
             variant="outlined"
+            color="secondary"
             onClick={handleCancel}
             startIcon={<CloseIcon />}
+            sx={{ minWidth: 120, fontWeight: 600, borderRadius: 2.5 }}
           >
             Cancel
           </Button>
@@ -221,6 +223,7 @@ const PizzaForm = ({
             color="primary"
             startIcon={isEditing ? <SaveIcon /> : <AddIcon />}
             disabled={basesLoading || toppingsLoading}
+            sx={{ minWidth: 140, fontWeight: 600, borderRadius: 2.5 }}
           >
             {isEditing ? 'Save' : 'Create'}
           </Button>

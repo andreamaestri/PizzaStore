@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo } from "react";
 import {
   useTheme,
   Box,
@@ -11,7 +11,8 @@ import {
   Menu,
   MenuItem,
 } from "@mui/material";
-import { useNavigate, useLocation, Routes, Route, Navigate } from "react-router-dom";
+import { useNavigate, Routes, Route, Navigate } from "react-router-dom";
+import { DataGrid } from "@mui/x-data-grid";
 import {
   Dashboard as DashboardIcon,
   LocalPizza as PizzaIcon,
@@ -28,6 +29,9 @@ import ToppingManager from "./components/toppings/ToppingManager"; // Import Top
 import { DashboardLayout } from '@toolpad/core/DashboardLayout';
 import { PageContainer } from '@toolpad/core/PageContainer';
 
+// Import mock data for dashboard statistics
+import { orders, users } from "./constants/mockData";
+ 
 // Custom navigation action items for the toolbar
 function CustomToolbarActions() {
   const [notificationsAnchorEl, setNotificationsAnchorEl] = useState(null);
@@ -107,48 +111,240 @@ function Dashboard() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
-  const location = useLocation();
+  // Removed unused location variable
 
   // Map segment to route and vice versa
   const segmentToPath = (segment) =>
     segment === 'home' ? '/' : `/${segment}`;
-  const pathToSegment = (path) => {
-    if (path === '/' || path === '') return 'home';
-    return path.replace(/^\//, '').split('/')[0];
-  };
+  // Removed unused pathToSegment function
 
   // Sync selectedSegment with route
-  const [selectedSegment, setSelectedSegment] = useState(pathToSegment(location.pathname));
-  useEffect(() => {
-    const seg = pathToSegment(location.pathname);
-    setSelectedSegment(seg);
-  }, [location.pathname]);
+  // Removed unused selectedSegment state to fix ESLint error
 
   // Get the component based on the current segment
   const getContentComponent = (segment) => {
     switch (segment) {
       case 'home':
+        // Dashboard summary using mock data
         return (
-          <Box sx={{ p: 4, textAlign: "center" }}>
-            <Typography variant="h5">Dashboard Overview</Typography>
+          <Box sx={{ p: { xs: 2, sm: 4 }, textAlign: "center" }}>
+            <Typography variant="h4" gutterBottom>
+              Dashboard Overview
+            </Typography>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                justifyContent: "center",
+                gap: 4,
+                my: 4,
+              }}
+            >
+              <Box
+                sx={{
+                  flex: 1,
+                  bgcolor: "background.paper",
+                  borderRadius: 3,
+                  boxShadow: 2,
+                  p: 3,
+                  minWidth: 220,
+                  mx: "auto",
+                }}
+              >
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  Total Orders
+                </Typography>
+                <Typography variant="h3" color="primary" fontWeight={700}>
+                  {orders.length}
+                </Typography>
+              </Box>
+              <Box
+                sx={{
+                  flex: 1,
+                  bgcolor: "background.paper",
+                  borderRadius: 3,
+                  boxShadow: 2,
+                  p: 3,
+                  minWidth: 220,
+                  mx: "auto",
+                }}
+              >
+                <Typography variant="h6" color="text.secondary" gutterBottom>
+                  Total Customers
+                </Typography>
+                <Typography variant="h3" color="secondary" fontWeight={700}>
+                  {users.length}
+                </Typography>
+              </Box>
+            </Box>
+            <Box
+              sx={{
+                mt: 4,
+                bgcolor: "background.paper",
+                borderRadius: 3,
+                boxShadow: 1,
+                p: 3,
+                maxWidth: 700,
+                mx: "auto",
+                textAlign: "left",
+              }}
+            >
+              <Typography variant="h6" gutterBottom>
+                Recent Orders
+              </Typography>
+              <Box component="table" sx={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr>
+                    <th style={{ textAlign: "left", padding: 8 }}>Order #</th>
+                    <th style={{ textAlign: "left", padding: 8 }}>Customer</th>
+                    <th style={{ textAlign: "left", padding: 8 }}>Date</th>
+                    <th style={{ textAlign: "left", padding: 8 }}>Status</th>
+                    <th style={{ textAlign: "right", padding: 8 }}>Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {orders
+                    .slice()
+                    .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
+                    .slice(0, 5)
+                    .map((order) => (
+                      <tr key={order.id} style={{ borderBottom: "1px solid #eee" }}>
+                        <td style={{ padding: 8 }}>{order.id}</td>
+                        <td style={{ padding: 8 }}>{order.customerName}</td>
+                        <td style={{ padding: 8 }}>
+                          {new Date(order.orderDate).toLocaleDateString()}
+                        </td>
+                        <td style={{ padding: 8 }}>
+                          <span
+                            style={{
+                              color:
+                                order.status === "Delivered"
+                                  ? "#388e3c"
+                                  : order.status === "Ready"
+                                  ? "#fbc02d"
+                                  : order.status === "InProgress"
+                                  ? "#1976d2"
+                                  : order.status === "Cancelled"
+                                  ? "#d32f2f"
+                                  : "#757575",
+                              fontWeight: 500,
+                            }}
+                          >
+                            {order.status}
+                          </span>
+                        </td>
+                        <td style={{ padding: 8, textAlign: "right" }}>
+                          £{order.totalAmount.toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </Box>
+            </Box>
           </Box>
         );
       case 'pizzas':
         return <Pizza />;
       case 'toppings':
         return <ToppingManager />;
-      case 'orders':
+      case 'orders': {
+        // Use MUI Toolpad DataGrid for orders
+        // Lazy-load DataGrid to avoid breaking SSR if not present
+        const orderRows = orders.map((o) => ({
+          id: o.id,
+          customer: o.customerName,
+          date: new Date(o.orderDate).toLocaleDateString(),
+          status: o.status,
+          total: o.totalAmount,
+        }));
+        const orderColumns = [
+          { field: 'id', headerName: 'Order #', width: 100 },
+          { field: 'customer', headerName: 'Customer', flex: 1, minWidth: 160 },
+          { field: 'date', headerName: 'Date', width: 120 },
+          { field: 'status', headerName: 'Status', width: 120,
+            renderCell: (params) => (
+              <span style={{
+                color:
+                  params.value === "Delivered"
+                    ? "#388e3c"
+                    : params.value === "Ready"
+                    ? "#fbc02d"
+                    : params.value === "InProgress"
+                    ? "#1976d2"
+                    : params.value === "Cancelled"
+                    ? "#d32f2f"
+                    : "#757575",
+                fontWeight: 500,
+              }}>
+                {params.value}
+              </span>
+            )
+          },
+          { field: 'total', headerName: 'Total (£)', width: 120, type: 'number',
+            valueFormatter: ({ value }) => (typeof value === 'number' ? `£${value.toFixed(2)}` : '—') },
+        ];
         return (
-          <Box sx={{ p: 4, textAlign: "center" }}>
-            <Typography variant="h5">Orders Coming Soon</Typography>
-          </Box>
+          <PageContainer>
+            <Typography variant="h4" gutterBottom>
+              Orders
+            </Typography>
+            <Box sx={{ height: 440, bgcolor: "background.paper", borderRadius: 3, boxShadow: 1, p: 2, mt: 2 }}>
+              <DataGrid
+                rows={orderRows}
+                columns={orderColumns}
+                pageSize={5}
+                rowsPerPageOptions={[5, 10]}
+                disableRowSelectionOnClick
+                autoHeight={false}
+                sx={{
+                  borderRadius: 2,
+                  fontSize: 16,
+                  backgroundColor: "background.paper",
+                }}
+              />
+            </Box>
+          </PageContainer>
         );
-      case 'customers':
+      }
+      case 'customers': {
+        // Use MUI Toolpad DataGrid for customers
+        const userRows = users.map((u) => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          address: u.address,
+          phone: u.phone,
+        }));
+        const userColumns = [
+          { field: 'id', headerName: 'ID', width: 80 },
+          { field: 'name', headerName: 'Name', flex: 1, minWidth: 160 },
+          { field: 'email', headerName: 'Email', flex: 1, minWidth: 180 },
+          { field: 'address', headerName: 'Address', flex: 1, minWidth: 200 },
+          { field: 'phone', headerName: 'Phone', width: 140 },
+        ];
         return (
-          <Box sx={{ p: 4, textAlign: "center" }}>
-            <Typography variant="h5">Customers Coming Soon</Typography>
-          </Box>
+          <PageContainer>
+            <Typography variant="h4" gutterBottom>
+              Customers
+            </Typography>
+            <Box sx={{ height: 440, bgcolor: "background.paper", borderRadius: 3, boxShadow: 1, p: 2, mt: 2 }}>
+              <DataGrid
+                rows={userRows}
+                columns={userColumns}
+                pageSize={5}
+                rowsPerPageOptions={[5, 10]}
+                disableRowSelectionOnClick
+                autoHeight={false}
+                sx={{
+                  borderRadius: 2,
+                  fontSize: 16,
+                  backgroundColor: "background.paper",
+                }}
+              />
+            </Box>
+          </PageContainer>
         );
+      }
       case 'settings':
         return (
           <Box sx={{ p: 4, textAlign: "center" }}>
@@ -169,7 +365,7 @@ function Dashboard() {
     navigate(segmentToPath(segment));
   };
 
-  return (
+  const memoizedDashboardLayout = useMemo(() => (
     <DashboardLayout
       slotProps={{
         header: {
@@ -188,7 +384,8 @@ function Dashboard() {
       }
       onNavigationChange={handleNavigationChange}
     >
-      <Routes>        <Route
+      <Routes>
+        <Route
           path="/"
           element={
             <PageContainer>
@@ -203,7 +400,8 @@ function Dashboard() {
               {getContentComponent('pizzas')}
             </PageContainer>
           }
-        />        <Route
+        />
+        <Route
           path="/toppings"
           element={
             <PageContainer>
@@ -218,7 +416,8 @@ function Dashboard() {
               {getContentComponent('orders')}
             </PageContainer>
           }
-        />        <Route
+        />
+        <Route
           path="/customers"
           element={
             <PageContainer>
@@ -237,7 +436,9 @@ function Dashboard() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </DashboardLayout>
-  );
+  ), [isMobile, handleNavigationChange]);
+
+  return memoizedDashboardLayout;
 }
 
 export default Dashboard;
