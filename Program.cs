@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Http.HttpResults;
 
 // --- 1. Application Builder Setup ---
 var builder = WebApplication.CreateBuilder(args);
+// Bind Kestrel to the port Azure Container Apps gives us (default to 80)
+var port = Environment.GetEnvironmentVariable("PORT") ?? "80";
+builder.WebHost.UseUrls($"http://*:{port}");
 
 // --- 2. Service Configuration (Dependency Injection) ---
 var connectionString = builder.Configuration.GetConnectionString("Pizzas") ?? "Data Source=Pizzas.db";
