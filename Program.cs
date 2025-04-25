@@ -34,6 +34,12 @@ builder.Services.AddSwaggerGen(c =>
         Description = "An API to manage and order the pizzas you love.",
         Version = "v1"
     });
+    // Add server information for Azure
+    c.AddServer(new OpenApiServer
+    {
+        Url = "https://pizzastore20250425164023-gxcmh7cqaccjd3ce.australiaeast-01.azurewebsites.net",
+        Description = "Production API Server"
+    });
     // Clean up tags for Azure compatibility
     c.DocumentFilter<TagCleanupDocumentFilter>();
 });
@@ -266,7 +272,7 @@ ordersApi.MapPost("/", async Task<Results<Created<Order>, BadRequest>> (PizzaDb 
 });
 
 // PUT /api/orders/{id}/status - Update an order's status
-ordersApi.MapPut("/{id:int}/status", async Task<Results<Ok<Order>, NotFound, BadRequest>> (PizzaDb db, int id, OrderStatus newStatus) =>
+ordersApi.MapPut("/{id:int}/status", async Task<Results<Ok<Order>, NotFound, BadRequest>> (PizzaDb db, int id, [Microsoft.AspNetCore.Mvc.FromQuery] PizzaStore.Models.OrderStatus newStatus) =>
 {
     var order = await db.Orders.FindAsync(id);
     if (order is null)
@@ -286,11 +292,11 @@ ordersApi.MapDelete("/{id:int}", async Task<Results<NoContent, NotFound, BadRequ
     {
         return TypedResults.NotFound();
     }
-    if (order.Status == OrderStatus.Delivered)
+    if (order.Status == PizzaStore.Models.OrderStatus.Delivered)
     {
         return TypedResults.BadRequest();
     }
-    order.Status = OrderStatus.Cancelled;
+    order.Status = PizzaStore.Models.OrderStatus.Cancelled;
     await db.SaveChangesAsync();
     return TypedResults.NoContent();
 });
