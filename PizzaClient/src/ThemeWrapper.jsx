@@ -53,7 +53,7 @@ export function ThemeWrapper({ children }) {
     cssVarPrefix: 'pizza-app',
     colorSchemeMode: mode,
     typography: {
-      fontFamily: 'Roboto Flex, Roboto, Helvetica, Arial, sans-serif',
+      fontFamily: 'Product Sans, Roboto Flex, Roboto, Helvetica, Arial, sans-serif',
       h1: {
         fontFamily: 'Product Sans, Roboto Flex, Roboto, Helvetica, Arial, sans-serif',
         fontWeight: 600,
@@ -91,25 +91,33 @@ export function ThemeWrapper({ children }) {
     },
     components: {
       MuiCssBaseline: {
-        styleOverrides: {
-          body: {
-            transition: 'background-color 0.3s, color 0.3s',
-            scrollbarColor: mode === 'dark' ? '#6b6b6b #2b2b2b' : '#959595 #f5f5f5',
-            '&::-webkit-scrollbar, & *::-webkit-scrollbar': {
-              width: '8px',
-              height: '8px',
-            },
-            '&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb': {
-              borderRadius: 8,
-              backgroundColor: mode === 'dark' ? '#6b6b6b' : '#959595',
-            },
-            '&::-webkit-scrollbar-track, & *::-webkit-scrollbar-track': {
-              borderRadius: 8,
-              backgroundColor: mode === 'dark' ? '#2b2b2b' : '#f5f5f5',
-            },
-          },
-        },
-      },      // Enhanced card appearance for dark mode
+        styleOverrides: `
+          @font-face {
+            font-family: 'Product Sans';
+            font-style: normal;
+            font-weight: 400 900;
+            font-display: swap;
+            src: url('https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2') format('woff2');
+          }
+          body {
+            transition: background-color 0.3s, color 0.3s;
+            scrollbar-color: ${mode === 'dark' ? '#6b6b6b #2b2b2b' : '#959595 #f5f5f5'};
+          }
+          body::-webkit-scrollbar, body *::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+          }
+          body::-webkit-scrollbar-thumb, body *::-webkit-scrollbar-thumb {
+            border-radius: 8px;
+            background-color: ${mode === 'dark' ? '#6b6b6b' : '#959595'};
+          }
+          body::-webkit-scrollbar-track, body *::-webkit-scrollbar-track {
+            border-radius: 8px;
+            background-color: ${mode === 'dark' ? '#2b2b2b' : '#f5f5f5'};
+          }
+        `,
+      },
+      // Enhanced card appearance for dark mode
       MuiCard: {
         styleOverrides: {
           root: {

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -20,7 +20,7 @@ import {
   Close as CloseIcon
 } from '@mui/icons-material';
 
-const OrderModal = ({ open, onClose, pizza, onPlaceOrder }) => {
+const OrderModal = ({ open, onClose, pizza, onPlaceOrder, pizzaList }) => {
   const [quantity, setQuantity] = useState(1);
   const [orderForm, setOrderForm] = useState({
     customerName: '',
@@ -28,6 +28,9 @@ const OrderModal = ({ open, onClose, pizza, onPlaceOrder }) => {
     address: ''
   });
   const [errors, setErrors] = useState({});
+
+  // Memoize pizzaList to prevent unnecessary re-renders
+  const memoizedPizzaList = useMemo(() => pizzaList, [pizzaList]);
 
   const handleQuantityChange = (amount) => {
     const newQuantity = quantity + amount;

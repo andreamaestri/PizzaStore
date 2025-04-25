@@ -1,5 +1,5 @@
 // filepath: c:\Users\andre\source\repos\PizzaStore\PizzaClient\src\App.jsx
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import { AppProvider } from '@toolpad/core/AppProvider';
@@ -29,7 +29,7 @@ function ThemedApp() {
       mode,
     },
     typography: {
-      fontFamily: 'Roboto Flex, Roboto, Helvetica, Arial, sans-serif',
+      fontFamily: ' Product Sans, Roboto Flex, Roboto, Helvetica, Arial, sans-serif',
       h1: {
         fontFamily: 'Product Sans, Roboto Flex, Roboto, Helvetica, Arial, sans-serif',
         fontWeight: 600,
@@ -65,32 +65,58 @@ function ThemedApp() {
         fontFamily: 'Roboto Flex, Roboto, Helvetica, Arial, sans-serif',
       },
     },
+    components: {
+      MuiCssBaseline: {
+        styleOverrides: `
+          @font-face {
+            font-family: 'Product Sans';
+            font-style: normal;
+            font-weight: 400 900;
+            font-display: swap;
+            src: url('https://fonts.gstatic.com/s/productsans/v5/HYvgU2fE2nRJvZ5JFAumwegdm0LZdjqr5-oayXSOefg.woff2') format('woff2');
+          }
+          h1, h2, h3, h4, h5, h6 {
+            font-family: 'Product Sans', 'Roboto Flex', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            font-weight: 600;
+            letter-spacing: 0;
+          }
+        `,
+      },
+    },
   });
+  // Memoize the navigation configuration to prevent unnecessary recreations
+  const navigationConfig = useMemo(() => [
+    { segment: 'home', title: 'Home', icon: <DashboardIcon /> },
+    { segment: 'pizzas', title: 'Pizzas', icon: <LocalPizzaIcon /> },
+    { segment: 'toppings', title: 'Toppings', icon: <RestaurantIcon /> },
+    { segment: 'orders', title: 'Orders', icon: <ReceiptIcon /> },
+    {
+      segment: 'management',
+      title: 'Management',
+      children: [
+        { segment: 'customers', title: 'Customers', icon: <PeopleIcon /> },
+        { segment: 'settings', title: 'Settings', icon: <SettingsIcon /> },
+      ]
+    },
+  ], []);
+
+  // Memoize the Dashboard component to prevent unnecessary re-renders
+  const memoizedDashboard = useMemo(() => <Dashboard />, []);
+
+  // Memoize the BrowserRouter and its children to prevent unnecessary re-renders
+  const memoizedRouter = useMemo(() => (
+    <BrowserRouter>
+      <AppProvider navigation={navigationConfig}>
+        <CssBaseline />
+        {memoizedDashboard}
+      </AppProvider>
+    </BrowserRouter>
+  ), [navigationConfig, memoizedDashboard]);
 
   return (
     <ThemeProvider theme={theme}>
       <BasketProvider>
-        <BrowserRouter>
-          <AppProvider
-            navigation={[
-              { segment: 'home', title: 'Home', icon: <DashboardIcon /> },
-              { segment: 'pizzas', title: 'Pizzas', icon: <LocalPizzaIcon /> },
-              { segment: 'toppings', title: 'Toppings', icon: <RestaurantIcon /> },
-              { segment: 'orders', title: 'Orders', icon: <ReceiptIcon /> },
-              {
-                segment: 'management',
-                title: 'Management',
-                children: [
-                  { segment: 'customers', title: 'Customers', icon: <PeopleIcon /> },
-                  { segment: 'settings', title: 'Settings', icon: <SettingsIcon /> },
-                ]
-              },
-            ]}
-          >
-            <CssBaseline />
-            <Dashboard />
-          </AppProvider>
-        </BrowserRouter>
+        {memoizedRouter}
       </BasketProvider>
     </ThemeProvider>
   );

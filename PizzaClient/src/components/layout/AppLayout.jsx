@@ -258,7 +258,7 @@ const AppLayout = ({
   >
     <MenuIcon />
   </IconButton>
-  <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+  <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontFamily: 'Product Sans, Roboto Flex, Roboto, Helvetica, Arial, sans-serif', fontWeight: 600 }}>
     {title}
   </Typography>
   {appBarContent}
@@ -277,7 +277,7 @@ const AppLayout = ({
   {open && (
     <Box sx={{ display: "flex", alignItems: "center" }}>
       <Avatar sx={{ mr: 2 }}>{logoIcon}</Avatar>
-      <Typography variant="h6">{title}</Typography>
+      <Typography variant="h6" sx={{ fontFamily: 'Product Sans, Roboto Flex, Roboto, Helvetica, Arial, sans-serif', fontWeight: 600 }}>{title}</Typography>
     </Box>
   )}
   <IconButton onClick={handleDrawerToggle}>

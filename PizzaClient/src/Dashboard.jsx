@@ -10,6 +10,22 @@ import {
   IconButton,
   Menu,
   MenuItem,
+  Card,
+  CardContent,
+  CardHeader,
+  CardActions,
+  Button,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Stack,
+  Grid,
+  Divider,
+  Chip,
 } from "@mui/material";
 import { useNavigate, Routes, Route, Navigate } from "react-router-dom";
 import { DataGrid } from "@mui/x-data-grid";
@@ -111,8 +127,6 @@ function Dashboard() {
   const { mode } = useThemeMode();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
-  // Removed unused location variable
-
   useEffect(() => {
     // Debug: log the current value of the CSS variable
     const val = getComputedStyle(document.documentElement).getPropertyValue('--card-background');
@@ -120,370 +134,214 @@ function Dashboard() {
   }, [mode]);
 
   // Map segment to route and vice versa
-  const segmentToPath = (segment) =>
-    segment === 'home' ? '/' : `/${segment}`;
-  // Removed unused pathToSegment function
+  const segmentToPath = useCallback((segment) => {
+    return segment === 'home' ? '/' : `/${segment}`;
+  }, []);
 
-  // Sync selectedSegment with route
-  // Removed unused selectedSegment state to fix ESLint error
-
-  // Get the component based on the current segment
-  const getContentComponent = (segment) => {
+  // Memoize the getContentComponent function to prevent recreating it on every render
+  const getContentComponent = useCallback((segment) => {
     switch (segment) {
       case 'home':
-        // Dashboard summary using mock data
         return (
-          <Box sx={{
-            p: { xs: 2, sm: 4 },
-            textAlign: "center",
-            maxWidth: 1200,
-            mx: "auto",
-            animation: 'fadeIn 1s',
-            '@keyframes fadeIn': {
-              from: { opacity: 0, transform: 'translateY(30px)' },
-              to: { opacity: 1, transform: 'none' },
-            },
-          }}>
-            {/* Stats cards */}
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
-                gap: 4,
-                mb: 6,
-              }}
-            >
-              {/* Orders stats card */}
-              <Box
-                sx={{
-                  bgcolor: 'var(--card-background)',
-                  borderRadius: 5,
-                  boxShadow: '0 4px 24px 0 var(--card-shadow)',
-                  p: 3,
-                  border: '1px solid var(--card-border)',
-                  position: "relative",
-                  overflow: "hidden",
-                  transition: "all 0.25s cubic-bezier(.4,2,.6,1)",
-                  backdropFilter: "blur(10px)",  // Add backdrop blur for glass effect
-                  '&:hover': {
-                    boxShadow: '0 8px 32px 0 var(--card-hover-shadow)',
-                    transform: "translateY(-4px) scale(1.03)",
-                  },
+          <PageContainer>
+            <Box sx={{ maxWidth: 1200, mx: "auto", height: "100%" }}>
+              {/* Stats cards */}
+              <Grid container spacing={3} mb={4}>
+                {/* Orders stats card */}
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card 
+                    variant="outlined"
+                    sx={{
+                      bgcolor: 'var(--card-background)',
+                      borderRadius: 2,
+                    }}
+                  >
+                    <CardHeader
+                      avatar={<OrdersIcon color="primary" />}
+                      title={<Typography variant="subtitle2" color="text.secondary">TOTAL ORDERS</Typography>}
+                    />
+                    <CardContent>
+                      <Typography variant="h4" color="primary" gutterBottom>
+                        {orders.length}
+                      </Typography>
+                      <Typography variant="body2" color="success.main">
+                        +2 new today
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                {/* Customers stats card */}
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card 
+                    variant="outlined"
+                    sx={{
+                      bgcolor: 'var(--customer-card-background)',
+                      borderRadius: 2,
+                    }}
+                  >
+                    <CardHeader
+                      avatar={<CustomersIcon color="secondary" />}
+                      title={<Typography variant="subtitle2" color="text.secondary">CUSTOMERS</Typography>}
+                    />
+                    <CardContent>
+                      <Typography variant="h4" color="secondary" gutterBottom>
+                        {users.length}
+                      </Typography>
+                      <Typography variant="body2" color="primary">
+                        +3 this week
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                {/* Revenue stats card */}
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card 
+                    variant="outlined"
+                    sx={{
+                      bgcolor: 'var(--revenue-card-background)',
+                      borderRadius: 2,
+                    }}
+                  >
+                    <CardHeader
+                      avatar={<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#2e7d32' }}><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>}
+                      title={<Typography variant="subtitle2" color="text.secondary">REVENUE</Typography>}
+                    />
+                    <CardContent>
+                      <Typography variant="h4" color="success.main" gutterBottom>
+                        £{orders.reduce((total, order) => total + order.totalAmount, 0).toFixed(2)}
+                      </Typography>
+                      <Typography variant="body2" color="success.main">
+                        +12% this month
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+                {/* Pizza count stats card */}
+                <Grid item xs={12} sm={6} md={3}>
+                  <Card 
+                    variant="outlined"
+                    sx={{
+                      bgcolor: 'var(--pizza-card-background)',
+                      borderRadius: 2,
+                    }}
+                  >
+                    <CardHeader
+                      avatar={<PizzaIcon color="warning" />}
+                      title={<Typography variant="subtitle2" color="text.secondary">PIZZAS SOLD</Typography>}
+                    />
+                    <CardContent>
+                      <Typography variant="h4" color="warning.main" gutterBottom>
+                        {orders.length * 2}
+                      </Typography>
+                      <Typography variant="body2" color="warning.main">
+                        +5 today
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              </Grid>
+              
+              {/* Recent orders section */}
+              <Paper 
+                sx={{ 
+                  borderRadius: 2,
+                  mb: 4,
+                  height: 'calc(100% - 180px)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  overflow: 'hidden'
                 }}
               >
-                <Box sx={{ position: "absolute", top: 12, right: 18, opacity: (theme) => theme.palette.mode === 'dark' ? 0.2 : 0.12 }}>
-                  <OrdersIcon sx={{ fontSize: 64, color: (theme) => theme.palette.mode === 'dark' ? '#90caf9' : 'inherit' }} />
-                </Box>
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontWeight: 600, letterSpacing: 1 }}>
-                  TOTAL ORDERS
-                </Typography>
-                <Typography variant="h3" fontWeight={800} sx={{ color: (theme) => theme.palette.mode === 'dark' ? '#90caf9' : 'primary.main', mb: 1 }}>
-                  {orders.length}
-                </Typography>
-                <Typography variant="body2" sx={{ color: (theme) => theme.palette.mode === 'dark' ? '#81c784' : 'success.main', fontWeight: 600 }}>
-                  +2 new today
-                </Typography>
-              </Box>
-              {/* Customers stats card */}
-              <Box
-                sx={{
-                  bgcolor: 'var(--customer-card-background)',
-                  borderRadius: 5,
-                  boxShadow: '0 4px 24px 0 var(--customer-card-shadow)',
-                  p: 3,
-                  border: '1px solid var(--customer-card-border)',
-                  position: "relative",
-                  overflow: "hidden",
-                  transition: "all 0.25s cubic-bezier(.4,2,.6,1)",
-                  backdropFilter: "blur(10px)",  
-                  '&:hover': {
-                    boxShadow: '0 8px 32px 0 var(--customer-card-hover-shadow)',
-                    transform: "translateY(-4px) scale(1.03)",
-                  },
-                }}
-              >
-                <Box sx={{ position: "absolute", top: 12, right: 18, opacity: (theme) => theme.palette.mode === 'dark' ? 0.2 : 0.12 }}>
-                  <CustomersIcon sx={{ fontSize: 64, color: (theme) => theme.palette.mode === 'dark' ? '#ce93d8' : 'inherit' }} />
-                </Box>
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontWeight: 600, letterSpacing: 1 }}>
-                  CUSTOMERS
-                </Typography>
-                <Typography variant="h3" fontWeight={800} sx={{ color: (theme) => theme.palette.mode === 'dark' ? '#ce93d8' : 'secondary.main', mb: 1 }}>
-                  {users.length}
-                </Typography>
-                <Typography variant="body2" sx={{ color: (theme) => theme.palette.mode === 'dark' ? '#90caf9' : 'info.main', fontWeight: 600 }}>
-                  +3 this week
-                </Typography>
-              </Box>
-              {/* Revenue stats card */}
-              <Box
-                sx={{
-                  bgcolor: 'var(--revenue-card-background)',
-                  borderRadius: 5,
-                  boxShadow: '0 4px 24px 0 var(--revenue-card-shadow)',
-                  p: 3,
-                  border: '1px solid var(--revenue-card-border)',
-                  position: "relative",
-                  overflow: "hidden",
-                  transition: "all 0.25s cubic-bezier(.4,2,.6,1)",
-                  backdropFilter: "blur(10px)",  
-                  '&:hover': {
-                    boxShadow: '0 8px 32px 0 var(--revenue-card-hover-shadow)',
-                    transform: "translateY(-4px) scale(1.03)",
-                  },
-                }}
-              >
-                <Box sx={{ position: "absolute", top: 12, right: 18, opacity: (theme) => theme.palette.mode === 'dark' ? 0.2 : 0.12 }}>
-                  <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: (theme) => theme.palette.mode === 'dark' ? '#81c784' : '#2e7d32' }}>
-                    <line x1="12" y1="1" x2="12" y2="23"></line>
-                    <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-                  </svg>
-                </Box>
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontWeight: 600, letterSpacing: 1 }}>
-                  REVENUE
-                </Typography>
-                <Typography variant="h3" fontWeight={800} sx={{ color: (theme) => theme.palette.mode === 'dark' ? '#81c784' : 'success.main', mb: 1 }}>
-                  £{orders.reduce((total, order) => total + order.totalAmount, 0).toFixed(2)}
-                </Typography>
-                <Typography variant="body2" sx={{ color: (theme) => theme.palette.mode === 'dark' ? '#81c784' : 'success.main', fontWeight: 600 }}>
-                  +12% this month
-                </Typography>
-              </Box>
-              {/* Pizza count stats card */}
-              <Box
-                sx={{
-                  bgcolor: 'var(--pizza-card-background)',
-                  borderRadius: 5,
-                  boxShadow: '0 4px 24px 0 var(--pizza-card-shadow)',
-                  p: 3,
-                  border: '1px solid var(--pizza-card-border)',
-                  position: "relative",
-                  overflow: "hidden",
-                  transition: "all 0.25s cubic-bezier(.4,2,.6,1)",
-                  backdropFilter: "blur(10px)",  
-                  '&:hover': {
-                    boxShadow: '0 8px 32px 0 var(--pizza-card-hover-shadow)',
-                    transform: "translateY(-4px) scale(1.03)",
-                  },
-                }}
-              >
-                <Box sx={{ position: "absolute", top: 12, right: 18, opacity: (theme) => theme.palette.mode === 'dark' ? 0.2 : 0.12 }}>
-                  <PizzaIcon sx={{ fontSize: 64, color: (theme) => theme.palette.mode === 'dark' ? '#ffb74d' : '#ff9800' }} />
-                </Box>
-                <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 1, fontWeight: 600, letterSpacing: 1 }}>
-                  PIZZAS SOLD
-                </Typography>
-                <Typography variant="h3" fontWeight={800} sx={{ color: (theme) => theme.palette.mode === 'dark' ? '#ffb74d' : 'warning.main', mb: 1 }}>
-                  {orders.length * 2}
-                </Typography>
-                <Typography variant="body2" sx={{ color: (theme) => theme.palette.mode === 'dark' ? '#ffb74d' : 'warning.main', fontWeight: 600 }}>
-                  +5 today
-                </Typography>
-              </Box>
-            </Box>
-            {/* Recent orders section with glassmorphism and modern table */}
-            <Box
-              sx={{
-                bgcolor: 'var(--orders-section-background)',
-                borderRadius: 6,
-                boxShadow: '0 8px 32px 0 var(--orders-section-shadow)',
-                p: 4,
-                pt: 5, // Extra top padding to accommodate the floating title
-                textAlign: "left",
-                overflow: "visible", // Changed from "hidden" to allow the pill to float outside
-                position: "relative",
-                border: '1px solid var(--orders-section-border)',
-                mt: 6, // Increased margin top to make room for the floating title
-                backdropFilter: "blur(12px)",  // Enhanced backdrop blur for glass effect
-              }}
-            >
-              {/* Floating gradient pill at the top center */}
-              <Box
-                sx={{
-                  position: "absolute",
-                  top: -24, // Moved up further
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  zIndex: 10,
-                  minWidth: 200,
-                  height: 48, // Slightly taller
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  borderRadius: 24,
-                  background: "linear-gradient(90deg, #3d5afe 0%, #ba68c8 100%)",
-                  boxShadow: "0 8px 24px 0 rgba(61,90,254,0.35)",
-                  color: "white",
-                  px: 4,
-                }}
-              >
-                <Typography variant="h6" fontWeight={700} sx={{ letterSpacing: 1 }}>
-                  Recent Orders
-                </Typography>
-              </Box>
-                <Box sx={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
-                {/* Last 24 hours label aligned to the right */}
-                <Typography 
-                  variant="body2" 
+                <Box 
                   sx={{ 
-                    py: 0.5, 
-                    px: 2, 
-                    bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(66,99,235,0.2)' : "primary.light", 
-                    color: (theme) => theme.palette.mode === 'dark' ? '#90caf9' : "primary.main", 
-                    borderRadius: 5,
-                    fontWeight: 500,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    borderBottom: '1px solid',
+                    borderColor: 'divider',
+                    px: 3,
+                    py: 2,
+                    bgcolor: (theme) => theme.palette.mode === 'dark' ? 'var(--orders-section-background)' : 'var(--orders-section-background)',
+                    position: 'sticky',
+                    top: 0,
+                    zIndex: 1100
                   }}
                 >
-                  Last 24 hours
-                </Typography>
-              </Box>
-              <Box>
-                <Box component="table" sx={{
-                  width: "100%",
-                  borderCollapse: "separate",
-                  borderSpacing: "0 10px",
-                  tableLayout: "fixed",
-                }}>
-                  <thead>
-                    <tr>
-                      <th style={{ textAlign: "left", padding: "10px 12px", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: 1, minWidth: 60, maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Order #</th>
-                      <th style={{ textAlign: "left", padding: "10px 12px", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: 1, minWidth: 90, maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Customer</th>
-                      <th style={{ textAlign: "left", padding: "10px 12px", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: 1, minWidth: 90, maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Date</th>
-                      <th style={{ textAlign: "left", padding: "10px 12px", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: 1, minWidth: 80, maxWidth: 110, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Status</th>
-                      <th style={{ textAlign: "right", padding: "10px 12px", fontWeight: 700, fontSize: "0.8rem", textTransform: "uppercase", letterSpacing: 1, minWidth: 60, maxWidth: 90, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>Total</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {orders
-                      .slice()
-                      .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
-                      .slice(0, 5)
-                      .map((order) => (
-                        <tr 
-                          key={order.id} 
-                          style={{ 
-                            transition: "transform 0.2s, box-shadow 0.2s",
-                            cursor: "pointer",
-                            borderRadius: "12px",
-                          }}
-                          sx={{
-                            backgroundColor: (theme) => theme.palette.mode === 'dark' 
-                              ? 'rgba(50,60,95,0.15)'  // Much more transparent background
-                              : 'rgba(255,255,255,0.95)',
-                            boxShadow: (theme) => theme.palette.mode === 'dark'
-                              ? '0 2px 8px rgba(0,0,0,0.08)'  // Lighter shadow
-                              : '0 2px 8px rgba(66,99,235,0.06)',
-                            backdropFilter: "blur(5px)",  // Add backdrop blur for glass effect
-                            border: (theme) => theme.palette.mode === 'dark'
-                              ? '1px solid rgba(255,255,255,0.1)'  // Subtle white border
-                              : 'none',
-                            '&:hover': {
-                              transform: 'translateY(-2px) scale(1.01)',
-                              boxShadow: (theme) => theme.palette.mode === 'dark'
-                                ? '0 4px 16px rgba(0,0,0,0.15)'
-                                : '0 4px 16px rgba(66,99,235,0.12)',
-                            }
-                          }}
-                        >
-                          <td style={{ padding: "12px", borderRadius: "12px 0 0 12px", wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                            <Typography variant="body2" fontWeight={700}>#{order.id}</Typography>
-                          </td>
-                          <td style={{ padding: "12px", wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                            <Typography variant="body2" fontWeight={500}>{order.customerName}</Typography>
-                          </td>
-                          <td style={{ padding: "12px", wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                            <Typography variant="body2" color="text.secondary">
-                              {new Date(order.orderDate).toLocaleDateString('en-US', { 
-                                month: 'short', 
-                                day: 'numeric',
-                                hour: '2-digit',
-                                minute: '2-digit'
-                              })}
-                            </Typography>
-                          </td>
-                          <td style={{ padding: "12px", wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                            <Box
-                              sx={{
-                                display: "inline-block",
-                                px: 1.5,
-                                py: 0.5,
-                                borderRadius: 5,
-                                fontSize: "0.8rem",
-                                fontWeight: 700,
-                                textTransform: "capitalize",
-                                bgcolor: (theme) => {
-                                  const isDark = theme.palette.mode === 'dark';
-                                  return order.status === "Delivered" 
-                                    ? isDark ? "rgba(129,199,132,0.2)" : "rgba(84,214,44,0.16)" 
-                                    : order.status === "Ready" 
-                                    ? isDark ? "rgba(255,213,79,0.2)" : "rgba(255,193,7,0.16)" 
-                                    : order.status === "InProgress" 
-                                    ? isDark ? "rgba(66,165,245,0.2)" : "rgba(24,144,255,0.16)" 
-                                    : order.status === "Cancelled" 
-                                    ? isDark ? "rgba(239,83,80,0.2)" : "rgba(255,72,66,0.16)" 
-                                    : isDark ? "rgba(189,189,189,0.2)" : "rgba(145,158,171,0.16)";
-                                },
-                                color: (theme) => {
-                                  const isDark = theme.palette.mode === 'dark';
-                                  return order.status === "Delivered"
-                                    ? isDark ? "#b9f6ca" : "rgb(54,179,126)"
-                                    : order.status === "Ready"
-                                    ? isDark ? "#ffff8d" : "rgb(255,180,0)"
-                                    : order.status === "InProgress"
-                                    ? isDark ? "#82b1ff" : "rgb(24,144,255)"
-                                    : order.status === "Cancelled"
-                                    ? isDark ? "#ff8a80" : "rgb(255,72,66)"
-                                    : isDark ? "#f5f5f5" : "rgb(145,158,171)";
-                                },
-                              }}
-                            >
-                              {order.status}
-                            </Box>
-                          </td>
-                          <td style={{ padding: "12px", textAlign: "right", borderRadius: "0 12px 12px 0", wordBreak: 'break-word', whiteSpace: 'normal' }}>
-                            <Typography variant="body2" fontWeight={700}>£{order.totalAmount.toFixed(2)}</Typography>
-                          </td>
-                        </tr>
-                      ))}
-                  </tbody>
+                  <Typography variant="h6">Recent Orders</Typography>
+                  <Chip 
+                    label="Last 24 hours" 
+                    size="small" 
+                    color="primary" 
+                    variant="outlined"
+                  />
                 </Box>
-              </Box>
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 4 }}>                <Box 
-                  sx={{ 
-                    py: 1.2, 
-                    px: 3.5, 
-                    bgcolor: 'var(--view-all-orders-bg)', 
-                    color: "white", 
-                    borderRadius: 6,
-                    cursor: "pointer",
-                    fontWeight: 700,
-                    fontSize: "1rem",
-                    letterSpacing: 1,
-                    border: '1px solid var(--card-border)',
-                    boxShadow: '0 2px 8px var(--view-all-orders-shadow)',
-                    transition: "all 0.2s cubic-bezier(.4,2,.6,1)",
-                    '&:hover': {
-                      bgcolor: 'var(--view-all-orders-hover-bg)',
-                      transform: "translateY(-2px) scale(1.04)",
-                      boxShadow: '0 8px 24px var(--view-all-orders-hover-shadow)',
-                    }
-                  }}
-                >
-                  <Typography variant="body2" fontWeight={700}>
+                
+                <TableContainer sx={{ flexGrow: 1, overflow: 'auto' }}>
+                  <Table stickyHeader>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell sx={{ bgcolor: theme.palette.mode === 'dark' ? 'var(--orders-section-background)' : 'var(--orders-section-background)' }}>Order #</TableCell>
+                        <TableCell sx={{ bgcolor: theme.palette.mode === 'dark' ? 'var(--orders-section-background)' : 'var(--orders-section-background)' }}>Customer</TableCell>
+                        <TableCell sx={{ bgcolor: theme.palette.mode === 'dark' ? 'var(--orders-section-background)' : 'var(--orders-section-background)' }}>Date</TableCell>
+                        <TableCell sx={{ bgcolor: theme.palette.mode === 'dark' ? 'var(--orders-section-background)' : 'var(--orders-section-background)' }}>Status</TableCell>
+                        <TableCell align="right" sx={{ bgcolor: theme.palette.mode === 'dark' ? 'var(--orders-section-background)' : 'var(--orders-section-background)' }}>Total</TableCell>
+                      </TableRow>
+                    </TableHead>
+                    <TableBody>
+                      {orders
+                        .slice()
+                        .sort((a, b) => new Date(b.orderDate) - new Date(a.orderDate))
+                        .slice(0, 5)
+                        .map((order) => (
+                          <TableRow key={order.id} hover>
+                            <TableCell>#{order.id}</TableCell>
+                            <TableCell>{order.customerName}</TableCell>
+                            <TableCell>{new Date(order.orderDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</TableCell>
+                            <TableCell>
+                              <Chip
+                                label={order.status}
+                                size="small"
+                                color={
+                                  order.status === "Delivered" ? "success" :
+                                  order.status === "Ready" ? "warning" :
+                                  order.status === "InProgress" ? "primary" :
+                                  order.status === "Cancelled" ? "error" : "default"
+                                }
+                                variant="outlined"
+                              />
+                            </TableCell>
+                            <TableCell align="right">£{order.totalAmount.toFixed(2)}</TableCell>
+                          </TableRow>
+                        ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+                
+                <Box sx={{ p: 2, borderTop: '1px solid', borderColor: 'divider', textAlign: 'center' }}>
+                  <Button variant="contained" color="primary">
                     View All Orders
-                  </Typography>
+                  </Button>
                 </Box>
-              </Box>
+              </Paper>
             </Box>
-          </Box>
+          </PageContainer>
         );
+        
       case 'pizzas':
-        return <Pizza />;
+        return (
+          <PageContainer>
+            <Pizza />
+          </PageContainer>
+        );
+        
       case 'toppings':
-        return <ToppingManager />;
+        return (
+          <PageContainer>
+            <ToppingManager />
+          </PageContainer>
+        );
+        
       case 'orders': {
-        // Use MUI Toolpad DataGrid for orders
-        // Lazy-load DataGrid to avoid breaking SSR if not present
         const orderRows = orders.map((o) => ({
           id: o.id,
           customer: o.customerName,
@@ -491,57 +349,72 @@ function Dashboard() {
           status: o.status,
           total: o.totalAmount,
         }));
+        
         const orderColumns = [
           { field: 'id', headerName: 'Order #', width: 100 },
           { field: 'customer', headerName: 'Customer', flex: 1, minWidth: 160 },
           { field: 'date', headerName: 'Date', width: 120 },
-          { field: 'status', headerName: 'Status', width: 120,
+          { field: 'status', headerName: 'Status', width: 130,
             renderCell: (params) => (
-              <span style={{
-                color:
-                  params.value === "Delivered"
-                    ? "#388e3c"
-                    : params.value === "Ready"
-                    ? "#fbc02d"
-                    : params.value === "InProgress"
-                    ? "#1976d2"
-                    : params.value === "Cancelled"
-                    ? "#d32f2f"
-                    : "#757575",
-                fontWeight: 500,
-              }}>
-                {params.value}
-              </span>
+              <Chip
+                label={params.value}
+                size="small"
+                color={
+                  params.value === "Delivered" ? "success" :
+                  params.value === "Ready" ? "warning" :
+                  params.value === "InProgress" ? "primary" :
+                  params.value === "Cancelled" ? "error" : "default"
+                }
+                variant="outlined"
+              />
             )
           },
           { field: 'total', headerName: 'Total (£)', width: 120, type: 'number',
             valueFormatter: ({ value }) => (typeof value === 'number' ? `£${value.toFixed(2)}` : '—') },
         ];
+        
         return (
-          <PageContainer>
-            <Typography variant="h4" gutterBottom>
-              Orders
-            </Typography>
-            <Box sx={{ height: 440, bgcolor: "background.paper", borderRadius: 3, boxShadow: 1, p: 2, mt: 2 }}>
+          <PageContainer sx={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            p: 0 
+          }}>
+            <Box sx={{ 
+              p: 3, 
+              pb: 0,
+              borderBottom: '1px solid', 
+              borderColor: 'divider',
+              position: 'sticky',
+              top: 0,
+              zIndex: 1100,
+              bgcolor: (theme) => theme.palette.background.default
+            }}>
+              <Typography variant="h5">Orders</Typography>
+            </Box>
+            <Box sx={{ flexGrow: 1, height: 'calc(100vh - 160px)', p: 3, pt: 2 }}>
               <DataGrid
                 rows={orderRows}
                 columns={orderColumns}
-                pageSize={5}
-                rowsPerPageOptions={[5, 10]}
-                disableRowSelectionOnClick
-                autoHeight={false}
-                sx={{
-                  borderRadius: 2,
-                  fontSize: 16,
-                  backgroundColor: "background.paper",
+                pageSizeOptions={[5, 10, 25]}
+                initialState={{
+                  pagination: { paginationModel: { pageSize: 10 } },
                 }}
+                autoHeight
+                sx={{
+                  '& .MuiDataGrid-columnHeaders': {
+                    bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(30,30,30,0.95)' : 'rgba(255,255,255,0.95)',
+                    position: 'sticky',
+                    top: 0
+                  }
+                }}
+                disableRowSelectionOnClick
               />
             </Box>
           </PageContainer>
         );
       }
+      
       case 'customers': {
-        // Use MUI Toolpad DataGrid for customers
         const userRows = users.map((u) => ({
           id: u.id,
           name: u.name,
@@ -549,6 +422,7 @@ function Dashboard() {
           address: u.address,
           phone: u.phone,
         }));
+        
         const userColumns = [
           { field: 'id', headerName: 'ID', width: 80 },
           { field: 'name', headerName: 'Name', flex: 1, minWidth: 160 },
@@ -556,48 +430,86 @@ function Dashboard() {
           { field: 'address', headerName: 'Address', flex: 1, minWidth: 200 },
           { field: 'phone', headerName: 'Phone', width: 140 },
         ];
+        
         return (
-          <PageContainer>
-            <Typography variant="h4" gutterBottom>
-              Customers
-            </Typography>
-            <Box sx={{ height: 440, bgcolor: "background.paper", borderRadius: 3, boxShadow: 1, p: 2, mt: 2 }}>
+          <PageContainer sx={{ 
+            display: 'flex', 
+            flexDirection: 'column',
+            p: 0
+          }}>
+            <Box sx={{ 
+              p: 3, 
+              pb: 0,
+              borderBottom: '1px solid', 
+              borderColor: 'divider',
+              position: 'sticky',
+              top: 0,
+              zIndex: 1100,
+              bgcolor: (theme) => theme.palette.background.default
+            }}>
+              <Typography variant="h5">Customers</Typography>
+            </Box>
+            <Box sx={{ flexGrow: 1, height: 'calc(100vh - 160px)', p: 3, pt: 2 }}>
               <DataGrid
                 rows={userRows}
                 columns={userColumns}
-                pageSize={5}
-                rowsPerPageOptions={[5, 10]}
-                disableRowSelectionOnClick
-                autoHeight={false}
-                sx={{
-                  borderRadius: 2,
-                  fontSize: 16,
-                  backgroundColor: "background.paper",
+                pageSizeOptions={[5, 10, 25]}
+                initialState={{
+                  pagination: { paginationModel: { pageSize: 10 } },
                 }}
+                autoHeight
+                sx={{
+                  '& .MuiDataGrid-columnHeaders': {
+                    bgcolor: (theme) => theme.palette.mode === 'dark' ? 'rgba(30,30,30,0.95)' : 'rgba(255,255,255,0.95)',
+                    position: 'sticky',
+                    top: 0
+                  }
+                }}
+                disableRowSelectionOnClick
               />
             </Box>
           </PageContainer>
         );
       }
+      
       case 'settings':
         return (
-          <Box sx={{ p: 4, textAlign: "center" }}>
-            <Typography variant="h5">Settings Coming Soon</Typography>
-          </Box>
+          <PageContainer>
+            <Typography variant="h5" sx={{ mb: 3 }}>Settings</Typography>
+            <Typography>Settings Coming Soon</Typography>
+          </PageContainer>
         );
+        
       default:
         return (
-          <Box sx={{ p: 4, textAlign: "center" }}>
-            <Typography variant="h5">Content Coming Soon</Typography>
-          </Box>
+          <PageContainer>
+            <Typography variant="h5" sx={{ mb: 3 }}>Content</Typography>
+            <Typography>Content Coming Soon</Typography>          </PageContainer>
         );
     }
-  };
+  }, [theme]); // Only include the theme dependency as it's used directly
 
   // Handle navigation changes from the Toolpad DashboardLayout
   const handleNavigationChange = useCallback((segment) => {
     navigate(segmentToPath(segment));
-  }, [navigate]);
+  }, [navigate, segmentToPath]);
+  // Memoize the content components for each route to prevent unnecessary re-renders
+  const homeComponent = useMemo(() => getContentComponent('home'), [getContentComponent]);
+  const pizzasComponent = useMemo(() => getContentComponent('pizzas'), [getContentComponent]);
+  const toppingsComponent = useMemo(() => getContentComponent('toppings'), [getContentComponent]);
+  const ordersComponent = useMemo(() => getContentComponent('orders'), [getContentComponent]);
+  const customersComponent = useMemo(() => getContentComponent('customers'), [getContentComponent]);
+  const settingsComponent = useMemo(() => getContentComponent('settings'), [getContentComponent]);
+
+  // Memoize the route components mapping
+  const routeComponents = useMemo(() => ({
+    '/': homeComponent,
+    '/pizzas': pizzasComponent,
+    '/toppings': toppingsComponent,
+    '/orders': ordersComponent,
+    '/customers': customersComponent,
+    '/settings': settingsComponent
+  }), [homeComponent, pizzasComponent, toppingsComponent, ordersComponent, customersComponent, settingsComponent]);
 
   const memoizedDashboardLayout = useMemo(() => (
     <DashboardLayout
@@ -621,58 +533,35 @@ function Dashboard() {
       <Routes>
         <Route
           path="/"
-          element={
-            <PageContainer>
-              {getContentComponent('home')}
-            </PageContainer>
-          }
+          element={routeComponents['/']}
         />
         <Route
           path="/pizzas"
-          element={
-            <PageContainer>
-              {getContentComponent('pizzas')}
-            </PageContainer>
-          }
+          element={routeComponents['/pizzas']}
         />
         <Route
           path="/toppings"
-          element={
-            <PageContainer>
-              {getContentComponent('toppings')}
-            </PageContainer>
-          }
+          element={routeComponents['/toppings']}
         />
         <Route
           path="/orders"
-          element={
-            <PageContainer>
-              {getContentComponent('orders')}
-            </PageContainer>
-          }
+          element={routeComponents['/orders']}
         />
         <Route
           path="/customers"
-          element={
-            <PageContainer>
-              {getContentComponent('customers')}
-            </PageContainer>
-          }
+          element={routeComponents['/customers']}
         />
         <Route
           path="/settings"
-          element={
-            <PageContainer>
-              {getContentComponent('settings')}
-            </PageContainer>
-          }
+          element={routeComponents['/settings']}
         />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </DashboardLayout>
-  ), [isMobile, handleNavigationChange]);
+  ), [isMobile, handleNavigationChange, routeComponents]);
 
   return memoizedDashboardLayout;
 }
 
+// Make sure to add this export statement
 export default Dashboard;

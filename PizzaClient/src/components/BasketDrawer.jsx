@@ -1,9 +1,9 @@
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, memo } from 'react';
 import { Drawer, Box, Typography, IconButton, Divider, Button, Stack } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { useBasket } from '../context/BasketContext';
 
-const BasketDrawer = ({ open, onClose, onCheckout }) => {
+const BasketDrawer = memo(({ open, onClose, onCheckout }) => {
   const { items, removeFromBasket, updateQuantity, clearBasket } = useBasket();
 
   const total = useMemo(() => {
@@ -163,6 +163,6 @@ const BasketDrawer = ({ open, onClose, onCheckout }) => {
       {drawerContent}
     </Drawer>
   );
-};
+});
 
 export default BasketDrawer;
