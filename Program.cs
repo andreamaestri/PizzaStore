@@ -1,11 +1,11 @@
 // Namespace for the Pizza model and DbContext
-using PizzaStore.Models;
-// Required for OpenApiInfo class used in Swagger setup
-using Microsoft.OpenApi.Models;
-// Required for Entity Framework Core functionalities like ToListAsync, AddAsync etc
-using Microsoft.EntityFrameworkCore;
 // Required for TypedResults
 using Microsoft.AspNetCore.Http.HttpResults;
+// Required for Entity Framework Core functionalities like ToListAsync, AddAsync etc
+using Microsoft.EntityFrameworkCore;
+// Required for OpenApiInfo class used in Swagger setup
+using Microsoft.OpenApi.Models;
+using PizzaStore.Models;
 
 // --- 1. Application Builder Setup ---
 var builder = WebApplication.CreateBuilder(args);
@@ -63,7 +63,7 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PizzaDb>();
-    
+
     if (!db.Pizzas.Any() && !db.Bases.Any())
     {
         try
@@ -75,14 +75,14 @@ using (var scope = app.Services.CreateScope())
                 PropertyNameCaseInsensitive = true
             };
             var data = System.Text.Json.JsonSerializer.Deserialize<PizzaJsonStructure>(jsonData, options);
-            
+
             // Add bases
             if (data?.bases != null)
             {
                 db.Bases.AddRange(data.bases);
                 db.SaveChanges();
             }
-            
+
             // Add pizzas with their bases properly linked
             if (data?.pizzas != null)
             {
@@ -93,7 +93,7 @@ using (var scope = app.Services.CreateScope())
                 }
                 db.SaveChanges();
             }
-            
+
             Console.WriteLine("Database seeded with JSON data!");
         }
         catch (Exception ex)
@@ -144,7 +144,7 @@ pizzaApi.MapGet("/{id:int}", async Task<Results<Ok<Pizza>, NotFound>> (PizzaDb d
     var pizza = await db.Pizzas
         .Include(p => p.Base)
         .FirstOrDefaultAsync(p => p.Id == id);
-    
+
     return pizza is not null
         ? TypedResults.Ok(pizza)
         : TypedResults.NotFound();
@@ -167,11 +167,12 @@ pizzaApi.MapPost("/", async Task<Results<Created<Pizza>, BadRequest>> (PizzaDb d
 
 // PUT /api/pizzas/{id} - Update an existing pizza
 pizzaApi.MapPut("/{id:int}", async Task<Results<Ok<Pizza>, NotFound, BadRequest>> (PizzaDb db, int id, Pizza updatedPizza) =>
-{    if (id != updatedPizza.Id)
+{
+    if (id != updatedPizza.Id)
     {
         // Ensure the ID in the route matches the ID in the body
         return TypedResults.BadRequest();
-        
+
     }
 
     var existingPizza = await db.Pizzas.FindAsync(id);
@@ -195,7 +196,8 @@ pizzaApi.MapDelete("/{id:int}", async Task<Results<NoContent, NotFound>> (PizzaD
     if (pizza is null)
     {
         return TypedResults.NotFound();
-    }    db.Pizzas.Remove(pizza);
+    }
+    db.Pizzas.Remove(pizza);
     await db.SaveChangesAsync();
     // Return a 204 No Content status indicating successful deletion.
     return TypedResults.NoContent();
@@ -212,7 +214,7 @@ basesApi.MapGet("/", async (PizzaDb db) =>
 basesApi.MapGet("/{id:int}", async Task<Results<Ok<PizzaBase>, NotFound>> (PizzaDb db, int id) =>
 {
     var pizzaBase = await db.Bases.FindAsync(id);
-    
+
     return pizzaBase is not null
         ? TypedResults.Ok(pizzaBase)
         : TypedResults.NotFound();

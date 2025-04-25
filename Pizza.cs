@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -26,16 +25,17 @@ namespace PizzaStore.Models
 
         public string? Description { get; set; }
     }
-    
+
     public class PizzaBase
-    {        public int Id { get; set; }
+    {
+        public int Id { get; set; }
         public string? Name { get; set; }
-        
+
         // Navigation property
         [JsonIgnore]
         public List<Pizza> Pizzas { get; set; } = new List<Pizza>();
     }
-    
+
     public class Order
     {
         public int Id { get; set; }
