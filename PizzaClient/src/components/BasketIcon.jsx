@@ -23,7 +23,7 @@ const badgeStyles = {
 };
 
 const iconButtonStyles = {
-  background: 'white',
+  background: 'var(--mui-palette-primary-main)',
   boxShadow: '0 4px 16px rgba(0, 0, 0, 0.12)',
   transition: 'box-shadow 0.2s ease-in-out, transform 0.2s ease-in-out',
   '&:hover': {
@@ -86,7 +86,7 @@ const BasketIcon = memo(forwardRef(({ onClick, isPopping, onPopEnd }, ref) => {
         onAnimationComplete={handleAnimationComplete}
       >
         <IconButton
-          color="primary"
+          color="primary-contrastText"
           size="large"
           onClick={onClick}
           sx={iconButtonStyles}

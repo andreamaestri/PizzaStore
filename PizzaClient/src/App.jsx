@@ -100,18 +100,25 @@ function ThemedApp() {
     },
   ], []);
 
+  // Add branding object for Pizza Admin
+const BRANDING = useMemo(() => ({
+    title: 'Pizza Admin',
+    logo: <LocalPizzaIcon color="primary" />,
+    homeUrl: '/',
+}), []);
+
   // Memoize the Dashboard component to prevent unnecessary re-renders
   const memoizedDashboard = useMemo(() => <Dashboard />, []);
 
   // Memoize the BrowserRouter and its children to prevent unnecessary re-renders
   const memoizedRouter = useMemo(() => (
     <BrowserRouter>
-      <AppProvider navigation={navigationConfig}>
+      <AppProvider navigation={navigationConfig} branding={BRANDING}>
         <CssBaseline />
         {memoizedDashboard}
       </AppProvider>
     </BrowserRouter>
-  ), [navigationConfig, memoizedDashboard]);
+  ), [navigationConfig, BRANDING, memoizedDashboard]);
 
   return (
     <ThemeProvider theme={theme}>
