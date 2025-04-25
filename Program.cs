@@ -108,23 +108,18 @@ using (var scope = app.Services.CreateScope())
 
 // --- 4. HTTP Request Pipeline Configuration (Middleware) ---
 
-// Configure Swagger middleware only for the development environment for security/performance.
+// Always enable Swagger JSON endpoint for Azure and local use
+app.UseSwagger(c =>
+{
+    c.RouteTemplate = "api-docs/{documentName}/swagger.json";
+});
+
+// Enable Swagger UI only in development for security/performance
 if (app.Environment.IsDevelopment())
 {
-    // Enable middleware to serve the generated Swagger JSON definition file.
-    app.UseSwagger(c =>
-    {
-        // Customize the URL endpoint for the Swagger JSON file.
-        c.RouteTemplate = "api-docs/{documentName}/swagger.json";
-    });
-
-    // Enable middleware to serve the Swagger UI (interactive documentation).
     app.UseSwaggerUI(c =>
     {
-        // Point the Swagger UI to the generated JSON file endpoint defined above.
         c.SwaggerEndpoint("/api-docs/v1/swagger.json", "PizzaStore API V1");
-
-        // Serve the Swagger UI at the application's root path ('/') for easy access during development.
         c.RoutePrefix = string.Empty;
     });
 }
