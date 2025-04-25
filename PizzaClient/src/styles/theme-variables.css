@@ -1,0 +1,58 @@
+/* filepath: c:\Users\andre\source\repos\PizzaStore\PizzaClient\src\styles\theme-variables.css */
+:root {
+  /* Light mode (default) */
+  --card-background: rgba(255, 255, 255, 0.7);
+  --card-border: rgba(66, 99, 235, 0.10);
+  --card-shadow: rgba(66, 99, 235, 0.10);
+  --card-hover-shadow: rgba(66, 99, 235, 0.18);
+  
+  --customer-card-shadow: rgba(156, 39, 176, 0.10);
+  --customer-card-border: rgba(156, 39, 176, 0.10);
+  --customer-card-hover-shadow: rgba(156, 39, 176, 0.18);
+  
+  --revenue-card-shadow: rgba(76, 175, 80, 0.10);
+  --revenue-card-border: rgba(76, 175, 80, 0.10);
+  --revenue-card-hover-shadow: rgba(76, 175, 80, 0.18);
+  
+  --pizza-card-shadow: rgba(255, 152, 0, 0.10);
+  --pizza-card-border: rgba(255, 152, 0, 0.10);
+  --pizza-card-hover-shadow: rgba(255, 152, 0, 0.18);
+  
+  --orders-section-background: rgba(255, 255, 255, 0.8);
+  --orders-section-border: rgba(66, 99, 235, 0.08);
+  --orders-section-shadow: rgba(66, 99, 235, 0.10);
+  
+  --view-all-orders-bg: #1976d2; /* primary.main */
+  --view-all-orders-hover-bg: #1565c0; /* primary.dark */
+  --view-all-orders-shadow: rgba(66, 99, 235, 0.10);
+  --view-all-orders-hover-shadow: rgba(66, 99, 235, 0.18);
+}
+
+[data-theme="dark"] {
+  /* Dark mode */
+  --card-background: rgba(30, 40, 70, 0.1);
+  --card-border: rgba(255, 255, 255, 0.15);
+  --card-shadow: rgba(61, 90, 254, 0.1);
+  --card-hover-shadow: rgba(61, 90, 254, 0.3);
+  
+  --customer-card-shadow: rgba(186, 104, 200, 0.1);
+  --customer-card-border: rgba(255, 255, 255, 0.15);
+  --customer-card-hover-shadow: rgba(186, 104, 200, 0.3);
+  
+  --revenue-card-shadow: rgba(129, 199, 132, 0.1);
+  --revenue-card-border: rgba(255, 255, 255, 0.15);
+  --revenue-card-hover-shadow: rgba(129, 199, 132, 0.3);
+  
+  --pizza-card-shadow: rgba(255, 167, 38, 0.1);
+  --pizza-card-border: rgba(255, 255, 255, 0.15);
+  --pizza-card-hover-shadow: rgba(255, 167, 38, 0.3);
+  
+  --orders-section-background: rgba(30, 40, 70, 0.05);
+  --orders-section-border: rgba(255, 255, 255, 0.15);
+  --orders-section-shadow: rgba(0, 0, 0, 0.15);
+  
+  --view-all-orders-bg: rgba(61, 90, 254, 0.3);
+  --view-all-orders-hover-bg: rgba(61, 90, 254, 0.5);
+  --view-all-orders-shadow: rgba(61, 90, 254, 0.15);
+  --view-all-orders-hover-shadow: rgba(61, 90, 254, 0.25);
+}

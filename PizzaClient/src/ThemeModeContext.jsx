@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo, useState } from 'react';
+import React, { createContext, useContext, useMemo, useState, useEffect } from 'react';
 
 const ThemeModeContext = createContext({
   mode: 'light',
@@ -6,8 +6,30 @@ const ThemeModeContext = createContext({
 });
 
 export function ThemeModeProvider({ children }) {
-  const [mode, setMode] = useState('light');
-  const toggleMode = () => setMode((prev) => (prev === 'light' ? 'dark' : 'light'));
+  // Get the initial mode from localStorage or default to 'light'
+  const [mode, setMode] = useState(() => {
+    const savedMode = localStorage.getItem('theme-mode');
+    return savedMode || 'light';
+  });
+  
+  // Toggle between light and dark modes
+  const toggleMode = () => {
+    setMode((prev) => {
+      const newMode = prev === 'light' ? 'dark' : 'light';
+      localStorage.setItem('theme-mode', newMode);
+      return newMode;
+    });
+  };
+
+  // Update localStorage when mode changes
+  useEffect(() => {
+    localStorage.setItem('theme-mode', mode);
+  }, [mode]);
+
+  // Set data-theme attribute on <html> for CSS variable theming
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', mode);
+  }, [mode]);
 
   const value = useMemo(() => ({ mode, toggleMode }), [mode]);
   return (
