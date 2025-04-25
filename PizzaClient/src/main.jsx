@@ -8,7 +8,7 @@ import './index.css';
 import App from './App.jsx';
 import { ThemeModeProvider } from './context/ThemeModeContext';
 
-// --- Application Root Rendering --- //
+// Render the root of the React application.
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeModeProvider>

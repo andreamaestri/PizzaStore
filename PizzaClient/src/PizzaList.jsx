@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef, Suspense } from 'react';
 import FloatingPizzaClone from './components/FloatingPizzaClone';
 import OrderModal from './components/pizzas/OrderModal';
 import { useOrderData } from './hooks/useOrderData';
@@ -6,14 +6,14 @@ import BasketIcon from './components/BasketIcon';
 import BasketDrawer from './components/BasketDrawer';
 import { useBasket } from './context/BasketContext';
 import {
-  Box, Typography, TextField, Button, Card, CardContent, Stack, Chip, IconButton, Divider,
+  Box, Typography, TextField, Button, Stack, Chip, IconButton,
   MenuItem, Select, InputLabel, FormControl, Table, TableBody, TableCell, TableContainer,
   TableHead, TableRow, Paper, InputAdornment, Tooltip, Dialog, DialogActions, DialogContent,
   DialogContentText, DialogTitle, Alert, alpha, CircularProgress, useTheme, Grid, Autocomplete,
   useMediaQuery, LinearProgress
 } from '@mui/material';
 
-// Import icons
+// Material UI Icons
 import SearchIcon from '@mui/icons-material/Search';
 import AddIcon from '@mui/icons-material/Add';
 import EditIcon from '@mui/icons-material/Edit';
@@ -23,7 +23,7 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import DoneIcon from '@mui/icons-material/Done';
 
-// Styled section component for modal
+// Reusable component for structuring content within modals.
 const ModalSection = ({ title, subtitle, children }) => (
   <Box sx={{ mb: 4 }}>
     <Typography
@@ -68,12 +68,12 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
   const basketRef = useRef();
   const isAnimating = useRef(false);
 
-  // Order modal state
+  // State for the "Order Now" modal.
   const [orderModalOpen, setOrderModalOpen] = useState(false);
   const [selectedPizza, setSelectedPizza] = useState(null);
   const { createOrder } = useOrderData();
 
-  // State
+  // --- Component State ---
   const [formData, setFormData] = useState({
     id: '', name: '', description: '', baseId: 1, toppings: [], price: ''
   });
@@ -86,10 +86,10 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
   const [deleteId, setDeleteId] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Debounce searchTerm updates
+  // State for debouncing the search term input.
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
 
-  // Fetch available pizza bases
+  // Callback to fetch available pizza bases from the API.
   const fetchBases = useCallback(async () => {
     setBasesLoading(true);
     try {
@@ -106,22 +106,23 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     }
   }, []);
 
-  // Load base options on component mount
+  // Effect to fetch bases on component mount.
   useEffect(() => {
     fetchBases();
   }, [fetchBases]);
 
+  // Effect to debounce the search term.
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
-    }, 300); // 300ms debounce
+    }, 300); // Debounce delay of 300ms.
     
     return () => {
       clearTimeout(handler);
     };
   }, [searchTerm]);
 
-  // Filter pizzas based on debounced search term
+  // Memoized filtered list of pizzas based on the debounced search term.
   const filteredPizzas = useMemo(() => {
     if (!data) return [];
     return data.filter(pizza => {
@@ -132,7 +133,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     });
   }, [data, debouncedSearchTerm]);
 
-  // Memoized sx props
+  // --- Memoized Styles (sx props) ---
+  // Memoizing sx props can offer minor performance benefits by preventing object recreation.
   const outerBoxSx = useMemo(() => ({
     position: 'relative',
     height: '100%',
@@ -186,12 +188,12 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     width: { xs: '100%', md: 'auto' },
   }), []);
 
-  // Memoized InputProps
+  // Memoized InputProps for the search field start adornment.
   const memoizedInputProps = useMemo(() => ({
     startAdornment: <InputAdornment position="start"><SearchIcon sx={{ color: 'text.secondary' }} /></InputAdornment>,
   }), []);
 
-  // Memoized PaperProps for Dialogs
+  // Memoized PaperProps for the standard delete confirmation dialog.
   const dialogPaperProps = useMemo(() => ({
     sx: {
       borderRadius: 2,
@@ -199,7 +201,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     }
   }), []);
 
-  // Enhanced PaperProps for modal centering and style
+  // Memoized PaperProps for the enhanced Add/Edit modal styling.
   const enhancedDialogPaperProps = useMemo(() => ({
     sx: {
       borderRadius: 4,
@@ -217,10 +219,10 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     }
   }), []);
 
-  // Full-screen on small screens
+  // Media query hook to determine if the modal should be full-screen.
   const fullScreenModal = useMediaQuery(theme.breakpoints.down('sm'));
 
-  // Form validity to disable submit button
+  // Memoized check for form validity to enable/disable the submit button.
   const isFormValid = useMemo(() => {
     const hasName = formData.name.trim();
     const hasDescription = formData.description.trim();
@@ -228,27 +230,26 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     return Boolean(hasName && hasDescription && validPrice);
   }, [formData, formErrors]);
 
-  // Event handlers wrapped with useCallback
+  // --- Event Handlers (Callbacks) ---
   const handleInputChange = useCallback((e) => {
     const { name, value } = e.target;
     
-    // Price validation
+    // Special handling for price input validation (allows empty or numeric-like string).
+    // NOTE: Regex /^\$?[0-9,]*\.?[0-9]*$/ might need adjustment based on locale/currency requirements.
     if (name === 'price') {
-      // Allow empty or valid price format (optional dollar sign, optional thousands separator, optional decimal)
       if (value === '' || /^\$?[0-9,]*\.?[0-9]*$/.test(value)) {
         setFormData(prev => ({ ...prev, [name]: value }));
-        
-        // Clear error if value is valid
+        // Clear price error if the input becomes valid.
         if (formErrors[name]) {
           setFormErrors(prev => ({ ...prev, [name]: null }));
         }
       }
-      return;
+      return; // Prevent further processing for price
     }
     
     setFormData(prev => ({ ...prev, [name]: value }));
     
-    // Clear error when user inputs value
+    // Clear validation error for the field when the user types.
     if (formErrors[name]) {
       setFormErrors(prev => ({ ...prev, [name]: null }));
     }
@@ -263,7 +264,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     if (!formData.name.trim()) errors.name = 'Name is required';
     if (!formData.description.trim()) errors.description = 'Description is required';
     
-    // Price validation - empty or valid number
+    // Validate price: must be empty or parseable as a number after stripping non-digit/non-period chars.
+    // NOTE: This validation assumes a specific price format.
     if (formData.price) {
       const numericPrice = parseFloat(formData.price.replace(/[^\d.]/g, ''));
       if (isNaN(numericPrice)) errors.price = 'Price must be a valid number';
@@ -276,7 +278,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
   const handleSubmit = useCallback(() => {
     if (!validateForm()) return;
     
-    // Format price as a number
+    // Format the price string into a number (or null) before submitting.
     let priceAsNumber = null;
     if (formData.price) {
       priceAsNumber = parseFloat(formData.price.replace(/[^\d.]/g, ''));
@@ -299,7 +301,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
   }, [validateForm, formData, editingId, onUpdate, onCreate]);
 
   const handleEdit = useCallback((pizza) => {
-    // Format price for display in the form
+    // Format the price number back to a string for the form input, handling null/undefined.
     const displayPrice = pizza.price !== null && pizza.price !== undefined
       ? pizza.price.toString()
       : '';
@@ -351,35 +353,37 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     setBasketOpen(false);
   }, [clearBasket]);
 
-  // Add to basket with animation using Motion
+  // Callback to handle adding a pizza to the basket, triggering an animation.
+  // NOTE: This animation logic is complex, involving direct DOM reads and multiple timeouts.
   const handleAddToBasket = useCallback((pizza) => {
     // Prevent duplicate animations
+    // Prevent triggering multiple animations simultaneously.
     if (isAnimating.current) return;
     isAnimating.current = true;
     
-    // Using requestAnimationFrame for proper timing with vsync
+    // Use requestAnimationFrame for smoother animation timing.
     requestAnimationFrame(() => {
       const rowEl = rowRefs.current[pizza.id];
       const basketEl = basketRef.current;
       if (rowEl && basketEl) {
-        // Create a subtle highlight effect on the row before animation
+        // Subtle highlight effect on the row before animation starts.
         rowEl.style.transition = 'background-color 0.15s ease';
         rowEl.style.backgroundColor = 'rgba(76, 175, 80, 0.08)';
         
-        // Get precise measurements
+        // Get precise measurements of the row and basket elements.
         const rowRect = rowEl.getBoundingClientRect();
         const basketRect = basketEl.getBoundingClientRect();
         
-        // Calculate precise target position for basket center
+        // Calculate the target position relative to the row for the animation.
         const targetX = basketRect.left + basketRect.width / 2 - (rowRect.left + rowRect.width / 2);
         const targetY = basketRect.top + basketRect.height / 2 - (rowRect.top + rowRect.height / 2);
         
-        // Short delay before starting animation for better visual effect
+        // Short delay before starting the clone animation for better visual flow.
         setTimeout(() => {
-          // Reset row highlight
+          // Reset row highlight after the short delay.
           rowEl.style.backgroundColor = '';
           
-          // Animate from row to basket center with enhanced visuals
+          // Set props for the FloatingPizzaClone component to start the animation.
           setCloneProps({
             rect: {
               top: rowRect.top,
@@ -403,7 +407,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                   padding: '0 12px',
                   gap: 12,
                   fontSize: 16,
-                  // Enhanced visual styles
+                  // Styles for the cloned element during animation.
                   boxShadow: 'inset 0 0 0 1px rgba(76, 175, 80, 0.2)',
                   overflow: 'hidden',
                 }}
@@ -411,7 +415,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                 <span style={{ flex: 2, fontWeight: 500 }}>{pizza.name}</span>
                 <span style={{ flex: 3, color: theme.palette.text.secondary }}>{pizza.description}</span>
                 <span style={{ flex: 2, color: theme.palette.text.disabled, fontSize: 14 }}>{pizza.toppings && pizza.toppings.length > 0 ? pizza.toppings.join(', ') : 'None'}</span>
-                <span style={{ flex: 1, fontWeight: 600, color: theme.palette.success.main }}>{typeof pizza.price === 'number' ? pizza.price.toLocaleString(undefined, { style: 'currency', currency: 'USD' }) : '\u2014'}</span>
+                <span style={{ flex: 1, fontWeight: 600, color: theme.palette.success.main }}>{typeof pizza.price === 'number' ? pizza.price.toLocaleString(undefined, { style: 'currency', currency: 'USD' }) : '\u2014'}</span> {/* NOTE: Hardcoded USD */}
                 <span style={{ flex: 1, display: 'flex', justifyContent: 'center' }}>
                   <ShoppingCartIcon color="success" />
                 </span>
@@ -419,8 +423,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
             ),
           });
           
-          // Timing coordinated with Motion animation duration
-          // Wait until animation is about 60% complete before updating basket
+          // Delay adding to the basket state and triggering the "pop" effect
+          // to roughly coincide with the animation reaching the target.
           setTimeout(() => {
             addToBasket(pizza, 1);
             setBasketPop(true);
@@ -444,7 +448,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     setCloneProps(null);
   }, []);
 
-  // Memoized Components
+  // --- Memoized Components & Elements ---
+  // Memoized Refresh button with Tooltip.
   const MemoizedRefreshTooltip = useMemo(() => (
     <Tooltip title="Refresh List">
       <IconButton 
@@ -463,6 +468,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     </Tooltip>
   ), [onRefresh, theme]);
 
+  // Memoized Table Row Header definition.
   const MemoizedTableRowHeader = useMemo(() => (
     <TableRow>
       <TableCell width="15%" sx={{ 
@@ -492,20 +498,21 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     </TableRow>
   ), []);
 
-  // Memoize filteredPizzas to ensure stability
+  // Memoize the filtered pizza list for stability.
   const stableFilteredPizzas = useMemo(() => filteredPizzas, [filteredPizzas]);
 
-  // Memoize createOrder to ensure stability
+  // Memoize the createOrder callback passed to the OrderModal.
   const stableCreateOrder = useCallback(createOrder, [createOrder]);
 
-  // Memoized TableHead
+  // Memoized Table Head component using the memoized row header.
   const MemoizedTableHead = useMemo(() => (
     <TableHead>
       {MemoizedTableRowHeader}
     </TableHead>
   ), [MemoizedTableRowHeader]);
 
-  // Memoized TableBody
+  // Memoized Table Body component, handling loading, empty, and data states.
+  // NOTE: Dependency array includes theme and handlers, potentially reducing memoization effectiveness.
   const MemoizedTableBody = useMemo(() => (
     <TableBody>
       {loading ? (
@@ -591,7 +598,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
             </TableCell>
             <TableCell sx={{ fontWeight: 600, color: theme.palette.success.dark }}>
               {typeof item.price === 'number' 
-                ? item.price.toLocaleString(undefined, { style: 'currency', currency: 'USD' }) 
+                ? item.price.toLocaleString(undefined, { style: 'currency', currency: 'USD' }) // NOTE: Hardcoded USD
                 : '—'}
             </TableCell>
             <TableCell>
@@ -602,7 +609,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     size="small"
                     color="primary"
                     sx={{ 
-                      borderRadius: 1, // MD3 default
+                      borderRadius: 1,
                       backgroundColor: alpha(theme.palette.primary.main, 0.06),
                       fontWeight: 600,
                       '&:hover': {
@@ -620,7 +627,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                     size="small"
                     color="error"
                     sx={{ 
-                      borderRadius: 1, // MD3 default
+                      borderRadius: 1,
                         backgroundColor: alpha(theme.palette.error.main, 0.06),
                         fontWeight: 600,
                         '&:hover': {
@@ -639,7 +646,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                         size="small"
                         aria-label="add to basket"
                         sx={{
-                        borderRadius: 1, // MD3 default
+                        borderRadius: 1,
                         backgroundColor: alpha(theme.palette.success.main, 0.1), // Lighter green bg
                         color: theme.palette.success.dark, // Darker green icon
                         boxShadow: '0 2px 8px 0 rgba(76, 175, 80, 0.10)',
@@ -661,7 +668,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                       onClick={() => handleOpenOrderModal(item)}
                       size="small"
                       sx={{
-                        borderRadius: 1, // MD3 default
+                        borderRadius: 1,
                       backgroundColor: alpha(theme.palette.secondary.main, 0.06),
                       fontWeight: 600,
                       '&:hover': {
@@ -680,7 +687,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     </TableBody>
   ), [loading, stableFilteredPizzas, debouncedSearchTerm, theme, handleEdit, handleDeleteConfirm, handleAddToBasket, handleOpenOrderModal]);
 
-  // Memoize header Box and Typography to prevent unnecessary re-renders
+  // Memoized Header section including title, description, search, and actions.
+  // NOTE: Dependency array includes theme and handlers.
   const memoizedHeaderBox = useMemo(() => (
     <Box sx={headerBoxSx}>
       <Box sx={headerContentSx}>
@@ -701,7 +709,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
             </Typography>
           </Box>
           <Box sx={headerActionsSx}>
-            {/* Search */}
+            {/* Search Input */}
             <TextField
               placeholder="Search pizzas..."
               size="small"
@@ -718,7 +726,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                 },
               }}
             />
-            {/* Add new pizza button */}
+            {/* Add New Pizza Button */}
             <Button
               variant="contained"
               color="primary"
@@ -726,14 +734,14 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
               sx={{ 
                 textTransform: 'none',
                 transition: 'all 0.2s ease-in-out',
-                color: 'primary.contrastText'  // Use theme token instead of direct reference
+                color: 'primary.contrastText'
               }}
               onClick={() => setAddDialogOpen(true)}
               startIcon={<AddIcon />}
             >
               Add Pizza
             </Button>
-            {/* Refresh button */}
+            {/* Refresh Button */}
             {MemoizedRefreshTooltip}
           </Box>
         </Box>
@@ -741,7 +749,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
     </Box>
   ), [name, headerBoxSx, headerContentSx, headerActionsSx, titleSx, descriptionSx, searchTerm, handleSearchChange, memoizedInputProps, MemoizedRefreshTooltip, theme]);
 
-  // Add dynamic toppings options
+  // Dynamically generate topping options for the Autocomplete from existing pizza data.
+  // NOTE: Consider fetching from a dedicated toppings endpoint if available.
   const toppingOptions = useMemo(() => {
     if (!data) return [];
     return Array.from(new Set(data.flatMap(p => p.toppings || [])));
@@ -749,9 +758,9 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
 
   return (
     <Box sx={outerBoxSx}>
-      {/* Enhanced Header Section */}
       {memoizedHeaderBox}
-      {/* Main content */}
+
+      {/* Main Pizza List Table */}
       <TableContainer 
         component={Paper} 
         elevation={0}
@@ -764,11 +773,10 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
           '.MuiTableCell-root': {
             borderBottom: `1px solid ${theme.palette.divider}`,
           },
-          // Hover effect
-          '& .MuiTableRow-root:hover': {
+          '& .MuiTableRow-root:hover': { // Use theme token for row hover effect
             backgroundColor: 'action.hover',
           },
-          // Header cell styles
+          // Sticky header cell styles
           '& .MuiTableHead-root .MuiTableCell-root': { 
             backgroundColor: 'background.default',
             color: 'text.primary',
@@ -780,7 +788,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
           '& .MuiTableBody-root .MuiTableCell-root': {
             color: 'text.primary',
           },
-          // Paper component override
+          // Ensure Paper background uses theme token
           '&.MuiPaper-root': {
             backgroundColor: 'background.paper',
           }
@@ -792,7 +800,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
         </Table>
       </TableContainer>
       
-      {/* Floating basket icon */}
+      {/* Floating Basket Icon */}
       <Box sx={{ position: 'fixed', bottom: 20, right: 20 }} ref={basketRef}>
         <BasketIcon 
           count={basketItems.length} 
@@ -802,8 +810,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
         />
       </Box>
       
-      {/* Basket drawer */}
-      <Suspense fallback={<div>Loading Basket...</div>}>
+      {/* Basket Drawer (Lazy Loaded) */}
+      <Suspense fallback={<CircularProgress sx={{ position: 'fixed', bottom: 40, right: 40 }} />}>
         <BasketDrawer
           open={basketOpen}
           onClose={handleBasketDrawerClose}
@@ -811,8 +819,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
         />
       </Suspense>
       
-      {/* Add/Edit Dialog */}
-      <Suspense fallback={<div>Loading...</div>}>
+      {/* Add/Edit Pizza Dialog (Lazy Loaded) */}
+      <Suspense fallback={<CircularProgress />}>
         <Dialog
           fullScreen={fullScreenModal}
           scroll="paper"
@@ -823,7 +831,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
           PaperProps={enhancedDialogPaperProps}
           aria-labelledby="pizza-modal-title"
         >
-          {/* Show loading bar when bases are loading */}
+          {/* Loading indicator while fetching pizza bases */}
           {basesLoading && <LinearProgress />}
           <DialogTitle 
             id="pizza-modal-title" 
@@ -885,8 +893,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
           >
             <Box sx={{ p: { xs: 2.5, sm: 4 }, pt: { xs: 2.5, sm: 3 } }}>
               <Stack spacing={4}>
-                {/* Basic Info Section */}
-                <ModalSection 
+                {/* Basic Information Section */}
+                <ModalSection
                   title="Basic Information"
                   subtitle="Enter the core details about your pizza"
                 >
@@ -922,7 +930,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                         error={!!formErrors.price}
                         helperText={formErrors.price || 'Set the price or leave empty for market price'}
                         variant="outlined"
-                        InputProps={{
+                        InputProps={{ // NOTE: Hardcoded '$' currency symbol
                           startAdornment: <InputAdornment position="start">$</InputAdornment>,
                         }}
                       />
@@ -947,7 +955,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
                 </ModalSection>
 
                 {/* Customization Section */}
-                <ModalSection 
+                <ModalSection
                   title="Pizza Customization"
                   subtitle="Choose the base and add toppings to create your perfect pizza"
                 >
@@ -1120,8 +1128,8 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
         </DialogActions>
       </Dialog>
       
-      {/* Order Modal */}
-      <Suspense fallback={<div>Loading Order Modal...</div>}>
+      {/* Order Modal (Lazy Loaded) */}
+      <Suspense fallback={<CircularProgress />}>
         <OrderModal
           open={orderModalOpen}
           onClose={handleOrderModalClose}
@@ -1131,7 +1139,7 @@ function PizzaList({ name, data, loading, onCreate, onUpdate, onDelete, onRefres
         />
       </Suspense>
       
-      {/* Floating pizza clone for add-to-basket animation */}
+      {/* Floating Pizza Clone (for Add-to-Basket Animation) */}
       {cloneProps && (
         <FloatingPizzaClone
           rect={cloneProps.rect}

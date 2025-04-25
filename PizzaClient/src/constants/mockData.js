@@ -1,11 +1,11 @@
-// Mock data for frontend development
+// Provides mock data for frontend development and testing purposes.
 
-// OrderStatus enum (for UI, matches backend)
+// Possible order statuses (should align with backend enum/values).
 export const orderStatuses = [
   "Pending", "InProgress", "Ready", "Delivered", "Cancelled"
 ];
 
-// Mock data for orders (matches backend Order model)
+// Mock data representing pizza orders (structure should align with backend Order model).
 export const orders = [
   {
     id: 101,
@@ -73,7 +73,7 @@ export const orders = [
   }
 ];
 
-// Mock data for users (frontend only, for UI convenience)
+// Mock data representing users (potentially for UI convenience, may not match a backend model exactly).
 export const users = [
   {
     id: 1,

@@ -12,9 +12,7 @@ import {
   Stack,
   Paper,
   Typography,
-  CircularProgress,
-  Alert,
-  IconButton
+  Alert
 } from '@mui/material';
 import { Close as CloseIcon, Save as SaveIcon, Add as AddIcon } from '@mui/icons-material';
 
@@ -39,7 +37,7 @@ const PizzaForm = ({
   const [toppingsLoading, setToppingsLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // If a pizza is provided, set the form data accordingly
+  // Effect to populate the form when a `pizza` prop is provided (for editing).
   useEffect(() => {
     if (pizza) {
       setFormData({
@@ -54,7 +52,7 @@ const PizzaForm = ({
     }
   }, [pizza]);
 
-  // Fetch pizza bases from API
+  // Effect to fetch available pizza bases from the API on component mount.
   useEffect(() => {
     const fetchBases = async () => {
       setBasesLoading(true);
@@ -77,7 +75,7 @@ const PizzaForm = ({
     fetchBases();
   }, []);
 
-  // Fetch available toppings from API
+  // Effect to fetch available toppings from the API on component mount.
   useEffect(() => {
     const fetchToppings = async () => {
       setToppingsLoading(true);

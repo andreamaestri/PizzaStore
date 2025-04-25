@@ -27,7 +27,7 @@ const PizzaTable = ({
   const theme = useTheme();
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Filter pizzas based on search term
+  // Filters the pizza list based on the current search term (name or description).
   const filteredPizzas = pizzas.filter((pizza) =>
     pizza.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     pizza.description.toLowerCase().includes(searchTerm.toLowerCase())

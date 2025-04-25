@@ -22,18 +22,18 @@ const ToppingTable = ({
   loading,
   recentToppings
 }) => {
-  // Memoize the onDeleteRequest function to prevent it from being recreated on every render
+  // Memoize the delete request handler passed down from the parent.
   const memoizedOnDeleteRequest = useCallback((name) => {
     onDeleteRequest(name);
   }, [onDeleteRequest]);
 
-  // Memoize the getRowId function
+  // Memoize the function to get the unique ID for each row (using topping name).
   const getRowId = useCallback((row) => row.id, []);
 
-  // Memoize the rows array
+  // Memoize the processed rows array for the DataGrid.
   const rows = useMemo(() =>
     toppingsData.map((row) => ({
-      id: row.name, // DataGrid requires unique id
+      id: row.name, // Use name as the unique ID for DataGrid rows.
       name: row.name,
       usage: row.usage,
       isNew: recentToppings.includes(row.name),
@@ -43,7 +43,7 @@ const ToppingTable = ({
     [toppingsData, recentToppings, editMode, editState]
   );
 
-  // Memoize the columns array
+  // Memoize the column definitions for the DataGrid.
   const columns = useMemo(() => [
     {
       field: 'name',
@@ -53,7 +53,7 @@ const ToppingTable = ({
       renderCell: (params) => {
         const { isEditing, editState, name, isNew } = params.row;
 
-        // Memoize the sx object for the Box
+        // Memoize sx prop for the cell container Box.
         const boxSx = useMemo(() => ({
           display: 'flex',
           alignItems: 'center',
@@ -61,7 +61,7 @@ const ToppingTable = ({
         }), []);
 
         if (isEditing) {
-          // Memoize the sx object for the input container
+          // Memoize sx prop for the input container Box in edit mode.
           const inputBoxSx = useMemo(() => ({
             display: 'flex',
             alignItems: 'center',
@@ -123,11 +123,11 @@ const ToppingTable = ({
       align: 'right',
       headerAlign: 'right',
       sortable: false,
-      disableReorder: true, // Prevent this column from being moved
+      disableReorder: true, // Prevent the actions column from being reordered.
       renderCell: (params) => {
         const { isEditing, name, editState } = params.row;
 
-        // Memoize the sx object for the actions Box
+        // Memoize sx prop for the actions container Box.
         const actionsBoxSx = useMemo(() => ({
           display: 'flex',
           justifyContent: 'flex-end',
@@ -137,7 +137,7 @@ const ToppingTable = ({
         }), []);
 
         if (isEditing) {
-          // Memoize handlers
+          // Memoize inline handlers for save/cancel actions.
           const handleSave = useCallback(() => onEditSave(name, editState.text), [onEditSave, name, editState.text]);
           const handleCancel = useCallback(() => onEditCancel(name), [onEditCancel, name]);
 
@@ -170,7 +170,7 @@ const ToppingTable = ({
           );
         }
 
-        // Memoize handlers
+        // Memoize inline handlers for edit/delete actions.
         const handleEdit = useCallback(() => onEditStart(name, name), [onEditStart, name]);
         const handleDelete = useCallback(() => memoizedOnDeleteRequest(name), [memoizedOnDeleteRequest, name]);
 
@@ -206,32 +206,32 @@ const ToppingTable = ({
     },
   ], [onEditStart, onEditSave, onEditCancel, loading, memoizedOnDeleteRequest, editState]);
 
-  // Memoize the initialState object
+  // Memoize the initial sorting state for the DataGrid.
   const initialState = useMemo(() => ({
     sorting: {
       sortModel: [{ field: orderBy, sort: order }],
     },
   }), [orderBy, order]);
 
-  // Memoize the onSortModelChange handler
+  // Memoize the handler for sort model changes from the DataGrid.
   const handleSortModelChange = useCallback((model) => {
     if (model[0]) {
       onRequestSort(null, model[0].field);
     }
   }, [onRequestSort]);
 
-  // Memoize the pageSizeOptions array
+  // Memoize the available page size options.
   const memoizedPageSizeOptions = useMemo(() => [10, 25, 50], []);
 
-  // Selection model for DataGrid
+  // Memoize the selection model based on the parent's selected state.
   const selectionModel = useMemo(() => selected, [selected]);
 
-  // Handle row selection
+  // Handles selection changes from the DataGrid checkbox clicks.
   const handleSelectionModelChange = useCallback((newSelection) => {
-    // DataGrid gives array of ids (topping names)
+    // DataGrid provides an array of selected row IDs (topping names).
     if (onRowClick) {
-      // Simulate click for each selected
-      // Only select/deselect one at a time for compatibility
+      // Simulate a single row click for compatibility with the parent's selection logic.
+      // Determine if a row was added or removed from the selection.
       if (newSelection.length > selected.length) {
         const added = newSelection.find(id => !selected.includes(id));
         if (added) onRowClick({ target: {} }, added);
@@ -242,19 +242,19 @@ const ToppingTable = ({
     }
   }, [onRowClick, selected]);
 
-  // Memoize the sx object for the outer Box
+  // Memoize sx prop for the outer container Box.
   const outerBoxSx = useMemo(() => ({
     width: '100%',
     height: '100%'
   }), []);
 
-  // Memoize the sx object for DataGrid
+  // Memoize sx prop for styling the DataGrid component itself.
   const dataGridSx = useMemo(() => ({
     borderRadius: 2,
     borderColor: 'divider',
     '& .MuiDataGrid-cell:focus': { outline: 'none' },
     height: '100%',
-    // Hide scrollbar for cleaner look
+    // Custom scrollbar styling for a cleaner look.
     '& .MuiDataGrid-virtualScroller::-webkit-scrollbar': {
       width: '8px',
     },

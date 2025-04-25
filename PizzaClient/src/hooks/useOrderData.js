@@ -20,7 +20,7 @@ export function useOrderData() {
     setNotification(prev => ({ ...prev, open: false }));
   };
 
-  // Fetch all orders
+  // Fetches all orders from the service.
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -38,7 +38,7 @@ export function useOrderData() {
     }
   }, []);
 
-  // Fetch a single order by ID
+  // Fetches a single order by its ID.
   const fetchOrderById = useCallback(async (id) => {
     setLoading(true);
     setError(null);
@@ -56,7 +56,7 @@ export function useOrderData() {
     }
   }, []);
 
-  // Create a new order
+  // Creates a new order using the provided data.
   const createOrder = useCallback(async (orderData) => {
     setLoading(true);
     setError(null);
@@ -75,7 +75,7 @@ export function useOrderData() {
     }
   }, []);
 
-  // Update order status
+  // Updates the status of a specific order.
   const updateOrderStatus = useCallback(async (id, newStatus) => {
     setLoading(true);
     setError(null);
@@ -96,7 +96,7 @@ export function useOrderData() {
     }
   }, []);
 
-  // Cancel an order
+  // Cancels a specific order by ID.
   const cancelOrder = useCallback(async (id) => {
     setLoading(true);
     setError(null);

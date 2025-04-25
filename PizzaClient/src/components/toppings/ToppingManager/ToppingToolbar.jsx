@@ -57,7 +57,7 @@ const ToppingToolbar = ({
     handleSortMenuClose();
   }, [onSortChange, handleSortMenuClose]);
 
-  // Memoized callbacks to prevent unnecessary re-renders
+  // Memoized callbacks passed down to child components or used in event handlers.
   const handleClearFilterCallback = useCallback(() => {
     onClearFilter();
   }, [onClearFilter]);
@@ -74,14 +74,15 @@ const ToppingToolbar = ({
     setSortMenuAnchor(e.currentTarget);
   }, []);
 
-  // Memoized sort options to avoid recreation on every render
+  // Memoize the array of sort options for the sort menu.
   const sortOptions = useMemo(() => [
     { type: SortType.ALPHA_ASC, label: 'Alphabetical (A-Z)', icon: <ArrowUpIcon /> },
     { type: SortType.ALPHA_DESC, label: 'Alphabetical (Z-A)', icon: <ArrowDownIcon /> },
     { type: SortType.MOST_USED, label: 'Most Used', icon: <PopularIcon /> },
     { type: SortType.RECENT, label: 'Recently Added', icon: <RecentIcon /> },
   ], []);
-  // Memoized styles to prevent recreation on every render
+
+  // Memoize style objects to prevent recreation on every render.
   const boxStyles = useMemo(() => ({
     mb: 3,
     borderRadius: 3,
@@ -116,6 +117,7 @@ const ToppingToolbar = ({
     flexWrap: { xs: 'wrap', sm: 'nowrap' },
     width: { xs: '100%', md: 'auto' },
   }), []);
+
   const typographyStyles = useMemo(() => ({
     fontWeight: 700,
     color: 'text.primary',
@@ -126,6 +128,7 @@ const ToppingToolbar = ({
     fontFamily: 'Inter, Roboto, Arial',
     lineHeight: 1.18,
   }), []);
+
   const bodyTypographyStyles = useMemo(() => ({
     color: 'text.secondary',
     maxWidth: 520,
@@ -134,6 +137,7 @@ const ToppingToolbar = ({
     mt: 0.5,
     fontFamily: 'Inter, Roboto, Arial',
   }), []);
+
   const inputAdornmentStyles = useMemo(() => ({
     color: 'text.secondary'
   }), []);
@@ -152,7 +156,9 @@ const ToppingToolbar = ({
         </IconButton>
       </InputAdornment>
     )
-  }), [filterText, handleClearFilterCallback, inputAdornmentStyles]);  const refreshButton = useMemo(() => (
+  }), [filterText, handleClearFilterCallback, inputAdornmentStyles]);
+
+  const refreshButton = useMemo(() => (
     <IconButton 
       onClick={onRefresh}
       aria-label="refresh list"
@@ -169,6 +175,7 @@ const ToppingToolbar = ({
       <RefreshIcon />
     </IconButton>
   ), [onRefresh, theme]);
+
   const sortButton = useMemo(() => (
     <Button
       variant="outlined"
@@ -188,6 +195,7 @@ const ToppingToolbar = ({
       Sort
     </Button>
   ), [handleSortButtonClick]);
+
   const addButton = useMemo(() => (
     <Button
       variant="contained"
@@ -205,64 +213,83 @@ const ToppingToolbar = ({
     </Button>
   ), [onAddTopping]);
 
-  return (
-    <>
-      {/* Header styled like PizzaList */}
-      <Box sx={boxStyles}>
-        <Box sx={innerBoxStyles}>
-          <Box sx={contentBoxStyles}>
-            <Box>
-              <Typography
-                variant="h4"
-                component="h2"
-                sx={typographyStyles}
-              >
-                Toppings Menu
-              </Typography>
-              <Typography
-                variant="body1"
-                sx={bodyTypographyStyles}
-              >
-                Manage your toppings with ease. Add, edit, or remove items as needed.
-              </Typography>
-            </Box>
-            <Box sx={buttonsBoxStyles}>              {/* Search */}
-              <TextField
-                placeholder="Search toppings..."
-                size="small"
-                value={filterText}
-                onChange={handleFilterTextChange}
-                InputProps={inputProps}
-                sx={{ 
-                  '& .MuiInputBase-root': { 
-                    backgroundColor: 'background.default',
-                    color: 'text.primary',
-                    height: '40px',
-                    minWidth: '200px'
-                  },
-                  '& .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'divider',
-                  },
-                  '& .MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'action.active',
-                  },
-                  '& .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                    borderColor: 'primary.main',
-                  }
-                }}
-              />
-              {/* Add new topping button */}
-              {addButton}
-              {/* Sort button */}
-              {sortButton}
-              {/* Refresh button */}
-              <Tooltip title="Refresh List">
-                {refreshButton}
-              </Tooltip>
-            </Box>
+  // Memoize the sx styles for TextField
+  const textFieldSx = useMemo(() => ({ 
+    '& .MuiInputBase-root': { 
+      backgroundColor: 'background.default',
+      color: 'text.primary',
+      height: '40px',
+      minWidth: '200px'
+    },
+    '& .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'divider',
+    },
+    '& .MuiInputBase-root:hover .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'action.active',
+    },
+    '& .MuiInputBase-root.Mui-focused .MuiOutlinedInput-notchedOutline': {
+      borderColor: 'primary.main',
+    }
+  }), []);
+
+  // Memoize MenuListProps, anchorOrigin, and transformOrigin
+  const menuListProps = useMemo(() => ({ 'aria-labelledby': 'sort-button' }), []);
+  const anchorOriginProps = useMemo(() => ({ vertical: 'bottom', horizontal: 'right' }), []);
+  const transformOriginProps = useMemo(() => ({ vertical: 'top', horizontal: 'right' }), []);
+
+  // Memoize MenuItem onClick handler factory
+  const createMenuItemClickHandler = useCallback((type) => () => handleSortMenuItemClick(type), [handleSortMenuItemClick]);
+
+  // Memoize Box components
+  const headerBox = useMemo(() => (
+    <Box sx={boxStyles}>
+      <Box sx={innerBoxStyles}>
+        <Box sx={contentBoxStyles}>
+          <Box>
+            <Typography
+              variant="h4"
+              component="h2"
+              sx={typographyStyles}
+            >
+              Toppings Menu
+            </Typography>
+            <Typography
+              variant="body1"
+              sx={bodyTypographyStyles}
+            >
+              Manage your toppings with ease. Add, edit, or remove items as needed.
+            </Typography>
+          </Box>
+          <Box sx={buttonsBoxStyles}>
+            {/* Search Input */}
+            <TextField
+              placeholder="Search toppings..."
+              size="small"
+              value={filterText}
+              onChange={handleFilterTextChange}
+              InputProps={inputProps}
+              sx={textFieldSx}
+            />
+            {/* Add Button */}
+            {addButton}
+            {/* Sort Button */}
+            {sortButton}
+            {/* Refresh Button */}
+            <Tooltip title="Refresh List">
+              {refreshButton}
+            </Tooltip>
           </Box>
         </Box>
-      </Box>      {/* Selection Actions Toolbar */}
+      </Box>
+    </Box>
+  ), [boxStyles, innerBoxStyles, contentBoxStyles, typographyStyles, bodyTypographyStyles, buttonsBoxStyles, filterText, handleFilterTextChange, inputProps, addButton, sortButton, refreshButton, textFieldSx]);
+
+  return (
+    <>
+      {/* Header section with title, description, and primary actions. */}
+      {headerBox}
+
+      {/* Toolbar that appears when items are selected. */}
       {numSelected > 0 && (
         <Toolbar
           sx={{
@@ -297,24 +324,26 @@ const ToppingToolbar = ({
         </Toolbar>
       )}
 
-      {/* Sort Menu */}
+      {/* Pop-up menu for selecting the sort order. */}
       <Menu
         id="sort-menu"
         anchorEl={sortMenuAnchor}
         open={Boolean(sortMenuAnchor)}
         onClose={handleSortMenuClose}
-        MenuListProps={{ 'aria-labelledby': 'sort-button' }}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        MenuListProps={menuListProps}
+        anchorOrigin={anchorOriginProps}
+        transformOrigin={transformOriginProps}
       >
         {sortOptions.map(({ type, label, icon }) => (
           <MenuItem
             key={type}
-            onClick={() => handleSortMenuItemClick(type)}
+            onClick={createMenuItemClickHandler(type)}
             selected={sortType === type}
             dense
           >
-            <ListItemIcon>{icon}</ListItemIcon>
+            <ListItemIcon>
+              {icon}
+            </ListItemIcon>
             <ListItemText>{label}</ListItemText>
           </MenuItem>
         ))}

@@ -3,15 +3,16 @@ import React, { createContext, useContext, useReducer } from 'react';
 const BasketContext = createContext();
 
 const initialState = {
-  items: [] // { pizza, quantity }
+  items: [] // Array of { pizza: object, quantity: number }
 };
 
+// Reducer function to manage basket state transitions.
 function basketReducer(state, action) {
   switch (action.type) {
     case 'ADD_TO_BASKET': {
       const idx = state.items.findIndex(i => i.pizza.id === action.pizza.id);
       if (idx !== -1) {
-        // Increase quantity
+        // If item already exists, increase its quantity.
         const items = [...state.items];
         items[idx].quantity += action.quantity;
         return { ...state, items };
@@ -33,6 +34,7 @@ function basketReducer(state, action) {
   }
 }
 
+// Context Provider component that wraps the application or relevant part.
 export function BasketProvider({ children }) {
   const [state, dispatch] = useReducer(basketReducer, initialState);
   const addToBasket = (pizza, quantity = 1) => dispatch({ type: 'ADD_TO_BASKET', pizza, quantity });
@@ -46,6 +48,7 @@ export function BasketProvider({ children }) {
   );
 }
 
+// Custom hook to easily consume the BasketContext.
 export function useBasket() {
   return useContext(BasketContext);
 }

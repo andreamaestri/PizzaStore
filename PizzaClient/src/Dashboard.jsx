@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback } from "react";
 import {
   useTheme,
   Box,
@@ -13,7 +13,6 @@ import {
   Card,
   CardContent,
   CardHeader,
-  CardActions,
   Button,
   Table,
   TableBody,
@@ -22,9 +21,7 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Stack,
   Grid,
-  Divider,
   Chip,
 } from "@mui/material";
 import { useNavigate, Routes, Route, Navigate } from "react-router-dom";
@@ -49,10 +46,10 @@ import { useThemeMode } from "./context/ThemeModeContext"; // Import the ThemeMo
 // Import mock data for dashboard statistics
 import { orders, users } from "./constants/mockData";
  
-// Custom navigation action items for the toolbar
+// Component for custom actions in the DashboardLayout header (theme toggle, notifications).
 function CustomToolbarActions() {
   const [notificationsAnchorEl, setNotificationsAnchorEl] = useState(null);
-  const { mode, toggleMode } = useThemeMode(); // Use the theme mode context
+  const { mode, toggleMode } = useThemeMode(); // Access theme mode context.
   const darkMode = mode === 'dark';
   
   const handleNotificationsOpen = (event) => setNotificationsAnchorEl(event.currentTarget);
@@ -90,7 +87,7 @@ function CustomToolbarActions() {
   );
 }
 
-// Custom user menu component for the toolbar
+// Component for the user profile avatar and menu in the DashboardLayout header.
 function UserMenu() {
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
   
@@ -124,30 +121,24 @@ function UserMenu() {
 
 function Dashboard() {
   const theme = useTheme();
-  const { mode } = useThemeMode();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const navigate = useNavigate();
-  useEffect(() => {
-    // Debug: log the current value of the CSS variable
-    const val = getComputedStyle(document.documentElement).getPropertyValue('--card-background');
-    console.log('Current --card-background:', val, 'Current mode:', mode);
-  }, [mode]);
-
-  // Map segment to route and vice versa
+  // Helper function to map Toolpad navigation segments to URL paths.
   const segmentToPath = useCallback((segment) => {
     return segment === 'home' ? '/' : `/${segment}`;
   }, []);
 
-  // Memoize the getContentComponent function to prevent recreating it on every render
+  // Function to determine which component/content to render based on the navigation segment.
+  // Memoized with useCallback, but dependencies need review based on actual usage.
   const getContentComponent = useCallback((segment) => {
     switch (segment) {
       case 'home':
         return (
           <PageContainer>
             <Box sx={{ maxWidth: 1200, mx: "auto", height: "100%" }}>
-              {/* Stats cards */}
+              {/* --- Dashboard Home: Stats Cards --- */}
               <Grid container spacing={3} mb={4}>
-                {/* Orders stats card */}
+                {/* Total Orders Card */}
                 <Grid item xs={12} sm={6} md={3}>
                   <Card 
                     variant="outlined"
@@ -170,7 +161,7 @@ function Dashboard() {
                     </CardContent>
                   </Card>
                 </Grid>
-                {/* Customers stats card */}
+                {/* Customers Card */}
                 <Grid item xs={12} sm={6} md={3}>
                   <Card 
                     variant="outlined"
@@ -193,7 +184,7 @@ function Dashboard() {
                     </CardContent>
                   </Card>
                 </Grid>
-                {/* Revenue stats card */}
+                {/* Revenue Card */}
                 <Grid item xs={12} sm={6} md={3}>
                   <Card 
                     variant="outlined"
@@ -216,7 +207,7 @@ function Dashboard() {
                     </CardContent>
                   </Card>
                 </Grid>
-                {/* Pizza count stats card */}
+                {/* Pizzas Sold Card */}
                 <Grid item xs={12} sm={6} md={3}>
                   <Card 
                     variant="outlined"
@@ -241,7 +232,7 @@ function Dashboard() {
                 </Grid>
               </Grid>
               
-              {/* Recent orders section */}
+              {/* --- Dashboard Home: Recent Orders Table --- */}
               <Paper 
                 sx={{ 
                   borderRadius: 2,
@@ -487,13 +478,13 @@ function Dashboard() {
             <Typography>Content Coming Soon</Typography>          </PageContainer>
         );
     }
-  }, [theme]); // Only include the theme dependency as it's used directly
+  }, []); // Empty dependency array as it uses constants (orders, users) and imported components.
 
-  // Handle navigation changes from the Toolpad DashboardLayout
+  // Callback triggered by the DashboardLayout when the user navigates via the drawer.
   const handleNavigationChange = useCallback((segment) => {
     navigate(segmentToPath(segment));
   }, [navigate, segmentToPath]);
-  // Memoize the content components for each route to prevent unnecessary re-renders
+  // Memoize the component instances for each route to optimize rendering.
   const homeComponent = useMemo(() => getContentComponent('home'), [getContentComponent]);
   const pizzasComponent = useMemo(() => getContentComponent('pizzas'), [getContentComponent]);
   const toppingsComponent = useMemo(() => getContentComponent('toppings'), [getContentComponent]);
@@ -501,7 +492,7 @@ function Dashboard() {
   const customersComponent = useMemo(() => getContentComponent('customers'), [getContentComponent]);
   const settingsComponent = useMemo(() => getContentComponent('settings'), [getContentComponent]);
 
-  // Memoize the route components mapping
+  // Memoize the mapping between URL paths and their corresponding components.
   const routeComponents = useMemo(() => ({
     '/': homeComponent,
     '/pizzas': pizzasComponent,
@@ -511,6 +502,7 @@ function Dashboard() {
     '/settings': settingsComponent
   }), [homeComponent, pizzasComponent, toppingsComponent, ordersComponent, customersComponent, settingsComponent]);
 
+  // Memoize the main DashboardLayout structure and its props.
   const memoizedDashboardLayout = useMemo(() => (
     <DashboardLayout
       slotProps={{
@@ -563,5 +555,4 @@ function Dashboard() {
   return memoizedDashboardLayout;
 }
 
-// Make sure to add this export statement
 export default Dashboard;

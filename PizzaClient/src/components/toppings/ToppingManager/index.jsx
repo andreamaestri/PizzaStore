@@ -28,7 +28,7 @@ import ToppingTable from './ToppingTable';
 
 const ToppingManager = () => {
   const {
-    // State
+    // --- State from useToppingManager ---
     toppings,
     recentToppings,
     filterText,
@@ -42,14 +42,14 @@ const ToppingManager = () => {
     order,
     orderBy,
 
-    // Setters
+    // --- Setters from useToppingManager ---
     setFilterText,
     setCurrentSortType,
     setDeleteDialog,
     setOrder,
     setOrderBy,
 
-    // Handlers
+    // --- Handlers from useToppingManager ---
     handleAddTopping,
     handleStartEdit,
     handleSaveEdit,
@@ -60,7 +60,7 @@ const ToppingManager = () => {
     handleRowClick,
   } = useToppingManager();
 
-  // Map SortType to DataGrid sort model
+  // Maps the custom SortType to the table's order/orderBy state.
   const handleToolbarSortChange = useCallback((newSortType) => {
     setCurrentSortType(newSortType);
     switch (newSortType) {
@@ -83,10 +83,10 @@ const ToppingManager = () => {
     }
   }, [setCurrentSortType, setOrder, setOrderBy]);
 
-  // Memoized toppings array
+  // Memoize the toppings array for performance.
   const memoizedToppings = useMemo(() => toppings, [toppings]);
 
-  // Local state for Add Topping dialog
+  // --- Local State for Add Topping Dialog ---
   const [addDialogOpen, setAddDialogOpen] = useState(false);
   const [newToppingName, setNewToppingName] = useState('');
   const [toppingError, setToppingError] = useState('');
@@ -95,7 +95,7 @@ const ToppingManager = () => {
   const isError = fetchState.status === FetchStatus.FAILED;
   const errorMsg = fetchState.error;
 
-  // Dialog handlers
+  // --- Dialog Handlers ---
   const handleOpenAddDialog = useCallback(() => {
     setNewToppingName('');
     setToppingError('');
@@ -121,7 +121,7 @@ const ToppingManager = () => {
       return;
     }
     
-    // Check if topping already exists
+    // Basic validation: Check if the topping name already exists (case-insensitive).
     if (toppings.some(t => t.name.toLowerCase() === trimmedName.toLowerCase())) {
       setToppingError('This topping already exists');
       return;
@@ -131,22 +131,22 @@ const ToppingManager = () => {
     handleCloseAddDialog();
   }, [newToppingName, toppings, handleAddTopping, handleCloseAddDialog]);
 
-  // Memoized onClearFilter callback
+  // Memoized callback for clearing the filter text.
   const handleClearFilter = useCallback(() => {
     setFilterText('');
   }, [setFilterText]);
 
-  // Memoized onDeleteRequest callback
+  // Memoized callback to open the delete confirmation for a single topping.
   const handleDeleteRequest = useCallback((name) => {
     setDeleteDialog({ open: true, toppingName: name, isBulk: false });
   }, [setDeleteDialog]);
 
-  // Memoized onDeleteSelected callback
+  // Memoized callback to open the delete confirmation for selected toppings.
   const handleDeleteSelected = useCallback(() => {
     setDeleteDialog({ open: true, toppingName: null, isBulk: true });
   }, [setDeleteDialog]);
   
-  // Memoized UI components
+  // --- Memoized UI Renderers ---
   const renderLoading = useMemo(() => (
     <Fade in={true} timeout={500}>
       <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
@@ -205,7 +205,8 @@ const ToppingManager = () => {
   ), [filterText, toppings.length, handleOpenAddDialog]);
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>      {/* Global Loading/Backdrop for Mutations */}
+    <Box sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      {/* Global backdrop for indicating background mutation operations (save/delete). */}
       <Backdrop
         sx={{ color: 'common.white', zIndex: (theme) => theme.zIndex.drawer + 1 }}
         open={mutationLoading}
@@ -213,7 +214,7 @@ const ToppingManager = () => {
         {useMemo(() => <CircularProgress color="inherit" />, [])}
       </Backdrop>
 
-      {/* Non-scrollable header */}
+      {/* Render the non-scrollable toolbar area. */}
       <ToppingToolbar
         numSelected={selected.length}
         filterText={filterText}
@@ -227,15 +228,15 @@ const ToppingManager = () => {
         onRefresh={fetchToppings}
       />
 
-      {/* Scrollable Content Area */}
+      {/* Render the main scrollable content area. */}
       <Box sx={{ flexGrow: 1, overflow: 'auto', position: 'relative' }}>
-        {/* Loading State */}
+        {/* Display loading indicator only on initial load when there's no data yet. */}
         {fetchState.status === FetchStatus.LOADING && memoizedToppings.length === 0 && renderLoading}
 
-        {/* Error State */}
+        {/* Display error message if fetching failed. */}
         {isError && renderError}
 
-        {/* Table / Empty State */}
+        {/* Display the table or an empty state message. */}
         {fetchState.status !== FetchStatus.LOADING && !isError && (
           memoizedToppings.length === 0 ? renderEmptyState : (
             <div>
@@ -260,6 +261,7 @@ const ToppingManager = () => {
         )}
       </Box>
 
+      {/* --- Dialogs --- */}
       {/* Delete Confirmation Dialog */}
       <Dialog
         open={deleteDialog.open}
@@ -305,7 +307,6 @@ const ToppingManager = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Add Topping Dialog */}
       <Dialog 
         open={addDialogOpen} 
         onClose={handleCloseAddDialog}

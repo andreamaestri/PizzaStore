@@ -11,7 +11,6 @@ import {
   Stack,
   Divider,
   IconButton,
-  InputAdornment,
   Grid
 } from '@mui/material';
 import { 
@@ -20,7 +19,7 @@ import {
   Close as CloseIcon
 } from '@mui/icons-material';
 
-const OrderModal = ({ open, onClose, pizza, onPlaceOrder, pizzaList }) => {
+const OrderModal = ({ open, onClose, pizza, onPlaceOrder }) => {
   const [quantity, setQuantity] = useState(1);
   const [orderForm, setOrderForm] = useState({
     customerName: '',
@@ -28,9 +27,6 @@ const OrderModal = ({ open, onClose, pizza, onPlaceOrder, pizzaList }) => {
     address: ''
   });
   const [errors, setErrors] = useState({});
-
-  // Memoize pizzaList to prevent unnecessary re-renders
-  const memoizedPizzaList = useMemo(() => pizzaList, [pizzaList]);
 
   const handleQuantityChange = (amount) => {
     const newQuantity = quantity + amount;
@@ -46,7 +42,7 @@ const OrderModal = ({ open, onClose, pizza, onPlaceOrder, pizzaList }) => {
       [name]: value
     }));
     
-    // Clear error for this field if it exists
+    // Clear the validation error for this field when the user types.
     if (errors[name]) {
       setErrors(prev => ({
         ...prev,

@@ -23,6 +23,7 @@ export function usePizzaData() {
     setNotification(prev => ({ ...prev, open: false }));
   };
 
+  // Fetches all pizzas from the API.
   const fetchPizzas = useCallback(() => {
     setLoading(true);
     setError(null);
@@ -48,6 +49,7 @@ export function usePizzaData() {
       });
   }, []);
 
+  // Creates a new pizza via the API.
   const createPizza = useCallback((pizza) => {
     setLoading(true);
     setError(null);
@@ -81,6 +83,7 @@ export function usePizzaData() {
       });
   }, []);
 
+  // Updates an existing pizza via the API.
   const updatePizza = useCallback((updatedPizza) => {
     setLoading(true);
     setError(null);
@@ -113,6 +116,7 @@ export function usePizzaData() {
       });
   }, []);
 
+  // Deletes a pizza by its ID via the API.
   const deletePizza = useCallback((id) => {
     setLoading(true);
     setError(null);

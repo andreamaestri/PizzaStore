@@ -15,12 +15,12 @@ import { useTheme } from '@mui/material';
  * @param {Function} props.onAnimationEnd - Callback when animation completes
  */
 const FloatingPizzaClone = React.memo(function FloatingPizzaClone({ rect, target, children, onAnimationEnd }) {
-  // Get the current theme
+  // Get the current theme for mode-specific styling.
   const theme = useTheme();
   const isDarkMode = theme.palette.mode === 'dark';
   
-  // Motion values for smooth curve-based animation with spring physics
-  // Using hooks at the top level to avoid conditional calls
+  // Motion values for smooth, curve-based animation with spring physics.
+  // Hooks are used at the top level to adhere to React rules.
   const progress = useMotionValue(0);
   const springProgress = useSpring(progress, {
     stiffness: 120,
@@ -28,45 +28,45 @@ const FloatingPizzaClone = React.memo(function FloatingPizzaClone({ rect, target
     restDelta: 0.001
   });
   
-  // Default values for when rect is not provided
+  // Default values to prevent errors if `rect` is initially undefined.
   const defaultLeft = 0;
   const defaultTop = 0;
   
-  // Safely access rect properties
+  // Safely access `rect` properties, using defaults if necessary.
   const startX = rect ? rect.left : defaultLeft;
   const startY = rect ? rect.top : defaultTop;
   const endX = rect ? (rect.left + (target?.left || 0)) : defaultLeft;
   const endY = rect ? (rect.top + (target?.top || 0)) : defaultTop;
   
-  // Calculate distances for path control
+  // Calculate distances to potentially adjust animation dynamics.
   const distanceY = Math.abs(target?.top || 0);
   const distanceX = Math.abs(target?.left || 0);
   const distance = Math.sqrt(distanceX * distanceX + distanceY * distanceY);
   
-  // Control point (peak of the arc) - this creates the curved path
+  // Control point for the quadratic Bezier curve, creating the arc path.
   const controlX = startX + (target?.left || 0) * 0.3; // Asymmetric curve
   const controlY = startY - Math.min(120, distance * 0.3); // Dynamic height
   
-  // Transform progress to x coordinates along bezier curve
+  // Calculates the x-coordinate along the Bezier curve for a given progress `t`.
   const bezierX = (t) => {
     const invT = 1 - t;
     return invT * invT * startX + 2 * invT * t * controlX + t * t * endX;
   };
   
-  // Transform progress to y coordinates along bezier curve
+  // Calculates the y-coordinate along the Bezier curve for a given progress `t`.
   const bezierY = (t) => {
     const invT = 1 - t;
     return invT * invT * startY + 2 * invT * t * controlY + t * t * endY;
   };
   
-  // Create transforms for x and y based on the quadratic bezier curve
+  // Create motion transforms for x and y based on the Bezier curve functions.
   const x = useTransform(springProgress, [0, 0.2, 0.4, 0.6, 0.8, 1], 
     [0, 0.2, 0.4, 0.6, 0.8, 1].map(bezierX));
   
   const y = useTransform(springProgress, [0, 0.2, 0.4, 0.6, 0.8, 1],
     [0, 0.2, 0.4, 0.6, 0.8, 1].map(bezierY));
   
-  // Scale, rotation and opacity transforms for added visual interest
+  // Additional transforms (scale, rotation, opacity) for visual flair during animation.
   const scale = useTransform(springProgress, 
     [0, 0.2, 0.6, 0.8, 1], 
     [1, 1.08, 0.9, 0.7, 0.5]
@@ -82,12 +82,12 @@ const FloatingPizzaClone = React.memo(function FloatingPizzaClone({ rect, target
     [1, 0.95, 0.6, 0]
   );
   
-  // Theme-aware colors for the glow effect
+  // Define theme-aware colors for the shadow/glow effect.
   const primaryColor = isDarkMode ? `rgba(${theme.palette.success.main}, 0.5)` : 'rgba(76, 175, 80, 0.4)';
   const primaryColorLighter = isDarkMode ? `rgba(${theme.palette.success.light}, 0.3)` : 'rgba(76, 175, 80, 0.3)';
   const primaryColorDarker = isDarkMode ? `rgba(${theme.palette.success.dark}, 0.6)` : 'rgba(76, 175, 80, 0.5)';
   
-  // Glow effect transform - theme-aware
+  // Create a motion transform for the `filter` property to animate a glow effect.
   const shadow = useTransform(springProgress,
     [0, 0.3, 0.6, 0.8, 1],
     [
@@ -99,18 +99,18 @@ const FloatingPizzaClone = React.memo(function FloatingPizzaClone({ rect, target
     ]
   );
   
-  // Start the animation when component mounts
+  // Effect to start the animation when the component mounts or `rect` changes.
   React.useEffect(() => {
     if (rect) {
-      progress.set(0); // Reset to start
-      // Animate to end value - this drives all transforms
+      progress.set(0); // Ensure animation starts from the beginning.
+      // Animate the progress value from 0 to 1, driving all other transforms.
       const animation = {
         type: "tween",
         duration: 0.7,
         ease: [0.22, 0.68, 0.36, 0.96] // Custom bezier easing
       };
       
-      // Use setTimeout to ensure we start from 0
+      // Use setTimeout to ensure the `progress.set(0)` takes effect before starting the animation.
       setTimeout(() => {
         progress.set(1, animation);
       }, 10);
@@ -119,10 +119,10 @@ const FloatingPizzaClone = React.memo(function FloatingPizzaClone({ rect, target
     return () => progress.stop();
   }, [rect, progress]);
   
-  // Handle animation completion
+  // Effect to detect when the spring animation is effectively complete.
   React.useEffect(() => {
     const unsubscribe = springProgress.on("change", (latest) => {
-      // Call animation end when we're very close to completion
+      // Trigger the `onAnimationEnd` callback when the animation is nearly finished.
       if (latest > 0.99) {
         onAnimationEnd && onAnimationEnd();
       }
@@ -131,10 +131,10 @@ const FloatingPizzaClone = React.memo(function FloatingPizzaClone({ rect, target
     return () => unsubscribe();
   }, [springProgress, onAnimationEnd]);
   
-  // Skip rendering if rect is not provided
+  // Do not render the clone if the initial position (`rect`) is not yet available.
   if (!rect) return null;
   
-  // Background and border colors based on theme
+  // Define background, border, and shadow colors based on the current theme mode.
   const backgroundColor = isDarkMode ? 
     theme.palette.background.paper : 
     'white';

@@ -1,6 +1,9 @@
-/* filepath: c:\Users\andre\source\repos\PizzaStore\PizzaClient\src\styles\theme-variables.css */
+/*
+ * Defines CSS custom properties (variables) for light and dark themes.
+ * These variables are applied based on the [data-theme] attribute on the root element.
+ */
 :root {
-  /* Light mode (default) */
+  /* --- Light Mode Variables (Default) --- */
   --card-background: rgba(255, 255, 255, 0.7);
   --card-border: rgba(66, 99, 235, 0.10);
   --card-shadow: rgba(66, 99, 235, 0.10);
@@ -31,7 +34,7 @@
 }
 
 [data-theme="dark"] {
-  /* Dark mode */
+  /* --- Dark Mode Variables --- */
   --card-background: rgba(30, 40, 70, 0.1);
   --card-border: rgba(255, 255, 255, 0.15);
   --card-shadow: rgba(61, 90, 254, 0.1);

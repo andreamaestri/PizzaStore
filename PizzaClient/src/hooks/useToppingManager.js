@@ -14,13 +14,13 @@ import {
  * @returns {Object} Topping manager state and handlers
  */
 export function useToppingManager() {
-  // Core state
+  // --- Core State ---
   const [toppings, setToppings] = useState([]);
   const [recentToppings, setRecentToppings] = useState([]);
   const [fetchState, setFetchState] = useState({ status: FetchStatus.IDLE, error: null });
   const [mutationLoading, setMutationLoading] = useState(false);
 
-  // UI state
+  // --- UI State ---
   const [filterText, setFilterText] = useState('');
   const [currentSortType, setCurrentSortType] = useState(SortType.ALPHA_ASC);
   const [selected, setSelected] = useState([]);
@@ -28,11 +28,11 @@ export function useToppingManager() {
   const [editState, setEditState] = useState({});
   const [deleteDialog, setDeleteDialog] = useState({ open: false, toppingName: null, isBulk: false });
 
-  // Table state
+  // --- Table State ---
   const [order, setOrder] = useState('asc');
   const [orderBy, setOrderBy] = useState('name');
 
-  // Fetch toppings data
+  // Fetches toppings data by processing pizza information.
   const fetchToppings = useCallback(async () => {
     setFetchState({ status: FetchStatus.LOADING, error: null });
     setSelected([]); // Clear selection on refresh
@@ -51,7 +51,7 @@ export function useToppingManager() {
     }
   }, []);
 
-  // Process raw pizza data into toppings list
+  // Processes raw pizza data to extract unique toppings and their usage counts.
   const processPizzaData = useCallback((pizzasData) => {
     const allToppings = pizzasData.flatMap(pizza => pizza.toppings || [])
       .map(t => t?.trim())
@@ -74,16 +74,16 @@ export function useToppingManager() {
     }));
   }, []);
 
-  // Filter and sort toppings
+  // Filters and sorts the toppings based on current UI settings.
   const processedToppings = useCallback(() => {
     let processed = [...toppings];
 
-    // Apply filter
+    // Apply text filter if present.
     if (filterText) {
       processed = filterToppings(processed, filterText);
     }
 
-    // Apply sort
+    // Apply selected sorting method.
     switch (currentSortType) {
       case SortType.ALPHA_DESC:
         processed = sortAlphabetically(processed, false);
@@ -102,7 +102,7 @@ export function useToppingManager() {
     return processed;
   }, [toppings, filterText, currentSortType, recentToppings]);
 
-  // Handlers
+  // --- Action Handlers ---
   const handleAddTopping = useCallback((newToppingName, initialUsage = 0) => {
     if (toppingExists(newToppingName, toppings.map(t => t.name))) {
       return false;
@@ -122,7 +122,7 @@ export function useToppingManager() {
     let counter = 1;
     let newName = `${baseName} (${counter})`;
 
-    // Find a unique name
+    // Find a unique name by appending a counter if necessary.
     while (toppingExists(newName, toppings.map(t => t.name))) {
       counter++;
       newName = `${baseName} (${counter})`;
@@ -151,7 +151,7 @@ export function useToppingManager() {
   const handleSaveEdit = useCallback(async (oldToppingName, newToppingText) => {
     const newNameTrimmed = newToppingText?.trim();
 
-    // Validation
+    // Basic validation for the new topping name.
     if (!newNameTrimmed) {
       setEditState(prev => ({ 
         ...prev, 
@@ -177,7 +177,7 @@ export function useToppingManager() {
     try {
       await toppingService.updateToppingInPizzas(oldToppingName, newNameTrimmed);
 
-      // Update local state
+      // Update local state optimistically (or after confirmation).
       setToppings(prev => prev.map(t =>
         t.name === oldToppingName ? { ...t, name: newNameTrimmed } : t
       ));
@@ -227,14 +227,15 @@ export function useToppingManager() {
       setMutationLoading(false);
     }
   }, []);
-  // Initial fetch
+  // --- Effects ---
+  // Initial data fetch on component mount.
   useEffect(() => {
     fetchToppings();
   }, [fetchToppings]);
   
-  // Update sort parameters based on sort type
+  // Update DataGrid sort parameters (order, orderBy) based on the custom sort type.
   useEffect(() => {
-    // Map the sort type to DataGrid sorting parameters
+    // Map the custom sort type to DataGrid's internal sorting state.
     switch (currentSortType) {
       case SortType.ALPHA_DESC:
         setOrderBy('name');
@@ -245,8 +246,8 @@ export function useToppingManager() {
         setOrder('desc');
         break;
       case SortType.RECENT:
-        // For recent sorting, we'll still use the special handling in the processedToppings
-        // but we need to set a valid orderBy/order for the DataGrid
+        // Recent sorting is handled manually in `processedToppings`.
+        // Set default DataGrid sort state for consistency.
         setOrderBy('name');
         setOrder('asc');
         break;
@@ -257,7 +258,7 @@ export function useToppingManager() {
     }
   }, [currentSortType]);
 
-  // Table handlers
+  // --- Table Interaction Handlers ---
   const handleRequestSort = useCallback((event, property) => {
     const isAsc = orderBy === property && order === 'asc';
     setOrder(isAsc ? 'desc' : 'asc');
@@ -312,6 +313,8 @@ export function useToppingManager() {
     setCurrentSortType,
     setSelected,
     setDeleteDialog,
+    setOrder, // <-- add this
+    setOrderBy, // <-- add this
 
     // Handlers
     handleAddTopping,

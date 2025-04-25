@@ -1,4 +1,3 @@
-// filepath: c:\Users\andre\source\repos\PizzaStore\PizzaClient\src\App.jsx
 import { useEffect, useMemo } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
@@ -14,16 +13,12 @@ import PeopleIcon from '@mui/icons-material/People';
 import SettingsIcon from '@mui/icons-material/Settings';
 import './styles/theme-variables.css';
 
-// Theme configuration
+// Main application component responsible for theme setup, context providers, and routing.
 function ThemedApp() {
   const { mode } = useThemeMode();
   
-  // Apply data-theme attribute to html element when mode changes
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', mode);
-  }, [mode]);
-  
-  // Create a theme instance
+  // Create the MUI theme instance based on the current mode.
+  // Includes custom typography settings and font-face definitions.
   const theme = createTheme({
     palette: {
       mode,
@@ -84,7 +79,7 @@ function ThemedApp() {
       },
     },
   });
-  // Memoize the navigation configuration to prevent unnecessary recreations
+  // Memoize the navigation configuration for the Toolpad AppProvider.
   const navigationConfig = useMemo(() => [
     { segment: 'home', title: 'Home', icon: <DashboardIcon /> },
     { segment: 'pizzas', title: 'Pizzas', icon: <LocalPizzaIcon /> },
@@ -100,17 +95,17 @@ function ThemedApp() {
     },
   ], []);
 
-  // Add branding object for Pizza Admin
+  // Memoize the branding configuration for the Toolpad AppProvider.
 const BRANDING = useMemo(() => ({
     title: 'Pizza Admin',
     logo: <LocalPizzaIcon color="primary" />,
     homeUrl: '/',
 }), []);
 
-  // Memoize the Dashboard component to prevent unnecessary re-renders
+  // Memoize the main Dashboard component instance.
   const memoizedDashboard = useMemo(() => <Dashboard />, []);
 
-  // Memoize the BrowserRouter and its children to prevent unnecessary re-renders
+  // Memoize the Router setup, including AppProvider and Dashboard.
   const memoizedRouter = useMemo(() => (
     <BrowserRouter>
       <AppProvider navigation={navigationConfig} branding={BRANDING}>

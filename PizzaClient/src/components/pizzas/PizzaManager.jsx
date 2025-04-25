@@ -11,13 +11,12 @@ import {
   DialogContentText,
   DialogTitle,
   Button,
-  Fab,  Link
+  Fab
 } from '@mui/material';
-import { 
+import {
   Add as AddIcon,
-  Home as HomeIcon, 
-  NavigateNext as NavigateNextIcon, 
-  LocalPizza as PizzaIcon 
+  Home as HomeIcon,
+  LocalPizza as PizzaIcon
 } from '@mui/icons-material';
 import { usePizzaData } from '../../hooks/usePizzaData';
 import PizzaForm from './PizzaForm';
@@ -41,7 +40,7 @@ const PizzaManager = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [pizzaToDelete, setPizzaToDelete] = useState(null);
 
-  // Fetch pizzas on component mount
+  // Fetch initial pizza data when the component mounts.
   useEffect(() => {
     fetchPizzas();
   }, [fetchPizzas]);
@@ -117,7 +116,7 @@ const PizzaManager = () => {
         </Stack>
       </Box>
 
-      {/* Show form for creating/editing a pizza */}
+      {/* Conditionally render the PizzaForm for adding or editing. */}
       {showForm && (
         <PizzaForm 
           pizza={currentPizza}
@@ -127,14 +126,14 @@ const PizzaManager = () => {
         />
       )}
 
-      {/* Display error if any */}
+      {/* Display an error message if fetching failed. */}
       {error && !loading && (
         <Alert severity="error" sx={{ mb: 3 }}>
           {error.message || 'An error occurred while loading pizzas.'}
         </Alert>
       )}
 
-      {/* Pizza table */}
+      {/* Display the table of pizzas. */}
       <PizzaTable 
         pizzas={pizzas} 
         loading={loading}
@@ -142,7 +141,7 @@ const PizzaManager = () => {
         onDelete={handleDeleteClick}
       />
 
-      {/* Delete confirmation dialog */}
+      {/* Confirmation dialog for deleting a pizza. */}
       <Dialog
         open={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
@@ -165,7 +164,7 @@ const PizzaManager = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Notification snackbar */}
+      {/* Snackbar for displaying success/error notifications from data operations. */}
       <Snackbar 
         open={notification.open} 
         autoHideDuration={6000} 

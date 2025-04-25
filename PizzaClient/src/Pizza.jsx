@@ -13,57 +13,51 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  Button, // Dialog imports
-  Card,
-  Chip, // Import Card and Chip for M3 look
+  Button,
 } from "@mui/material";
-import { Home as HomeIcon, LocalPizza as PizzaIcon } from "@mui/icons-material"; // Added PizzaIcon
-import PizzaList from "./PizzaList"; // Assuming PizzaList component exists and handles display/form
+import { LocalPizza as PizzaIcon } from "@mui/icons-material";
+import PizzaList from "./PizzaList"; // Handles display and form interactions for pizzas
 
-// Constant for the item type, used in UI text (e.g., notifications, titles)
-const term = "Pizza"; // Used for display text
-// Base URL for the Pizza API endpoint
-const API_URL = "/api/pizzas"; // Example API endpoint
-// Default headers for API requests. Ensure 'Content-Type' matches API expectations
-// Add 'Authorization' header if authentication is required
+// --- Constants ---
+// Term used in UI text (notifications, titles, etc.).
+const term = "Pizza";
+// Base URL for the Pizza API.
+const API_URL = "/api/pizzas";
+// Default headers for API requests. Ensure 'Content-Type' matches API expectations.
+// Add 'Authorization' or other headers if required by the API.
 const headers = {
   "Content-Type": "application/json",
   // Add any other required headers like Authorization if needed
 };
 
+// Main component for managing Pizza data (fetching, CRUD operations, display).
 const Pizza = memo(function Pizza() {
-  // State to hold the array of pizza data fetched from the API
-  const [data, setData] = useState([]);
-  // State to store any error object encountered during API calls
-  const [error, setError] = useState(null);
-  // State to indicate if a data fetching or CUD (Create, Update, Delete) operation is in progress
-  const [loading, setLoading] = useState(true); // Loading state for fetch/CUD operations
-  // State for managing the visibility, message, and severity of the notification Snackbar
-  const [notification, setNotification] = useState({
+  // --- State ---
+  const [data, setData] = useState([]); // Holds the array of pizza data fetched from the API.
+  const [error, setError] = useState(null); // Stores any error object encountered during API calls.
+  const [loading, setLoading] = useState(true); // Indicates if data fetching or CUD operation is in progress.
+  const [notification, setNotification] = useState({ // Manages Snackbar notification state.
     open: false,
     message: "",
     severity: "success",
   });
-  // State to control the visibility of the delete confirmation dialog
-  const [dialogOpen, setDialogOpen] = useState(false); // State for delete confirmation dialog
-  // State to store the ID of the pizza item marked for deletion, pending confirmation
-  const [itemToDeleteId, setItemToDeleteId] = useState(null); // ID of item pending deletion
+  const [dialogOpen, setDialogOpen] = useState(false); // Controls delete confirmation dialog visibility.
+  const [itemToDeleteId, setItemToDeleteId] = useState(null); // ID of the item pending deletion confirmation.
 
-  // --- Notifications ---
-  // Utility function to display a notification message via the Snackbar.
+  // --- Notification Handling ---
+  // Callback to display a notification message via the Snackbar.
   const showNotification = useCallback((message, severity = "success") => {
     setNotification({ open: true, message, severity });
   }, []);
 
-  // --- Data Fetching ---
-  // Fetches pizza data from the API using `useCallback` for memoization
-  // Sets loading state, handles success, and catches errors
-  // Clears previous errors on each fetch attempt
+  // --- Data Fetching Logic ---
+  // Callback to fetch pizza data from the API.
+  // Sets loading state, handles success/errors, includes a 5s timeout, and clears previous errors.
   const fetchPizzaData = useCallback(() => {
     setLoading(true);
-    setError(null); // Clear previous errors on fetch
+    setError(null); // Clear previous errors before fetching.
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // Abort fetch after 5 seconds.
     fetch(API_URL, { signal: controller.signal })
       .then((response) => {
         clearTimeout(timeoutId);
@@ -92,17 +86,16 @@ const Pizza = memo(function Pizza() {
     return () => clearTimeout(timeoutId);
   }, [showNotification]);
 
-  // `useEffect` hook to trigger the initial data fetch when the component mounts.
-  // Depends on `fetchPizzaData`, which is memoized by `useCallback`.
+  // Effect to trigger the initial data fetch on component mount.
   useEffect(() => {
     fetchPizzaData();
   }, [fetchPizzaData]);
 
-  // --- Memoized Data ---
-  // Memoize the data to ensure stable reference across renders
+  // --- Memoization ---
+  // Memoize the fetched data array for stability.
   const memoizedData = useMemo(() => data, [data]);
 
-  // Handles closing the notification Snackbar. Prevents closing on 'clickaway'.
+  // Callback to close the notification Snackbar. Prevents closing on 'clickaway'.
   const handleCloseNotification = useCallback(
     (event, reason) => {
       if (reason === "clickaway") {
@@ -113,38 +106,38 @@ const Pizza = memo(function Pizza() {
     [notification]
   );
 
-  // Handle dialog close
+  // Callback to close the delete confirmation dialog and reset the pending item ID.
   const handleCloseDialog = useCallback(() => {
     setDialogOpen(false);
     setItemToDeleteId(null);
   }, []);
 
-  // --- CRUD Handlers ---
-  /* 
-        Handles the creation of a new pizza item.
-        Sends a POST request to the API.
-        Updates local state on success, shows notification, handles errors.
-        TODO: Consider implementing optimistic updates for a smoother UX:
-        1. Add the new item to `data` state immediately.
-        2. If the API call fails, remove the item from `data` and show an error.
-    */
+  // --- CRUD Operation Callbacks ---
+
+  /**
+   * Handles the creation of a new pizza item.
+   * Sends a POST request to the API.
+   * Updates local state on success, shows notification, handles errors.
+   * TODO: Consider implementing optimistic updates for a smoother UX (see comments below).
+   * 1. Add the new item to `data` state immediately.
+   * 2. If the API call fails, remove the item from `data` and show an error.
+   */
   const handleCreate = useCallback(
     (item) => {
       setLoading(true);
       setError(null);
-      // TODO: Consider Optimistic Update: Add item to local state immediately
+      // TODO (Optimistic Update): Add item to local state immediately here.
 
       fetch(API_URL, {
         method: "POST",
         headers,
-        // Construct the payload for the POST request.
-        // Ensure properties match the expected API schema.
+        // Construct the payload, ensuring properties match the API schema.
         // Includes parsing for `baseId` and default for `toppings`.
         body: JSON.stringify({
-          // Ensure payload matches API expectations
+          // Ensure payload structure matches backend API requirements.
           name: item.name,
           description: item.description,
-          baseId: parseInt(item.baseId) || 1, // Example default/parsing
+          baseId: parseInt(item.baseId) || 1, // Default to baseId 1 if parsing fails.
           toppings: item.toppings || [],
         }),
       })
@@ -153,7 +146,7 @@ const Pizza = memo(function Pizza() {
           return response.json();
         })
         .then((returnedItem) => {
-          setData((prevData) => [...prevData, returnedItem]); // Update state with returned item
+          setData((prevData) => [...prevData, returnedItem]); // Add the confirmed item to state.
           setLoading(false);
           showNotification(
             `${item.name || term} added successfully`,
@@ -168,37 +161,37 @@ const Pizza = memo(function Pizza() {
             `Failed to add ${item.name || term}: ${error.message}`,
             "error"
           );
-          // TODO: Rollback Optimistic Update if implemented
+          // TODO (Optimistic Update): Rollback the state change if the API call failed.
         });
     },
     [showNotification]
   );
 
-  // Handles updating an existing pizza item.
-  // Sends a PUT request to the API with the updated item data.
-  // Updates local state on success, shows notification, handles errors.
-  // Stores original data for potential rollback on error.
-  // TODO: Consider implementing optimistic updates:
-  // 1. Update the item in `data` state immediately.
-  // 2. If the API call fails, revert the item in `data` to its original state.
+  /**
+   * Handles updating an existing pizza item.
+   * Sends a PUT request to the API with the updated item data.
+   * Updates local state on success, shows notification, handles errors.
+   * TODO: Consider implementing optimistic updates (see comments below).
+   * 1. Update the item in `data` state immediately.
+   * 2. If the API call fails, revert the item in `data` to its original state.
+   */
   const handleUpdate = useCallback(
     (updatedItem) => {
       setLoading(true);
       setError(null);
-      // For future rollback implementation
-      // const originalData = [...data];
+      // Store original data for potential rollback on error (if implementing optimistic updates).
+      // const originalData = [...data]; // Store original for potential rollback.
 
-      // TODO: Consider Optimistic Update: Update item in local state immediately
-      // setData(data.map(item => item.id === updatedItem.id ? updatedItem : item));
+      // TODO (Optimistic Update): Update item in local state immediately here.
+      // setData(prevData => prevData.map(item => (item.id === updatedItem.id ? updatedItem : item)));
 
       fetch(`${API_URL}/${updatedItem.id}`, {
         method: "PUT",
         headers,
-        // Construct the payload for the PUT request.
-        // Ensure all required fields, including the ID, are present.
+        // Construct the payload, ensuring all required fields (including ID) are present.
         body: JSON.stringify({
-          // Ensure payload matches API expectations
-          id: updatedItem.id,
+          // Payload structure should match the backend API requirements.
+          id: updatedItem.id, // Ensure ID is included for PUT request.
           name: updatedItem.name,
           description: updatedItem.description,
           baseId: parseInt(updatedItem.baseId) || 1,
@@ -207,13 +200,13 @@ const Pizza = memo(function Pizza() {
       })
         .then((response) => {
           if (!response.ok) throw new Error("Failed to update item");
-          // Assuming PUT returns the updated item or success status
-          // If it returns the item, use it, otherwise update manually
+          // Assuming PUT returns success status or the updated item.
+          // Update the local state manually if only status is returned.
           setData((prevData) =>
             prevData.map((item) =>
               item.id === updatedItem.id ? updatedItem : item
             )
-          ); // Update state
+          ); // Update the item in the local state after successful API call.
           setLoading(false);
           showNotification(
             `${updatedItem.name || term} updated successfully`,
@@ -228,41 +221,42 @@ const Pizza = memo(function Pizza() {
             `Failed to update ${updatedItem.name || term}: ${error.message}`,
             "error"
           );
-          // TODO: Rollback Optimistic Update if implemented
+          // TODO (Optimistic Update): Rollback the state change if the API call failed.
           // setData(originalData);
         });
     },
     [showNotification]
   );
 
-  // --- Delete Handling with Confirmation ---
-  // Initiates the delete process by setting the item ID and opening the confirmation dialog.
+  // --- Delete Operation Callbacks ---
+  // Callback to initiate the delete process: sets the item ID and opens the confirmation dialog.
   const handleDeleteRequest = useCallback((id) => {
     setItemToDeleteId(id);
-    setDialogOpen(true); // Open confirmation dialog
+    setDialogOpen(true);
   }, []);
 
-  // Confirms and executes the deletion after user confirmation.
-  // Sends a DELETE request to the API.
-  // Updates local state on success by filtering out the deleted item.
-  // Shows notification, handles errors.
-  // Stores original data for potential rollback.
-  // TODO: Consider implementing optimistic updates:
-  // 1. Remove the item from `data` state immediately.
-  // 2. If the API call fails, re-insert the item into `data`.
+  /**
+   * Confirms and executes the deletion after user confirmation via the dialog.
+   * Sends a DELETE request to the API.
+   * Updates local state on success by filtering out the deleted item.
+   * Shows notification, handles errors.
+   * TODO: Consider implementing optimistic updates (see comments below).
+   * 1. Remove the item from `data` state immediately.
+   * 2. If the API call fails, re-insert the item into `data`.
+   */
   const handleConfirmDelete = useCallback(() => {
     if (!itemToDeleteId) return;
 
     const itemToDelete = data.find((item) => item.id === itemToDeleteId);
-    const itemName = itemToDelete?.name || term; // Get name for notification
-    handleCloseDialog(); // Close dialog immediately
+    const itemName = itemToDelete?.name || term; // Get name for notification.
+    handleCloseDialog(); // Close dialog immediately.
     setLoading(true);
     setError(null);
-    // For future rollback implementation
-    // const originalData = [...data];
+    // Store original data for potential rollback (if implementing optimistic updates).
+    // const originalData = [...data]; // Store original for potential rollback.
 
-    // TODO: Consider Optimistic Update: Remove item from local state immediately
-    // setData(data.filter(item => item.id !== itemToDeleteId));
+    // TODO (Optimistic Update): Remove item from local state immediately here.
+    // setData(prevData => prevData.filter(item => item.id !== itemToDeleteId));
 
     fetch(`${API_URL}/${itemToDeleteId}`, {
       method: "DELETE",
@@ -270,7 +264,7 @@ const Pizza = memo(function Pizza() {
     })
       .then((response) => {
         if (!response.ok) throw new Error("Failed to delete item");
-        // If successful, update state
+        // If the DELETE request is successful, update the local state.
         setData((prevData) =>
           prevData.filter((item) => item.id !== itemToDeleteId)
         );
@@ -285,14 +279,14 @@ const Pizza = memo(function Pizza() {
           `Failed to remove ${itemName}: ${error.message}`,
           "error"
         );
-        // TODO: Rollback Optimistic Update if implemented
+        // TODO (Optimistic Update): Rollback the state change if the API call failed.
         // setData(originalData);
       });
   }, [itemToDeleteId, data, showNotification, handleCloseDialog]);
 
-  // --- Render Logic ---
+  // --- Memoized Render Logic ---
 
-  // Memoized skeleton component to prevent unnecessary re-renders
+  // Memoized skeleton loading component.
   const memoizedSkeleton = useMemo(
     () => (
       <Box sx={{ p: 2 }}>
@@ -305,13 +299,16 @@ const Pizza = memo(function Pizza() {
     []
   );
 
-  // Memoized Stack component to prevent unnecessary re-renders
+  // Memoized main content stack.
+  // NOTE: The dependency array below is large and includes most state/handlers.
+  // This ensures correctness but might be overly sensitive to changes. Consider refining if performance issues arise.
   const memoizedStack = useMemo(
     () => (
       <Stack>
-        {/* --- Loading State (Initial) --- */}
+        {/* Initial Loading State */}
         {loading && data.length === 0 && !error && memoizedSkeleton}
-        {/* --- Error State --- */}
+
+        {/* Error State */}
         {error && !loading && (
           <Fade in={true} timeout={500}>
             <Alert
@@ -328,12 +325,11 @@ const Pizza = memo(function Pizza() {
             </Alert>
           </Fade>
         )}
-        {/* --- Content (PizzaList) --- */}
-        {/* Render PizzaList only when not in initial loading state */}
+        {/* Content Display */}
         {(!loading || memoizedData.length > 0) && !error && (
           <Fade in={!loading || memoizedData.length > 0} timeout={500}>
             <Box>
-              {/* Show subtle loading indicator during CUD operations if needed */}
+              {/* CUD Loading Indicator (shown over content) */}
               {loading && memoizedData.length > 0 && (
                 <Box
                   sx={{
@@ -350,8 +346,7 @@ const Pizza = memo(function Pizza() {
                   <CircularProgress size={24} />
                 </Box>
               )}
-              {/* Alternative: Pass loading state to PizzaList to disable controls */}
-              {/* Renders the `PizzaList` component, passing down data, loading state, and CRUD handlers. */}
+              {/* Render the list component, passing data and handlers */}
               <PizzaList
                 name={term}
                 data={memoizedData}
@@ -364,7 +359,7 @@ const Pizza = memo(function Pizza() {
             </Box>
           </Fade>
         )}
-        {/* --- Notification Snackbar --- */}
+        {/* Notification Snackbar */}
         <Snackbar
           open={notification.open}
           autoHideDuration={4000}
@@ -379,7 +374,7 @@ const Pizza = memo(function Pizza() {
             {notification.message}
           </Alert>
         </Snackbar>
-        {/* --- Delete Confirmation Dialog --- */}
+        {/* Delete Confirmation Dialog */}
         <Dialog open={dialogOpen} onClose={handleCloseDialog}>
           <DialogTitle>Delete {term}</DialogTitle>
           <DialogContent>

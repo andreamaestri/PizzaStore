@@ -19,8 +19,8 @@ const DataTable = ({
   loading,
   emptyMessage = 'No data available',
   tableProps = {},
-  toolbar, // Optional: Toolpad slot for toolbar
-  pagination, // Optional: Toolpad slot for pagination
+  toolbar, // Optional slot for a toolbar component (e.g., for Toolpad).
+  pagination, // Optional slot for a pagination component (e.g., for Toolpad).
   ...rest
 }) => {
   const theme = useTheme();

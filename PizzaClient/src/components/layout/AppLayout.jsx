@@ -32,7 +32,7 @@ import {
 
 const drawerWidth = 240;
 
-// Styled components for transitions
+// Styled AppBar component with transitions for drawer opening/closing.
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -55,6 +55,7 @@ const AppBar = styled(MuiAppBar, {
   }),
 }));
 
+// Styled Drawer component with transitions for opening/closing.
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ theme, open }) => ({
@@ -92,18 +93,12 @@ const AppLayout = ({
   appBarContent = null,
   logoIcon = null
 }) => {
-  // --- Toolpad Dashboard Layout Integration ---
-  return (
-
-  );
-// --- End Toolpad Layout ---
-
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const [open, setOpen] = useState(!isMobile);
   const [navItems, setNavItems] = useState(navigationItems || []);
 
-  // Adjust drawer state based on screen size
+  // Effect to automatically open/close the drawer based on screen size changes.
   useEffect(() => {
     setOpen(!isMobile);
   }, [isMobile]);
@@ -114,13 +109,13 @@ const AppLayout = ({
 
   const handleListItemClick = (index) => {
     onSelectItem(index);
-    // Close drawer on mobile after selection
+    // Close the drawer automatically on mobile after an item is selected.
     if (isMobile) {
       setOpen(false);
     }
   };
 
-  // Toggle nested item visibility
+  // Toggles the visibility of nested children for a navigation item.
   const toggleChildren = (index) => {
     setNavItems((prevState) =>
       prevState.map((item) =>
@@ -131,7 +126,7 @@ const AppLayout = ({
     );
   };
 
-  // M3 Inspired styling for selected items
+  // Material 3 inspired styling for the selected navigation item.
   const selectedItemStyles = {
     backgroundColor:
       theme.palette.mode === "dark"
@@ -154,12 +149,12 @@ const AppLayout = ({
 
   const renderNavItems = () => {
     return navItems.map((item, idx) => {
-      // Handle dividers
+      // Render a divider if the item kind is 'divider'.
       if (item.kind === "divider") {
         return <Divider key={`divider-${idx}`} sx={{ borderColor: "divider", mx: 2, my: 1 }} />;
       }
       
-      // Handle headers
+      // Render a header typography if the item kind is 'header'.
       if (item.kind === "header") {
         return (
           <Typography 
@@ -173,7 +168,7 @@ const AppLayout = ({
         );
       }
 
-      // Handle regular items and nested items
+      // Render a regular list item or a collapsible item with children.
       return (
         <div key={`nav-item-${item.index}`}>
           <ListItem disablePadding sx={{ mb: 1 }}>

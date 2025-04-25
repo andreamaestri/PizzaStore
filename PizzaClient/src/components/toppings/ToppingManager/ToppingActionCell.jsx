@@ -5,8 +5,7 @@ import {
   ButtonGroup,
   Box,
   alpha,
-  useTheme,
-  Paper
+  useTheme
 } from '@mui/material';
 import {
   Edit as EditIcon,
@@ -16,7 +15,6 @@ import {
 } from '@mui/icons-material';
 
 const ToppingActionCell = ({
-  name,
   isEditing,
   loading,
   hasError,
@@ -26,21 +24,22 @@ const ToppingActionCell = ({
   onCancel,
   onDelete
 }) => {
-  const theme = useTheme();  // MD3 outlined icon button styles
+  const theme = useTheme();
+  // Material 3 inspired styling for outlined icon buttons.
   const actionButtonStyle = {
-    borderRadius: '100%', // MD3 icon buttons use full circular shape
+    borderRadius: '100%', // MD3 uses fully circular icon buttons.
     backgroundColor: 'transparent',
     transition: theme.transitions.create(
       ['background-color', 'border-color'],
-      { duration: 150 } // MD3 specific duration
+      { duration: 150 } // MD3 standard duration.
     ),
     '&:hover': {
-      // MD3 uses state layers without elevation
-      backgroundColor: `${alpha(theme.palette.action.active, 0.08)}`, // MD3 hover opacity: 0.08
+      // MD3 uses state layers (semi-transparent background) instead of elevation.
+      backgroundColor: `${alpha(theme.palette.action.active, 0.08)}`, // MD3 hover state layer opacity.
       borderColor: alpha(theme.palette.action.active, 0.3),
     },
     '&:active': {
-      backgroundColor: `${alpha(theme.palette.action.active, 0.12)}`, // MD3 pressed opacity: 0.12
+      backgroundColor: `${alpha(theme.palette.action.active, 0.12)}`, // MD3 pressed state layer opacity.
     },
   };
 
@@ -50,7 +49,7 @@ const ToppingActionCell = ({
     minWidth: theme.spacing(14),
     height: '100%',
     alignItems: 'center'
-  };  // Container style removed as per requirement
+  };
   if (isEditing) {
     return (
       <Box sx={containerStyle}>
