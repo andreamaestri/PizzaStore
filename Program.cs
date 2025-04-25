@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 // Required for OpenApiInfo class used in Swagger setup
 using Microsoft.OpenApi.Models;
 using PizzaStore.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 // --- 1. Application Builder Setup ---
 var builder = WebApplication.CreateBuilder(args);
@@ -33,6 +34,8 @@ builder.Services.AddSwaggerGen(c =>
         Description = "An API to manage and order the pizzas you love.",
         Version = "v1"
     });
+    // Clean up tags for Azure compatibility
+    c.DocumentFilter<TagCleanupDocumentFilter>();
 });
 
 // Configure JSON serialization to ignore circular references and hide ToppingsJson
@@ -307,6 +310,26 @@ public class PizzaJsonStructure
 {
     public List<PizzaBase>? bases { get; set; }
     public List<Pizza>? pizzas { get; set; }
+}
+
+// --- TagCleanupDocumentFilter for Swagger/OpenAPI ---
+public class TagCleanupDocumentFilter : IDocumentFilter
+{
+    public void Apply(OpenApiDocument swaggerDoc, DocumentFilterContext context)
+    {
+        // Replace tags with simple names based on path
+        foreach (var path in swaggerDoc.Paths)
+        {
+            foreach (var op in path.Value.Operations)
+            {
+                // Use the first segment after /api/ as the tag, or fallback to "API"
+                var segments = path.Key.Split('/', StringSplitOptions.RemoveEmptyEntries);
+                string tag = segments.Length > 1 ? segments[1].TrimEnd('s') : "API";
+                op.Value.Tags.Clear();
+                op.Value.Tags.Add(new OpenApiTag { Name = tag });
+            }
+        }
+    }
 }
 
 // --- Helper Models (Assuming these are defined elsewhere, e.g., in Models folder) ---
