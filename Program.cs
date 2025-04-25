@@ -68,10 +68,12 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 // Creates the WebApplication instance configured with the defined services.
 var app = builder.Build();
 
-// Database seeding from JSON
+// Database seeding from JSON and ensure migrations are applied
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<PizzaDb>();
+    // Ensure database and tables are created/migrated
+    db.Database.Migrate();
 
     if (!db.Pizzas.Any() && !db.Bases.Any())
     {
