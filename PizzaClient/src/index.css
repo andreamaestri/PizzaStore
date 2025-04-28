@@ -1,6 +1,3 @@
-/* Import necessary font definitions */
-@import url("./roboto-flex.css");
-
 /* Global base styles and resets */
 
 :root {
@@ -15,7 +12,7 @@ body {
 	margin: 0; /* Remove default body margin */
 	min-height: 100vh; /* Ensure body takes at least full viewport height */
 	/* Base font family - MUI theme might override this */
-	font-family: "Roboto Flex", "Roboto", "Helvetica", "Arial", sans-serif;
+	font-family: "Roboto", "Helvetica", "Arial", sans-serif;
 	/* Background color should be controlled by MUI theme */
 }
 
