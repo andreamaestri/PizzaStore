@@ -129,14 +129,12 @@ const BasketDrawer = memo(({ open, onClose, onCheckout }) => {
 						sx={{
 							display: "flex",
 							alignItems: "center",
-							gap: 1.5, // Reduced gap for more text space
-							p: 2,
+							gap: 1,
 							borderRadius: 2,
-							boxShadow: 1,
-							bgcolor: "background.paper",
+							bgcolor: "text.secondary",
 						}}
 					>
-						<Box sx={{ flex: 2, minWidth: 0, mr: 1, overflow: "hidden" }}>
+						<Box sx={{ flex: 2, minWidth: 0, overflow: "hidden" }}>
 							<Typography fontWeight={600} fontSize={17} noWrap={false} sx={{ whiteSpace: "normal", wordBreak: "break-word" }}>{pizza.name}</Typography>
 							<Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, whiteSpace: "normal", wordBreak: "break-word" }}>
 								{pizza.description}
