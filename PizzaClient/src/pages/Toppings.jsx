@@ -1,12 +1,12 @@
+import { PageContainer } from "@toolpad/core/PageContainer";
 // Toppings.jsx
 import React from "react";
-import { PageContainer } from "@toolpad/core/PageContainer";
 import ToppingManager from "../components/toppings/ToppingManager";
 
 const Toppings = () => (
-  <PageContainer>
-    <ToppingManager />
-  </PageContainer>
+	<PageContainer>
+		<ToppingManager />
+	</PageContainer>
 );
 
 export default Toppings;

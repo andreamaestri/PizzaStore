@@ -1,12 +1,12 @@
+import { PageContainer } from "@toolpad/core/PageContainer";
 // Pizzas.jsx
 import React from "react";
-import { PageContainer } from "@toolpad/core/PageContainer";
 import Pizza from "../Pizza";
 
 const Pizzas = () => (
-  <PageContainer>
-    <Pizza />
-  </PageContainer>
+	<PageContainer>
+		<Pizza />
+	</PageContainer>
 );
 
 export default Pizzas;

@@ -1,30 +1,30 @@
 /* Import necessary font definitions */
-@import url('./roboto-flex.css');
+@import url("./roboto-flex.css");
 
 /* Global base styles and resets */
 
 :root {
-  /* Font rendering optimizations */
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	/* Font rendering optimizations */
+	font-synthesis: none;
+	text-rendering: optimizeLegibility;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  margin: 0; /* Remove default body margin */
-  min-height: 100vh; /* Ensure body takes at least full viewport height */
-  /* Base font family - MUI theme might override this */
-  font-family: 'Roboto Flex', 'Roboto', 'Helvetica', 'Arial', sans-serif;
-  /* Background color should be controlled by MUI theme */
+	margin: 0; /* Remove default body margin */
+	min-height: 100vh; /* Ensure body takes at least full viewport height */
+	/* Base font family - MUI theme might override this */
+	font-family: "Roboto Flex", "Roboto", "Helvetica", "Arial", sans-serif;
+	/* Background color should be controlled by MUI theme */
 }
 
 #root {
-  /* Ensure the root container fills the viewport */
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  width: 100%;
+	/* Ensure the root container fills the viewport */
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+	width: 100%;
 }
 
 /*

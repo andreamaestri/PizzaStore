@@ -1,4 +1,4 @@
-import { API_URL } from '../../constants/toppingConstants';
+import { API_URL } from "../../constants/toppingConstants";
 
 // --- Pizza API Functions (used by topping operations) ---
 
@@ -8,11 +8,11 @@ import { API_URL } from '../../constants/toppingConstants';
  * @throws {Error} If the network response is not ok.
  */
 const fetchPizzas = async () => {
-  const response = await fetch(API_URL);
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  return await response.json();
+	const response = await fetch(API_URL);
+	if (!response.ok) {
+		throw new Error(`HTTP error! status: ${response.status}`);
+	}
+	return await response.json();
 };
 
 /**
@@ -23,15 +23,15 @@ const fetchPizzas = async () => {
  * @throws {Error} If the network response is not ok.
  */
 const updatePizza = async (id, updatedPizza) => {
-  const response = await fetch(`${API_URL}/${id}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(updatedPizza),
-  });
-  if (!response.ok) {
-    throw new Error(`Failed to update pizza ${id}`);
-  }
-  return await response.json();
+	const response = await fetch(`${API_URL}/${id}`, {
+		method: "PUT",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(updatedPizza),
+	});
+	if (!response.ok) {
+		throw new Error(`Failed to update pizza ${id}`);
+	}
+	return await response.json();
 };
 
 // --- Topping-Specific Operations ---
@@ -46,25 +46,27 @@ const updatePizza = async (id, updatedPizza) => {
  * @throws {Error} If fetching pizzas or updating any pizza fails.
  */
 const updateToppingInPizzas = async (oldTopping, newTopping) => {
-  try {
-    const pizzasData = await fetchPizzas();
-    const pizzasToUpdate = pizzasData.filter(
-      pizza => pizza.toppings?.includes(oldTopping)
-    );
-    
-    // Update all affected pizzas in parallel for better performance.
-    await Promise.all(pizzasToUpdate.map(pizza => {
-      const updatedToppings = pizza.toppings.map(t => 
-        t === oldTopping ? newTopping : t
-      );
-      return updatePizza(pizza.id, { ...pizza, toppings: updatedToppings });
-    }));
+	try {
+		const pizzasData = await fetchPizzas();
+		const pizzasToUpdate = pizzasData.filter((pizza) =>
+			pizza.toppings?.includes(oldTopping),
+		);
 
-    return true;
-  } catch (error) {
-    console.error('Error updating topping:', error);
-    throw new Error(`Failed to update topping: ${error.message}`);
-  }
+		// Update all affected pizzas in parallel for better performance.
+		await Promise.all(
+			pizzasToUpdate.map((pizza) => {
+				const updatedToppings = pizza.toppings.map((t) =>
+					t === oldTopping ? newTopping : t,
+				);
+				return updatePizza(pizza.id, { ...pizza, toppings: updatedToppings });
+			}),
+		);
+
+		return true;
+	} catch (error) {
+		console.error("Error updating topping:", error);
+		throw new Error(`Failed to update topping: ${error.message}`);
+	}
 };
 
 /**
@@ -75,23 +77,27 @@ const updateToppingInPizzas = async (oldTopping, newTopping) => {
  * @throws {Error} If fetching pizzas or updating any pizza fails.
  */
 const removeToppingFromPizzas = async (toppingToRemove) => {
-  try {
-    const pizzasData = await fetchPizzas();
-    const pizzasToUpdate = pizzasData.filter(
-      pizza => pizza.toppings?.includes(toppingToRemove)
-    );
-    
-    // Update all affected pizzas in parallel.
-    await Promise.all(pizzasToUpdate.map(pizza => {
-      const updatedToppings = pizza.toppings.filter(t => t !== toppingToRemove);
-      return updatePizza(pizza.id, { ...pizza, toppings: updatedToppings });
-    }));
+	try {
+		const pizzasData = await fetchPizzas();
+		const pizzasToUpdate = pizzasData.filter((pizza) =>
+			pizza.toppings?.includes(toppingToRemove),
+		);
 
-    return true;
-  } catch (error) {
-    console.error('Error removing topping:', error);
-    throw new Error(`Failed to remove topping: ${error.message}`);
-  }
+		// Update all affected pizzas in parallel.
+		await Promise.all(
+			pizzasToUpdate.map((pizza) => {
+				const updatedToppings = pizza.toppings.filter(
+					(t) => t !== toppingToRemove,
+				);
+				return updatePizza(pizza.id, { ...pizza, toppings: updatedToppings });
+			}),
+		);
+
+		return true;
+	} catch (error) {
+		console.error("Error removing topping:", error);
+		throw new Error(`Failed to remove topping: ${error.message}`);
+	}
 };
 
 /**
@@ -102,32 +108,36 @@ const removeToppingFromPizzas = async (toppingToRemove) => {
  * @throws {Error} If fetching pizzas or updating any pizza fails.
  */
 const removeMultipleToppingsFromPizzas = async (toppingsToRemove) => {
-  try {
-    const pizzasData = await fetchPizzas();
-    const toppingSet = new Set(toppingsToRemove);
-    const pizzasToUpdate = pizzasData.filter(
-      pizza => pizza.toppings?.some(t => toppingSet.has(t))
-    );
-    
-    // Update all affected pizzas in parallel.
-    await Promise.all(pizzasToUpdate.map(pizza => {
-      const updatedToppings = pizza.toppings.filter(t => !toppingSet.has(t));
-      return updatePizza(pizza.id, { ...pizza, toppings: updatedToppings });
-    }));
+	try {
+		const pizzasData = await fetchPizzas();
+		const toppingSet = new Set(toppingsToRemove);
+		const pizzasToUpdate = pizzasData.filter((pizza) =>
+			pizza.toppings?.some((t) => toppingSet.has(t)),
+		);
 
-    return true;
-  } catch (error) {
-    console.error('Error removing multiple toppings:', error);
-    throw new Error(`Failed to remove toppings: ${error.message}`);
-  }
+		// Update all affected pizzas in parallel.
+		await Promise.all(
+			pizzasToUpdate.map((pizza) => {
+				const updatedToppings = pizza.toppings.filter(
+					(t) => !toppingSet.has(t),
+				);
+				return updatePizza(pizza.id, { ...pizza, toppings: updatedToppings });
+			}),
+		);
+
+		return true;
+	} catch (error) {
+		console.error("Error removing multiple toppings:", error);
+		throw new Error(`Failed to remove toppings: ${error.message}`);
+	}
 };
 
 // --- Service Export ---
 const toppingService = {
-  fetchPizzas,
-  updateToppingInPizzas,
-  removeToppingFromPizzas,
-  removeMultipleToppingsFromPizzas
+	fetchPizzas,
+	updateToppingInPizzas,
+	removeToppingFromPizzas,
+	removeMultipleToppingsFromPizzas,
 };
 
 export default toppingService;

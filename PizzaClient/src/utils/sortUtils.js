@@ -11,11 +11,11 @@
  * @returns {number} Comparison result (-1, 0, or 1).
  */
 function descendingComparator(a, b, orderBy) {
-  const valA = a[orderBy] ?? ''; // Use nullish coalescing for safety.
-  const valB = b[orderBy] ?? '';
-  if (valB < valA) return -1;
-  if (valB > valA) return 1;
-  return 0;
+	const valA = a[orderBy] ?? ""; // Use nullish coalescing for safety.
+	const valB = b[orderBy] ?? "";
+	if (valB < valA) return -1;
+	if (valB > valA) return 1;
+	return 0;
 }
 
 /**
@@ -26,9 +26,9 @@ function descendingComparator(a, b, orderBy) {
  * @returns {(a: Object, b: Object) => number} A comparator function.
  */
 function getComparator(order, orderBy) {
-  return order === 'desc'
-    ? (a, b) => descendingComparator(a, b, orderBy)
-    : (a, b) => -descendingComparator(a, b, orderBy);
+	return order === "desc"
+		? (a, b) => descendingComparator(a, b, orderBy)
+		: (a, b) => -descendingComparator(a, b, orderBy);
 }
 
 /**
@@ -41,16 +41,16 @@ function getComparator(order, orderBy) {
  * @returns {Array<Object>} A new sorted array of topping objects.
  */
 export function sortByRecent(toppings, recentToppings) {
-  return [...toppings].sort((a, b) => {
-    const aIsRecent = recentToppings.includes(a.name);
-    const bIsRecent = recentToppings.includes(b.name);
-    if (aIsRecent && !bIsRecent) return -1;
-    if (!aIsRecent && bIsRecent) return 1;
-    if (aIsRecent && bIsRecent) {
-      return recentToppings.indexOf(a.name) - recentToppings.indexOf(b.name);
-    }
-    return a.name.localeCompare(b.name);
-  });
+	return [...toppings].sort((a, b) => {
+		const aIsRecent = recentToppings.includes(a.name);
+		const bIsRecent = recentToppings.includes(b.name);
+		if (aIsRecent && !bIsRecent) return -1;
+		if (!aIsRecent && bIsRecent) return 1;
+		if (aIsRecent && bIsRecent) {
+			return recentToppings.indexOf(a.name) - recentToppings.indexOf(b.name);
+		}
+		return a.name.localeCompare(b.name);
+	});
 }
 
 /**
@@ -60,7 +60,9 @@ export function sortByRecent(toppings, recentToppings) {
  * @returns {Array<Object>} A new sorted array of topping objects.
  */
 export function sortByUsage(toppings) {
-  return [...toppings].sort((a, b) => b.usage - a.usage || a.name.localeCompare(b.name));
+	return [...toppings].sort(
+		(a, b) => b.usage - a.usage || a.name.localeCompare(b.name),
+	);
 }
 
 /**
@@ -71,10 +73,10 @@ export function sortByUsage(toppings) {
  * @returns {Array<Object>} A new sorted array of topping objects.
  */
 export function sortAlphabetically(toppings, ascending = true) {
-  return [...toppings].sort((a, b) => {
-    const comparison = a.name.localeCompare(b.name);
-    return ascending ? comparison : -comparison;
-  });
+	return [...toppings].sort((a, b) => {
+		const comparison = a.name.localeCompare(b.name);
+		return ascending ? comparison : -comparison;
+	});
 }
 
 /**
@@ -85,9 +87,9 @@ export function sortAlphabetically(toppings, ascending = true) {
  * @returns {Array<Object>} A new filtered array of topping objects.
  */
 export function filterToppings(toppings, searchText) {
-  if (!searchText) return toppings;
-  const lowerFilter = searchText.toLowerCase();
-  return toppings.filter(t => t.name.toLowerCase().includes(lowerFilter));
+	if (!searchText) return toppings;
+	const lowerFilter = searchText.toLowerCase();
+	return toppings.filter((t) => t.name.toLowerCase().includes(lowerFilter));
 }
 
 /**
@@ -98,6 +100,6 @@ export function filterToppings(toppings, searchText) {
  * @returns {boolean} True if the name exists in the list, false otherwise.
  */
 export function toppingExists(name, existingToppings) {
-  const trimmedLower = name.toLowerCase().trim();
-  return existingToppings.some(t => t.toLowerCase().trim() === trimmedLower);
+	const trimmedLower = name.toLowerCase().trim();
+	return existingToppings.some((t) => t.toLowerCase().trim() === trimmedLower);
 }

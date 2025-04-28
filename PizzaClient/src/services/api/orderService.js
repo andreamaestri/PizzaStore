@@ -1,6 +1,6 @@
-const API_URL = '/api/orders';
+const API_URL = "/api/orders";
 const headers = {
-  'Content-Type': 'application/json',
+	"Content-Type": "application/json",
 };
 
 /**
@@ -9,11 +9,11 @@ const headers = {
  * @throws {Error} If the network response is not ok.
  */
 const fetchOrders = async () => {
-  const response = await fetch(API_URL);
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  return await response.json();
+	const response = await fetch(API_URL);
+	if (!response.ok) {
+		throw new Error(`HTTP error! status: ${response.status}`);
+	}
+	return await response.json();
 };
 
 /**
@@ -23,11 +23,11 @@ const fetchOrders = async () => {
  * @throws {Error} If the network response is not ok.
  */
 const fetchOrderById = async (id) => {
-  const response = await fetch(`${API_URL}/${id}`);
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
-  return await response.json();
+	const response = await fetch(`${API_URL}/${id}`);
+	if (!response.ok) {
+		throw new Error(`HTTP error! status: ${response.status}`);
+	}
+	return await response.json();
 };
 
 /**
@@ -37,17 +37,17 @@ const fetchOrderById = async (id) => {
  * @throws {Error} If the network response is not ok.
  */
 const createOrder = async (orderData) => {
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(orderData),
-  });
-  
-  if (!response.ok) {
-    throw new Error(`Failed to create order (Status: ${response.status})`);
-  }
-  
-  return await response.json();
+	const response = await fetch(API_URL, {
+		method: "POST",
+		headers,
+		body: JSON.stringify(orderData),
+	});
+
+	if (!response.ok) {
+		throw new Error(`Failed to create order (Status: ${response.status})`);
+	}
+
+	return await response.json();
 };
 
 /**
@@ -58,17 +58,19 @@ const createOrder = async (orderData) => {
  * @throws {Error} If the network response is not ok.
  */
 const updateOrderStatus = async (id, newStatus) => {
-  const response = await fetch(`${API_URL}/${id}/status`, {
-    method: 'PUT',
-    headers,
-    body: JSON.stringify(newStatus),
-  });
-  
-  if (!response.ok) {
-    throw new Error(`Failed to update order status (Status: ${response.status})`);
-  }
-  
-  return await response.json();
+	const response = await fetch(`${API_URL}/${id}/status`, {
+		method: "PUT",
+		headers,
+		body: JSON.stringify(newStatus),
+	});
+
+	if (!response.ok) {
+		throw new Error(
+			`Failed to update order status (Status: ${response.status})`,
+		);
+	}
+
+	return await response.json();
 };
 
 /**
@@ -78,24 +80,24 @@ const updateOrderStatus = async (id, newStatus) => {
  * @throws {Error} If the network response is not ok.
  */
 const cancelOrder = async (id) => {
-  const response = await fetch(`${API_URL}/${id}`, {
-    method: 'DELETE',
-    headers,
-  });
-  
-  if (!response.ok) {
-    throw new Error(`Failed to cancel order (Status: ${response.status})`);
-  }
-  
-  return true;
+	const response = await fetch(`${API_URL}/${id}`, {
+		method: "DELETE",
+		headers,
+	});
+
+	if (!response.ok) {
+		throw new Error(`Failed to cancel order (Status: ${response.status})`);
+	}
+
+	return true;
 };
 
 const orderService = {
-  fetchOrders,
-  fetchOrderById,
-  createOrder,
-  updateOrderStatus,
-  cancelOrder,
+	fetchOrders,
+	fetchOrderById,
+	createOrder,
+	updateOrderStatus,
+	cancelOrder,
 };
 
 export default orderService;
