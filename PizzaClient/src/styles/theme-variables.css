@@ -19,9 +19,9 @@
   
   --pizza-card-shadow: rgba(255, 152, 0, 0.10);
   --pizza-card-border: rgba(255, 152, 0, 0.10);
-  --pizza-card-hover-shadow: rgba(255, 152, 0, 0.18);
+  --pizza-card-hover-shadow: rgba(255, 152, 0, 0.025);
   
-  --orders-section-background: rgba(255, 255, 255, 0.8);
+  --orders-section-background: rgba(63, 63, 63, 0.046);
   --orders-section-border: rgba(66, 99, 235, 0.08);
   --orders-section-shadow: rgba(66, 99, 235, 0.10);
   
@@ -31,6 +31,8 @@
   --view-all-orders-hover-shadow: rgba(66, 99, 235, 0.18);
 
   --orders-card-background: rgba(255, 255, 255, 0.7);
+  --orders-table-header-background: #25252500;
+  --datagrid-header-background: #f5f7fa;
 }
 
 [data-theme="dark"] {
@@ -49,10 +51,8 @@
   --revenue-card-hover-shadow: rgba(129, 199, 132, 0.3);
   
   --pizza-card-shadow: rgba(255, 167, 38, 0.1);
-  --pizza-card-border: rgba(255, 255, 255, 0.15);
+  --pizza-card-border: rgba(255, 255, 255, 0.15); 
   --pizza-card-hover-shadow: rgba(255, 167, 38, 0.3);
-  
-  --orders-section-background: rgba(30, 40, 70, 0.02);
 
   --orders-section-border: rgba(255, 255, 255, 0.15);
   --orders-section-shadow: rgba(0, 0, 0, 0.15);
@@ -63,4 +63,6 @@
   --view-all-orders-hover-shadow: rgba(61, 90, 254, 0.25);
 
   --orders-card-background: rgba(30, 40, 70, 0.1);
+  --orders-table-header-background: rgba(30, 40, 70, 0.08);
+  --datagrid-header-background: rgba(30, 40, 70, 0.08);
 }

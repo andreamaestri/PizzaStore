@@ -116,20 +116,6 @@ using (var scope = app.Services.CreateScope())
 
 // --- 4. HTTP Request Pipeline Configuration (Middleware) ---
 
-// Configure static file middleware to serve the React app
-app.UseDefaultFiles();
-app.UseStaticFiles();
-
-// Configure routing
-app.UseRouting();
-app.UseAuthorization();
-
-// Map controllers
-app.MapControllers();
-
-// Add SPA fallback to serve index.html for client-side routing
-app.MapFallbackToFile("index.html");
-
 // Always enable Swagger JSON endpoint for Azure and local use
 app.UseSwagger(c =>
 {
