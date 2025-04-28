@@ -408,6 +408,9 @@ const Pizza = memo(function Pizza() {
     const memoizedContent = useMemo(
         () => (
             <Stack>
+<Typography variant="h4" component="h1" gutterBottom>
+                    Pizza List
+                </Typography>
                 {/* Conditional rendering: Show skeleton while initially loading and no data is present */}
                 {isLoading && pizzaData.length === 0 && !apiError && memoizedSkeletonLoader}
 
