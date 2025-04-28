@@ -52,14 +52,12 @@ jobs:
         uses: azure/container-apps-deploy-action@v2
         with:
           appSourcePath: ${{ github.workspace }}
-          _dockerfilePathKey_: _dockerfilePath_
+          dockerfilePath: Dockerfile
           registryUrl: pizzastored915a0.azurecr.io
           registryUsername: ${{ secrets.PIZZASTORE_REGISTRY_USERNAME }}
           registryPassword: ${{ secrets.PIZZASTORE_REGISTRY_PASSWORD }}
           containerAppName: pizzastore
           resourceGroup: pizzastore
           imageToBuild: pizzastored915a0.azurecr.io/pizzastore:${{ github.sha }}
-          _buildArgumentsKey_: |
-            _buildArgumentsValues_
 
 
