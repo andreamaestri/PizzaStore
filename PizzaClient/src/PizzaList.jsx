@@ -1382,7 +1382,7 @@ function PizzaList({
 							py: 2.5,
 							borderTop: "1px solid",
 							borderColor: "divider",
-							background: (theme) => theme.palette.background.paper,
+							background: 'none',
 							position: "sticky",
 							bottom: 0,
 							zIndex: 2,
