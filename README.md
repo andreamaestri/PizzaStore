@@ -20,8 +20,6 @@ A portfolio-ready, full-stack pizza ordering application built with a React fron
 - [Setup & Development](#setup--development)
   - [Backend](#backend)
   - [Frontend](#frontend)
-- [Important Files](#important-files)
-  - [`PizzaClient/package.json`](#pizzaclientpackagejson)
 - [API Documentation](#api-documentation)
 - [Build & Deployment](#build--deployment)
   - [Azure Container Apps](#azure-container-apps)
@@ -113,52 +111,6 @@ Key features include:
    npm run dev
    ```
    The app will be available at `http://localhost:5173` (default).
-
----
-
-## Important Files
-
-### `PizzaClient/package.json`
-
-This file manages the frontend's dependencies and scripts.
-
-**Key dependencies:**
-- `react`, `react-dom`: Core React libraries
-- `@mui/material`, `@mui/icons-material`: Material UI components and icons
-- `@toolpad/core`: MUI Toolpad components and utilities
-- `@emotion/react`, `@emotion/styled`: CSS-in-JS styling
-- `react-router-dom`: Routing for SPA navigation
-- `vite`: Fast frontend build tool
-
-**Key scripts:**
-- `dev`: Start the Vite development server
-- `build`: Build the frontend for production (outputs to `/wwwroot`)
-- `preview`: Preview the production build locally
-- `lint`: Run ESLint for code quality
-- `knip`: Analyze unused files/exports
-
-**Example:**
-```json
-{
-  "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview",
-    "knip": "knip"
-  },
-  "dependencies": {
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "react-router-dom": "^7.5.0",
-    "@mui/material": "^7.0.1",
-    "@mui/icons-material": "^7.0.1",
-    "@emotion/react": "^11.14.0",
-    "@emotion/styled": "^11.14.0"
-    // ...other dependencies
-  }
-}
-```
 
 ---
 
