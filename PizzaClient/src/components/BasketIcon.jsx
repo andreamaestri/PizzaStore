@@ -1,6 +1,7 @@
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { Badge, Box, IconButton } from "@mui/material";
 import React, { forwardRef, useMemo, useCallback, memo } from "react";
+import { motion } from "motion/react";
 import { useBasket } from "../context/BasketContext";
 
 const boxStyles = {
