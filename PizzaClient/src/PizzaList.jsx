@@ -283,11 +283,10 @@ function PizzaList({
 	// Memoized PaperProps for the enhanced Add/Edit modal styling.
 	const enhancedDialogPaperProps = useMemo(
 		() => ({
-			sx: {
+			sx: (theme) => ({
 				borderRadius: 4,
 				boxShadow: "0 8px 32px rgba(0,0,0,0.18)",
-				background: (theme) =>
-					`linear-gradient(145deg, ${alpha(theme.palette.background.paper, 0.98)} 0%, ${alpha(theme.palette.background.paper, 1)} 100%)`,
+				background: `linear-gradient(145deg, ${alpha(theme.palette.background.paper, 0.98)} 0%, ${alpha(theme.palette.background.paper, 1)} 100%)`,
 				backdropFilter: "blur(8px)",
 				mx: 2,
 				my: { xs: 2, sm: 6 },
@@ -297,7 +296,8 @@ function PizzaList({
 				maxWidth: { xs: "98vw", sm: 540, md: 600 },
 				width: "100%",
 				overflow: "visible",
-			},
+				border: `2px solid ${theme.palette.primary.main}`, // Use contextual color
+			}),
 		}),
 		[],
 	);
