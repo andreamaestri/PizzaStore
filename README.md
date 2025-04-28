@@ -129,10 +129,34 @@ To build and run locally:
 ---
 
 ## API Routes
+
 ![Screenshot 2025-04-28 164943](https://github.com/user-attachments/assets/54889abe-8710-4fd4-bde1-23d2d2891687)
 
-- The API is accessible under the `/api` route.
-- Swagger UI is available at `/swagger`.
+The API is accessible under the `/api` route. All endpoints return and accept JSON.
+
+| Method | Path                       | Description                                                      |
+|--------|----------------------------|------------------------------------------------------------------|
+| GET    | `/api`                     | Welcome message for API root.                                    |
+|        |                            |                                                                  |
+| **Pizza Endpoints**                 |                            |                                                                  |
+| GET    | `/api/pizzas`              | Retrieve all pizzas with their base details.                     |
+| GET    | `/api/pizzas/{id}`         | Retrieve a specific pizza by its ID.                             |
+| POST   | `/api/pizzas`              | Create a new pizza.                                              |
+| PUT    | `/api/pizzas/{id}`         | Update an existing pizza by ID.                                  |
+| DELETE | `/api/pizzas/{id}`         | Delete a pizza by ID.                                            |
+|        |                            |                                                                  |
+| **Base Endpoints**                  |                            |                                                                  |
+| GET    | `/api/bases`               | Retrieve all pizza bases.                                        |
+| GET    | `/api/bases/{id}`          | Retrieve a specific pizza base by ID.                            |
+|        |                            |                                                                  |
+| **Order Endpoints**                 |                            |                                                                  |
+| GET    | `/api/orders`              | Retrieve all orders with their items.                            |
+| GET    | `/api/orders/{id}`         | Retrieve a specific order by ID.                                 |
+| POST   | `/api/orders`              | Create a new order.                                              |
+| PUT    | `/api/orders/{id}/status`  | Update the status of an order (e.g., to Delivered or Cancelled). |
+| DELETE | `/api/orders/{id}`         | Cancel an order (cannot cancel if already delivered).            |
+
+- Swagger UI is available at `/swagger` for interactive API documentation and testing.
 
 ---
 
