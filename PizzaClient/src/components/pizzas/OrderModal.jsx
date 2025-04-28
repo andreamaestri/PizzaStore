@@ -18,7 +18,7 @@ import {
 	Typography,
 } from "@mui/material";
 import { useMemo, useState } from "react";
-import '../../styles/theme-variables.css';
+import "../../styles/theme-variables.css";
 
 const OrderModal = ({ open, onClose, pizza, onPlaceOrder }) => {
 	const [quantity, setQuantity] = useState(1);
@@ -96,28 +96,47 @@ const OrderModal = ({ open, onClose, pizza, onPlaceOrder }) => {
 	if (!pizza) return null;
 
 	return (
-		<Dialog open={open} onClose={onClose} fullWidth maxWidth="sm"
+		<Dialog
+			open={open}
+			onClose={onClose}
+			fullWidth
+			maxWidth="sm"
 			PaperProps={{
 				sx: {
-					background: 'var(--card-background)',
-					boxShadow: '0 4px 24px var(--card-shadow)',
-					border: '1px solid var(--card-border)',
+					background: "var(--card-background)",
+					boxShadow: "0 4px 24px var(--card-shadow)",
+					border: "1px solid var(--card-border)",
 					borderRadius: 3,
 				},
 			}}
 		>
-			<DialogTitle sx={{ background: 'transparent', borderBottom: '1px solid var(--card-border)' }}>
+			<DialogTitle
+				sx={{
+					background: "transparent",
+					borderBottom: "1px solid var(--card-border)",
+				}}
+			>
 				<Box display="flex" justifyContent="space-between" alignItems="center">
 					<Typography variant="h6">Place Order</Typography>
-					<IconButton size="small" onClick={onClose} aria-label="close"
-						sx={{ color: 'text.primary', background: 'none', '&:hover': { background: 'rgba(0,0,0,0.04)' } }}
+					<IconButton
+						size="small"
+						onClick={onClose}
+						aria-label="close"
+						sx={{
+							color: "text.primary",
+							background: "none",
+							"&:hover": { background: "rgba(0,0,0,0.04)" },
+						}}
 					>
 						<CloseIcon />
 					</IconButton>
 				</Box>
 			</DialogTitle>
 
-			<DialogContent dividers sx={{ background: 'transparent', border: 'none' }}>
+			<DialogContent
+				dividers
+				sx={{ background: "transparent", border: "none" }}
+			>
 				<Box mb={3}>
 					<Typography variant="h6" gutterBottom color="text.primary">
 						{pizza.name}
@@ -137,15 +156,21 @@ const OrderModal = ({ open, onClose, pizza, onPlaceOrder }) => {
 						</Typography>
 					</Box>
 
-					<Divider sx={{ borderColor: 'var(--card-border)' }} />
+					<Divider sx={{ borderColor: "var(--card-border)" }} />
 
 					<Box mt={2} mb={2}>
-						<Typography variant="subtitle2" color="text.primary">Quantity</Typography>
+						<Typography variant="subtitle2" color="text.primary">
+							Quantity
+						</Typography>
 						<Stack direction="row" alignItems="center" spacing={1}>
 							<IconButton
 								onClick={() => handleQuantityChange(-1)}
 								disabled={quantity <= 1}
-								sx={{ color: 'primary.main', background: 'none', '&:hover': { background: 'var(--card-hover-shadow)' } }}
+								sx={{
+									color: "primary.main",
+									background: "none",
+									"&:hover": { background: "var(--card-hover-shadow)" },
+								}}
 							>
 								<RemoveIcon />
 							</IconButton>
@@ -159,14 +184,18 @@ const OrderModal = ({ open, onClose, pizza, onPlaceOrder }) => {
 							<IconButton
 								onClick={() => handleQuantityChange(1)}
 								disabled={quantity >= 10}
-								sx={{ color: 'primary.main', background: 'none', '&:hover': { background: 'var(--card-hover-shadow)' } }}
+								sx={{
+									color: "primary.main",
+									background: "none",
+									"&:hover": { background: "var(--card-hover-shadow)" },
+								}}
 							>
 								<AddIcon />
 							</IconButton>
 						</Stack>
 					</Box>
 
-					<Divider sx={{ borderColor: 'var(--card-border)' }} />
+					<Divider sx={{ borderColor: "var(--card-border)" }} />
 
 					<Box mt={2}>
 						<Grid container spacing={2}>
@@ -179,7 +208,7 @@ const OrderModal = ({ open, onClose, pizza, onPlaceOrder }) => {
 									error={!!errors.customerName}
 									helperText={errors.customerName}
 									fullWidth
-									InputLabelProps={{ style: { color: 'var(--card-border)' } }}
+									InputLabelProps={{ style: { color: "var(--card-border)" } }}
 								/>
 							</Grid>
 							<Grid item xs={12} sm={6}>
@@ -191,7 +220,7 @@ const OrderModal = ({ open, onClose, pizza, onPlaceOrder }) => {
 									error={!!errors.phoneNumber}
 									helperText={errors.phoneNumber}
 									fullWidth
-									InputLabelProps={{ style: { color: 'var(--card-border)' } }}
+									InputLabelProps={{ style: { color: "var(--card-border)" } }}
 								/>
 							</Grid>
 							<Grid item xs={12}>
@@ -205,7 +234,7 @@ const OrderModal = ({ open, onClose, pizza, onPlaceOrder }) => {
 									fullWidth
 									multiline
 									minRows={2}
-									InputLabelProps={{ style: { color: 'var(--card-border)' } }}
+									InputLabelProps={{ style: { color: "var(--card-border)" } }}
 								/>
 							</Grid>
 						</Grid>
@@ -213,12 +242,28 @@ const OrderModal = ({ open, onClose, pizza, onPlaceOrder }) => {
 				</Box>
 			</DialogContent>
 
-			<DialogActions sx={{ px: 3, pb: 2, gap: 1, borderRadius: 4, borderTop: '1px solid var(--card-border)' }}>
+			<DialogActions
+				sx={{
+					px: 3,
+					pb: 2,
+					gap: 1,
+					borderRadius: 4,
+					borderTop: "1px solid var(--card-border)",
+				}}
+			>
 				<Button
 					onClick={onClose}
 					color="secondary"
 					variant="outlined"
-					sx={{ minWidth: 120, fontWeight: 600, borderRadius: 2.5, background: 'none', borderColor: 'text.primary', color: 'text.primary', '&:hover': { background: 'var(--card-hover-shadow)' } }}
+					sx={{
+						minWidth: 120,
+						fontWeight: 600,
+						borderRadius: 2.5,
+						background: "none",
+						borderColor: "text.primary",
+						color: "text.primary",
+						"&:hover": { background: "var(--card-hover-shadow)" },
+					}}
 				>
 					Cancel
 				</Button>
@@ -226,7 +271,17 @@ const OrderModal = ({ open, onClose, pizza, onPlaceOrder }) => {
 					onClick={handlePlaceOrder}
 					variant="contained"
 					color="primary"
-					sx={{ minWidth: 140, fontWeight: 600, borderRadius: 2.5, background: 'text.secondary', boxShadow: '0 2px 8px var(--view-all-orders-shadow)', '&:hover': { background: 'var(--view-all-orders-hover-bg)', boxShadow: '0 4px 16px var(--view-all-orders-hover-shadow)' } }}
+					sx={{
+						minWidth: 140,
+						fontWeight: 600,
+						borderRadius: 2.5,
+						background: "text.secondary",
+						boxShadow: "0 2px 8px var(--view-all-orders-shadow)",
+						"&:hover": {
+							background: "var(--view-all-orders-hover-bg)",
+							boxShadow: "0 4px 16px var(--view-all-orders-hover-shadow)",
+						},
+					}}
 				>
 					Place Order
 				</Button>

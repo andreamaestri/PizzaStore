@@ -808,11 +808,11 @@ function PizzaList({
 								sx={{ fontWeight: 600, color: theme.palette.success.dark }}
 							>
 								{typeof item.price === "number"
-                                        ? item.price.toLocaleString(undefined, {
-                                            style: "currency",
-                                            currency: "GBP",
-                                        }) 
-                                        : "—"}
+									? item.price.toLocaleString(undefined, {
+											style: "currency",
+											currency: "GBP",
+										})
+									: "—"}
 							</TableCell>
 							<TableCell>
 								<Stack direction="row" spacing={1} justifyContent="center">
@@ -1198,11 +1198,11 @@ function PizzaList({
 												}
 												variant="outlined"
 												InputProps={{
-                                                        // Changed to '£' currency symbol
-                                                        startAdornment: (
-                                                            <InputAdornment position="start">£</InputAdornment>
-                                                        ),
-                                                    }}
+													// Changed to '£' currency symbol
+													startAdornment: (
+														<InputAdornment position="start">£</InputAdornment>
+													),
+												}}
 											/>
 										</Grid>
 										<Grid item xs={12}>
@@ -1382,7 +1382,7 @@ function PizzaList({
 							py: 2.5,
 							borderTop: "1px solid",
 							borderColor: "divider",
-							background: 'none',
+							background: "none",
 							position: "sticky",
 							bottom: 0,
 							zIndex: 2,

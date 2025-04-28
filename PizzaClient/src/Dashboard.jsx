@@ -111,7 +111,7 @@ function Dashboard() {
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 	const navigate = useNavigate();
-	
+
 	// Helper function to map Toolpad navigation segments to URL paths.
 	// Updated to properly handle the "home" segment consistently
 	const segmentToPath = useCallback((segment) => {

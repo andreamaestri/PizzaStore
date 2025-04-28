@@ -135,8 +135,19 @@ const BasketDrawer = memo(({ open, onClose, onCheckout }) => {
 						}}
 					>
 						<Box sx={{ flex: 2, minWidth: 0, overflow: "hidden" }}>
-							<Typography fontWeight={600} fontSize={17} noWrap={false} sx={{ whiteSpace: "normal", wordBreak: "break-word" }}>{pizza.name}</Typography>
-							<Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, whiteSpace: "normal", wordBreak: "break-word" }}>
+							<Typography
+								fontWeight={600}
+								fontSize={17}
+								noWrap={false}
+								sx={{ whiteSpace: "normal", wordBreak: "break-word" }}
+							>
+								{pizza.name}
+							</Typography>
+							<Typography
+								variant="body2"
+								color="text.secondary"
+								sx={{ mb: 0.5, whiteSpace: "normal", wordBreak: "break-word" }}
+							>
 								{pizza.description}
 							</Typography>
 							<Typography variant="caption" color="text.secondary">
@@ -154,7 +165,9 @@ const BasketDrawer = memo(({ open, onClose, onCheckout }) => {
 						>
 							-
 						</Button>
-						<Typography sx={{ minWidth: 24, textAlign: "center" }}>{quantity}</Typography>
+						<Typography sx={{ minWidth: 24, textAlign: "center" }}>
+							{quantity}
+						</Typography>
 						<Button
 							size="small"
 							variant="outlined"
@@ -163,7 +176,11 @@ const BasketDrawer = memo(({ open, onClose, onCheckout }) => {
 						>
 							+
 						</Button>
-						<IconButton onClick={() => handleRemoveFromBasket(pizza.id)} size="small" sx={{ ml: 1 }}>
+						<IconButton
+							onClick={() => handleRemoveFromBasket(pizza.id)}
+							size="small"
+							sx={{ ml: 1 }}
+						>
 							<CloseIcon fontSize="small" />
 						</IconButton>
 					</Box>
