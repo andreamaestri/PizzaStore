@@ -21,6 +21,11 @@ var connectionString = builder.Configuration.GetConnectionString("Pizzas") ?? "D
 // Using an build services with the SQLite.
 builder.Services.AddSqlite<PizzaDb>(connectionString);
 
+// Add services for security features (Authentication, Authorization, CORS)
+builder.Services.AddAuthentication();
+builder.Services.AddAuthorization();
+builder.Services.AddCors(); // Configure policies later as needed
+
 // Add API explorer services. This is needed for tools like Swagger to discover API endpoints.
 builder.Services.AddEndpointsApiExplorer();
 
@@ -131,6 +136,12 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty;
     });
 }
+
+// Add standard security middleware
+app.UseHttpsRedirection();
+app.UseCors(); // Ensure CORS policy is configured if needed for frontend interaction
+app.UseAuthentication();
+app.UseAuthorization();
 
 // --- 5. API Endpoint Mapping ---
 
@@ -256,13 +267,20 @@ ordersApi.MapPost("/", async Task<Results<Created<Order>, BadRequest>> (PizzaDb 
         return TypedResults.BadRequest();
     }
     decimal totalAmount = 0;
+    // Fetch all required pizza details in a single query to avoid N+1
+    var pizzaIds = order.Items.Select(item => item.PizzaId).Distinct().ToList();
+    var pizzas = await db.Pizzas
+        .Where(p => pizzaIds.Contains(p.Id))
+        .ToDictionaryAsync(p => p.Id);
+
     foreach (var item in order.Items)
     {
-        var pizza = await db.Pizzas.FindAsync(item.PizzaId);
-        if (pizza == null)
+        if (!pizzas.TryGetValue(item.PizzaId, out var pizza))
         {
+            // If any pizza ID is invalid, return BadRequest
             return TypedResults.BadRequest();
         }
+        item.Pizza = pizza; // Link the fetched pizza entity
         item.UnitPrice = pizza.Price;
         totalAmount += item.UnitPrice * item.Quantity;
     }
@@ -336,20 +354,4 @@ public class TagCleanupDocumentFilter : IDocumentFilter
 }
 
 // --- Helper Models (Assuming these are defined elsewhere, e.g., in Models folder) ---
-/*
-namespace PizzaStore.Models
-{
-    public class Pizza
-    {
-        public int Id { get; set; }
-        public string? Name { get; set; }
-        // Add other properties like Description, Price, Ingredients etc.
-    }
-
-    public class PizzaDb : DbContext
-    {
-        public PizzaDb(DbContextOptions<PizzaDb> options) : base(options) { }
-        public DbSet<Pizza> Pizzas { get; set; } = null!; // Initialize with null forgiving operator
-    }
-}
-*/
+// Removed commented-out PizzaStore.Models namespace block
