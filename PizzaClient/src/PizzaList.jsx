@@ -1087,6 +1087,7 @@ function PizzaList({
 					onClose={() => setAddDialogOpen(false)}
 					maxWidth="md"
 					fullWidth
+					backgroundColor="background.paper"
 					PaperProps={enhancedDialogPaperProps}
 					aria-labelledby="pizza-modal-title"
 				>
