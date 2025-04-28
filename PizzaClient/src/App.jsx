@@ -10,7 +10,7 @@ import { useEffect, useMemo } from "react";
 import { BrowserRouter } from "react-router-dom";
 import Dashboard from "./Dashboard";
 import { BasketProvider } from "./context/BasketContext";
-import { useThemeMode } from "./context/ThemeModeContext";
+import { useThemeMode } from "./context/useThemeMode";
 import "./styles/theme-variables.css";
 
 // Main application component responsible for theme setup, context providers, and routing.

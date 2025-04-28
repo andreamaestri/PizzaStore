@@ -230,7 +230,7 @@ const OrderDetails = () => {
 						<List>
 							{order.items?.map((item, index) => (
 								<ListItem
-									key={index}
+									key={item.id}
 									secondaryAction={
 										<Typography variant="body1" fontWeight="bold">
 											£{(item.unitPrice * item.quantity).toFixed(2)}

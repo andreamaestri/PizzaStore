@@ -43,6 +43,30 @@ export function useToppingManager() {
 	const [order, setOrder] = useState("asc");
 	const [orderBy, setOrderBy] = useState("name");
 
+	// Processes raw pizza data to extract unique toppings and their usage counts.
+	const processPizzaData = useCallback((pizzasData) => {
+		const allToppings = pizzasData
+			.flatMap((pizza) => pizza.toppings || [])
+			.map((t) => t?.trim())
+			.filter(Boolean);
+
+		const usageCount = {};
+		const uniqueToppingsMap = new Map();
+
+		for (const topping of allToppings) {
+			const lowerCaseTopping = topping.toLowerCase();
+			usageCount[lowerCaseTopping] = (usageCount[lowerCaseTopping] || 0) + 1;
+			if (!uniqueToppingsMap.has(lowerCaseTopping)) {
+				uniqueToppingsMap.set(lowerCaseTopping, topping);
+			}
+		}
+
+		return Array.from(uniqueToppingsMap.values()).map((name) => ({
+			name,
+			usage: usageCount[name.toLowerCase()] || 0,
+		}));
+	}, []);
+
 	// Fetches toppings data by processing pizza information.
 	const fetchToppings = useCallback(async () => {
 		setFetchState({ status: FetchStatus.LOADING, error: null });
@@ -60,31 +84,7 @@ export function useToppingManager() {
 				error: error.message || "Failed to load toppings",
 			});
 		}
-	}, []);
-
-	// Processes raw pizza data to extract unique toppings and their usage counts.
-	const processPizzaData = useCallback((pizzasData) => {
-		const allToppings = pizzasData
-			.flatMap((pizza) => pizza.toppings || [])
-			.map((t) => t?.trim())
-			.filter(Boolean);
-
-		const usageCount = {};
-		const uniqueToppingsMap = new Map();
-
-		allToppings.forEach((topping) => {
-			const lowerCaseTopping = topping.toLowerCase();
-			usageCount[lowerCaseTopping] = (usageCount[lowerCaseTopping] || 0) + 1;
-			if (!uniqueToppingsMap.has(lowerCaseTopping)) {
-				uniqueToppingsMap.set(lowerCaseTopping, topping);
-			}
-		});
-
-		return Array.from(uniqueToppingsMap.values()).map((name) => ({
-			name,
-			usage: usageCount[name.toLowerCase()] || 0,
-		}));
-	}, []);
+	}, [processPizzaData]);
 
 	// Filters and sorts the toppings based on current UI settings.
 	const processedToppings = useCallback(() => {

@@ -4,6 +4,7 @@ import React, {
 	useMemo,
 	useState,
 	useEffect,
+	useCallback,
 } from "react";
 
 const ThemeModeContext = createContext({
@@ -18,7 +19,7 @@ export function ThemeModeProvider({ children }) {
 		try {
 			const savedMode = localStorage.getItem("theme-mode");
 			return savedMode || "light";
-		} catch (e) {
+		} catch {
 			// Fallback to 'light' if localStorage access fails (e.g., private browsing).
 			return "light";
 		}
@@ -32,20 +33,20 @@ export function ThemeModeProvider({ children }) {
 
 	// Callback function to toggle the theme mode between 'light' and 'dark'.
 	// It also persists the new mode preference to localStorage.
-	const toggleMode = () => {
+	const toggleMode = useCallback(() => {
 		setMode((prev) => {
 			const newMode = prev === "light" ? "dark" : "light";
 			try {
 				localStorage.setItem("theme-mode", newMode);
-			} catch (e) {
+			} catch {
 				// Ignore potential errors during localStorage access.
 			}
 			return newMode;
 		});
-	};
+	}, []);
 
 	// Memoize the context value object to optimize performance.
-	const value = useMemo(() => ({ mode, toggleMode }), [mode]);
+	const value = useMemo(() => ({ mode, toggleMode }), [mode, toggleMode]);
 
 	return (
 		<ThemeModeContext.Provider value={value}>
@@ -56,10 +57,5 @@ export function ThemeModeProvider({ children }) {
 
 // Custom hook to simplify consuming the ThemeModeContext.
 // Includes a check to ensure it's used within a ThemeModeProvider.
-export function useThemeMode() {
-	const context = useContext(ThemeModeContext);
-	if (context === undefined) {
-		throw new Error("useThemeMode must be used within a ThemeModeProvider");
-	}
-	return context;
-}
+// Consider moving useThemeMode to a separate file if Biome still complains about fast refresh.
+export { ThemeModeContext };

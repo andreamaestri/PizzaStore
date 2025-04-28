@@ -1,0 +1,1 @@
+import{j as t,T as s}from"./index-CD8peejM.js";import{P as i}from"./PageContainer-BfHEwUTD.js";import"./Link-86r20zSF.js";const e=()=>t.jsxs(i,{children:[t.jsx(s,{variant:"h5",sx:{mb:3},children:"Settings"}),t.jsx(s,{children:"Settings Coming Soon"})]});export{e as default};

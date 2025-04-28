@@ -58,26 +58,18 @@ const ToppingTable = ({
 				renderCell: (params) => {
 					const { isEditing, editState, name, isNew } = params.row;
 
-					// Memoize sx prop for the cell container Box.
-					const boxSx = useMemo(
-						() => ({
-							display: "flex",
-							alignItems: "center",
-							minHeight: 40,
-						}),
-						[],
-					);
+					const boxSx = {
+						display: "flex",
+						alignItems: "center",
+						minHeight: 40,
+					};
 
 					if (isEditing) {
-						// Memoize sx prop for the input container Box in edit mode.
-						const inputBoxSx = useMemo(
-							() => ({
-								display: "flex",
-								alignItems: "center",
-								width: "100%",
-							}),
-							[],
-						);
+						const inputBoxSx = {
+							display: "flex",
+							alignItems: "center",
+							width: "100%",
+						};
 
 						return (
 							<Box sx={inputBoxSx}>
@@ -150,28 +142,17 @@ const ToppingTable = ({
 				renderCell: (params) => {
 					const { isEditing, name, editState } = params.row;
 
-					// Memoize sx prop for the actions container Box.
-					const actionsBoxSx = useMemo(
-						() => ({
-							display: "flex",
-							justifyContent: "flex-end",
-							alignItems: "center",
-							width: "100%",
-							gap: 1,
-						}),
-						[],
-					);
+					const actionsBoxSx = {
+						display: "flex",
+						justifyContent: "flex-end",
+						alignItems: "center",
+						width: "100%",
+						gap: 1,
+					};
 
 					if (isEditing) {
-						// Memoize inline handlers for save/cancel actions.
-						const handleSave = useCallback(
-							() => onEditSave(name, editState.text),
-							[onEditSave, name, editState.text],
-						);
-						const handleCancel = useCallback(
-							() => onEditCancel(name),
-							[onEditCancel, name],
-						);
+						const handleSave = () => onEditSave(name, editState.text);
+						const handleCancel = () => onEditCancel(name);
 
 						return (
 							<Box sx={actionsBoxSx}>
@@ -202,15 +183,8 @@ const ToppingTable = ({
 						);
 					}
 
-					// Memoize inline handlers for edit/delete actions.
-					const handleEdit = useCallback(
-						() => onEditStart(name, name),
-						[onEditStart, name],
-					);
-					const handleDelete = useCallback(
-						() => memoizedOnDeleteRequest(name),
-						[memoizedOnDeleteRequest, name],
-					);
+					const handleEdit = () => onEditStart(name, name);
+					const handleDelete = () => memoizedOnDeleteRequest(name);
 
 					return (
 						<Box sx={actionsBoxSx}>
@@ -243,14 +217,7 @@ const ToppingTable = ({
 				},
 			},
 		],
-		[
-			onEditStart,
-			onEditSave,
-			onEditCancel,
-			loading,
-			memoizedOnDeleteRequest,
-			editState,
-		],
+		[loading, onEditCancel, onEditSave, onEditStart, memoizedOnDeleteRequest],
 	);
 
 	// Memoize the initial sorting state for the DataGrid.

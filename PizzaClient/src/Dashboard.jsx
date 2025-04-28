@@ -19,7 +19,7 @@ import {
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import React, { Suspense, lazy, useState, useMemo, useCallback } from "react";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
-import { useThemeMode } from "./context/ThemeModeContext";
+import { useThemeMode } from "./context/useThemeMode";
 
 // Lazy load page components
 const Home = lazy(() => import("./pages/Home"));

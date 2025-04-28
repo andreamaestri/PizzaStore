@@ -1,6 +1,5 @@
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import { Badge, Box, IconButton } from "@mui/material";
-import { motion } from "motion/react";
 import React, { forwardRef, useMemo, useCallback, memo } from "react";
 import { useBasket } from "../context/BasketContext";
 
@@ -107,15 +106,7 @@ const BasketIcon = memo(
 					</motion.div>
 				</Box>
 			),
-			[
-				boxStyles,
-				animate,
-				handleAnimationComplete,
-				onClick,
-				badgeStyles,
-				count,
-				ref,
-			],
+			[animate, handleAnimationComplete, onClick, count, ref],
 		);
 
 		return boxContent;

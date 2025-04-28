@@ -243,12 +243,12 @@ const BasketDrawer = memo(({ open, onClose, onCheckout }) => {
 			items,
 			emptyBasketTypography,
 			itemsStack,
-			Divider,
 			footerBoxSx,
 			total,
 			handleCheckout,
 			handleClearBasket,
 			handleClose,
+			totalTypographySx, // added
 		],
 	);
 

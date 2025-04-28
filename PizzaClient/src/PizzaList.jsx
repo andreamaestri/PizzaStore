@@ -685,7 +685,7 @@ function PizzaList({
 	const stableFilteredPizzas = useMemo(() => filteredPizzas, [filteredPizzas]);
 
 	// Memoize the createOrder callback passed to the OrderModal.
-	const stableCreateOrder = useCallback(createOrder, [createOrder]);
+	const stableCreateOrder = useCallback(createOrder, []);
 
 	// Memoized Table Head component using the memoized row header.
 	const MemoizedTableHead = useMemo(
@@ -733,7 +733,9 @@ function PizzaList({
 					stableFilteredPizzas.map((item) => (
 						<TableRow
 							key={item.id}
-							ref={(el) => (rowRefs.current[item.id] = el)}
+							ref={(el) => {
+								if (el) rowRefs.current[item.id] = el;
+							}}
 							sx={{
 								"&:hover": {
 									backgroundColor: alpha(theme.palette.primary.light, 0.05),
@@ -989,17 +991,15 @@ function PizzaList({
 			</Box>
 		),
 		[
-			name,
 			headerBoxSx,
 			headerContentSx,
-			headerActionsSx,
-			titleSx,
 			descriptionSx,
-			searchTerm,
 			handleSearchChange,
+			headerActionsSx,
+			searchTerm,
+			titleSx,
 			memoizedInputProps,
 			MemoizedRefreshTooltip,
-			theme,
 		],
 	);
 

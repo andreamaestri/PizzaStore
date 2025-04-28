@@ -12,9 +12,9 @@ export function useOrderData() {
 		severity: "success",
 	});
 
-	const showNotification = (message, severity = "success") => {
+	const showNotification = useCallback((message, severity = "success") => {
 		setNotification({ open: true, message, severity });
-	};
+	}, []);
 
 	const closeNotification = () => {
 		setNotification((prev) => ({ ...prev, open: false }));
@@ -36,90 +36,108 @@ export function useOrderData() {
 		} finally {
 			setLoading(false);
 		}
-	}, []);
+	}, [showNotification]);
 
 	// Fetches a single order by its ID.
-	const fetchOrderById = useCallback(async (id) => {
-		setLoading(true);
-		setError(null);
+	const fetchOrderById = useCallback(
+		async (id) => {
+			setLoading(true);
+			setError(null);
 
-		try {
-			const data = await orderService.fetchOrderById(id);
-			setCurrentOrder(data);
-			return data;
-		} catch (err) {
-			setError(err);
-			showNotification(`Error fetching order: ${err.message}`, "error");
-			return null;
-		} finally {
-			setLoading(false);
-		}
-	}, []);
+			try {
+				const data = await orderService.fetchOrderById(id);
+				setCurrentOrder(data);
+				return data;
+			} catch (err) {
+				setError(err);
+				showNotification(`Error fetching order: ${err.message}`, "error");
+				return null;
+			} finally {
+				setLoading(false);
+			}
+		},
+		[showNotification],
+	);
 
 	// Creates a new order using the provided data.
-	const createOrder = useCallback(async (orderData) => {
-		setLoading(true);
-		setError(null);
+	const createOrder = useCallback(
+		async (orderData) => {
+			setLoading(true);
+			setError(null);
 
-		try {
-			const newOrder = await orderService.createOrder(orderData);
-			setOrders((prev) => [...prev, newOrder]);
-			showNotification("Order placed successfully!", "success");
-			return newOrder;
-		} catch (err) {
-			setError(err);
-			showNotification(`Error creating order: ${err.message}`, "error");
-			return null;
-		} finally {
-			setLoading(false);
-		}
-	}, []);
+			try {
+				const newOrder = await orderService.createOrder(orderData);
+				setOrders((prev) => [...prev, newOrder]);
+				showNotification("Order placed successfully!", "success");
+				return newOrder;
+			} catch (err) {
+				setError(err);
+				showNotification(`Error creating order: ${err.message}`, "error");
+				return null;
+			} finally {
+				setLoading(false);
+			}
+		},
+		[showNotification],
+	);
 
 	// Updates the status of a specific order.
-	const updateOrderStatus = useCallback(async (id, newStatus) => {
-		setLoading(true);
-		setError(null);
+	const updateOrderStatus = useCallback(
+		async (id, newStatus) => {
+			setLoading(true);
+			setError(null);
 
-		try {
-			const updatedOrder = await orderService.updateOrderStatus(id, newStatus);
-			setOrders((prev) =>
-				prev.map((order) =>
-					order.id === updatedOrder.id ? updatedOrder : order,
-				),
-			);
-			showNotification("Order status updated successfully", "success");
-			return updatedOrder;
-		} catch (err) {
-			setError(err);
-			showNotification(`Error updating order status: ${err.message}`, "error");
-			return null;
-		} finally {
-			setLoading(false);
-		}
-	}, []);
+			try {
+				const updatedOrder = await orderService.updateOrderStatus(
+					id,
+					newStatus,
+				);
+				setOrders((prev) =>
+					prev.map((order) =>
+						order.id === updatedOrder.id ? updatedOrder : order,
+					),
+				);
+				showNotification("Order status updated successfully", "success");
+				return updatedOrder;
+			} catch (err) {
+				setError(err);
+				showNotification(
+					`Error updating order status: ${err.message}`,
+					"error",
+				);
+				return null;
+			} finally {
+				setLoading(false);
+			}
+		},
+		[showNotification],
+	);
 
 	// Cancels a specific order by ID.
-	const cancelOrder = useCallback(async (id) => {
-		setLoading(true);
-		setError(null);
+	const cancelOrder = useCallback(
+		async (id) => {
+			setLoading(true);
+			setError(null);
 
-		try {
-			await orderService.cancelOrder(id);
-			setOrders((prev) =>
-				prev.map((order) =>
-					order.id === id ? { ...order, status: "Cancelled" } : order,
-				),
-			);
-			showNotification("Order cancelled successfully", "success");
-			return true;
-		} catch (err) {
-			setError(err);
-			showNotification(`Error cancelling order: ${err.message}`, "error");
-			return false;
-		} finally {
-			setLoading(false);
-		}
-	}, []);
+			try {
+				await orderService.cancelOrder(id);
+				setOrders((prev) =>
+					prev.map((order) =>
+						order.id === id ? { ...order, status: "Cancelled" } : order,
+					),
+				);
+				showNotification("Order cancelled successfully", "success");
+				return true;
+			} catch (err) {
+				setError(err);
+				showNotification(`Error cancelling order: ${err.message}`, "error");
+				return false;
+			} finally {
+				setLoading(false);
+			}
+		},
+		[showNotification],
+	);
 
 	return {
 		orders,
