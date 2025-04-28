@@ -67,6 +67,42 @@ Rest of files     # ASP.NET Core backend API
 - **Database:** Entity Framework Core (with SQLite or SQL Server)
 - **DevOps:** Docker, GitHub Actions, Azure Container Apps
 
+### Frontend Dependencies
+
+The frontend application relies on the following npm packages:
+
+**Production Dependencies:**
+
+| Package                                                              | Version   | Description                                      |
+| :------------------------------------------------------------------- | :-------- | :----------------------------------------------- |
+| [@emotion/react](https://www.npmjs.com/package/@emotion/react)       | `^11.14.0` | CSS-in-JS library for styling React components |
+| [@emotion/styled](https://www.npmjs.com/package/@emotion/styled)     | `^11.14.0` | Styled components API for Emotion              |
+| [@fontsource/roboto](https://www.npmjs.com/package/@fontsource/roboto) | `^5.2.5`  | Self-host the Roboto font                        |
+| [@mui/icons-material](https://www.npmjs.com/package/@mui/icons-material) | `^7.0.1`  | Material Design icons for MUI                  |
+| [@mui/material](https://www.npmjs.com/package/@mui/material)         | `^7.0.1`  | Material UI component library                  |
+| [@toolpad/core](https://www.npmjs.com/package/@toolpad/core)         | `^0.14.0` | Core components for MUI Toolpad                |
+| [motion](https://www.npmjs.com/package/motion)                       | `^12.7.4` | Animation library for the web                  |
+| [react](https://www.npmjs.com/package/react)                         | `^19.0.0` | JavaScript library for building user interfaces  |
+| [react-dom](https://www.npmjs.com/package/react-dom)                 | `^19.0.0` | React package for working with the DOM         |
+| [react-router-dom](https://www.npmjs.com/package/react-router-dom)   | `^7.5.0`  | DOM bindings for React Router                  |
+
+**Development Dependencies:**
+
+| Package                                                                      | Version    | Description                                         |
+| :--------------------------------------------------------------------------- | :--------- | :-------------------------------------------------- |
+| [@biomejs/biome](https://www.npmjs.com/package/@biomejs/biome)               | `1.9.4`    | Code formatter and linter                         |
+| [@eslint/js](https://www.npmjs.com/package/@eslint/js)                       | `^9.21.0`  | Core ESLint rules                                 |
+| [@types/node](https://www.npmjs.com/package/@types/node)                     | `^22.15.3` | TypeScript definitions for Node.js                |
+| [@types/react](https://www.npmjs.com/package/@types/react)                   | `^19.0.10` | TypeScript definitions for React                  |
+| [@types/react-dom](https://www.npmjs.com/package/@types/react-dom)           | `^19.0.4`  | TypeScript definitions for React DOM              |
+| [@vitejs/plugin-react](https://www.npmjs.com/package/@vitejs/plugin-react)   | `^4.3.4`   | Vite plugin for React projects                    |
+| [eslint](https://www.npmjs.com/package/eslint)                               | `^9.21.0`  | Pluggable JavaScript linter                       |
+| [eslint-plugin-react-hooks](https://www.npmjs.com/package/eslint-plugin-react-hooks) | `^5.1.0`   | ESLint rules for React Hooks                      |
+| [eslint-plugin-react-refresh](https://www.npmjs.com/package/eslint-plugin-react-refresh) | `^0.4.19`  | ESLint plugin for React Fast Refresh              |
+| [globals](https://www.npmjs.com/package/globals)                             | `^15.15.0` | Global identifiers for JavaScript environments    |
+| [knip](https://www.npmjs.com/package/knip)                                   | `^5.50.5`  | Detects unused files, dependencies, and exports |
+| [typescript](https://www.npmjs.com/package/typescript)                       | `^5.8.3`   | Superset of JavaScript that adds static types     |
+| [vite](https://www.npmjs.com/package/vite)                                   | `^6.3.3`   | Next generation frontend tooling                  |
 ---
 
 ## Development
