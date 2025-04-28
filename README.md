@@ -1,166 +1,104 @@
-# PizzaStore &mdash; Full Stack Pizza Ordering App
+# PizzaStore
 
-[![.NET](https://img.shields.io/badge/.NET-9.0-blueviolet?logo=dotnet)](https://dotnet.microsoft.com/)
+A full-stack pizza ordering application with a React frontend and ASP.NET Core Minimal API backend.
+
+[![.NET](https://img.shields.io/badge/.NET-9.0-blue)](https://dotnet.microsoft.com/)
 [![React](https://img.shields.io/badge/React-19.0.0-61dafb?logo=react)](https://react.dev/)
-[![Vite](https://img.shields.io/badge/Vite-6.3.3-646cff?logo=vite)](https://vitejs.dev/)
-[![Material UI](https://img.shields.io/badge/Material%20UI-7.0.1-007fff?logo=mui)](https://mui.com/)
 [![MUI Toolpad](https://img.shields.io/badge/MUI%20Toolpad-0.14.0-007fff?logo=mui)](https://mui.com/toolpad/)
-[![Azure Container Apps](https://img.shields.io/badge/Azure%20Container%20Apps-Deployed-0089d6?logo=microsoftazure)](https://azure.microsoft.com/en-us/products/container-apps/)
-[![Swagger UI](https://img.shields.io/badge/Swagger-UI-85ea2d?logo=swagger)](https://swagger.io/tools/swagger-ui/)
+[![Azure Container Apps](https://img.shields.io/badge/Azure%20Container%20Apps-Deployed-0078d4?logo=microsoft-azure)](https://azure.microsoft.com/en-us/products/container-apps/)
 
 ---
-
-A portfolio-ready, full-stack pizza ordering application built with a React frontend (leveraging Material UI and MUI Toolpad components) and an ASP.NET Core Minimal API backend targeting .NET 9. This project demonstrates proficiency in modern web development and is based on the [Microsoft Learn tutorial: "Create a full stack application by using React and minimal API for ASP.NET Core"](https://learn.microsoft.com/en-us/training/modules/build-web-api-minimal-spa).
 
 ## Table of Contents
 
-- [Project Overview](#project-overview)
-- [Technologies Used](#technologies-used)
 - [Project Structure](#project-structure)
-- [Setup & Development](#setup--development)
-  - [Backend](#backend)
-  - [Frontend](#frontend)
-- [API Documentation](#api-documentation)
-- [Build & Deployment](#build--deployment)
-  - [Azure Container Apps](#azure-container-apps)
+- [Technologies Used](#technologies-used)
+- [Development](#development)
+- [Building and Deployment](#building-and-deployment)
+  - [Deployed Application](#deployed-application)
+  - [How the Build Process Works](#how-the-build-process-works)
   - [Manual Build](#manual-build)
-- [Learning Outcomes](#learning-outcomes)
+- [API Routes](#api-routes)
 - [References](#references)
-
----
-
-## Project Overview
-
-PizzaStore is a demonstration project that showcases the creation of a single-page application (SPA) with a modern React frontend and a robust ASP.NET Core Minimal API backend. It is designed as a learning portfolio piece, reflecting progress in .NET and full-stack development.
-
-Key features include:
-
-- Interactive pizza ordering UI with Material UI components
-- Persistent basket and order management
-- RESTful API with Swagger UI documentation
-- Modern build tooling and deployment pipeline
-
----
-
-## Technologies Used
-
-- **Frontend**
-  - [React 19](https://react.dev/)
-  - [Vite](https://vitejs.dev/) (build tool)
-  - [Material UI](https://mui.com/) (component library)
-  - [MUI Toolpad](https://mui.com/toolpad/) (UI components and low-code tooling)
-  - [Emotion](https://emotion.sh/) (styling)
-  - [React Router](https://reactrouter.com/) (routing)
-- **Backend**
-  - [ASP.NET Core 9 Minimal API](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis) (targeting .NET 9)
-  - [Entity Framework Core](https://learn.microsoft.com/en-us/ef/core/)
-  - [Swagger UI](https://swagger.io/tools/swagger-ui/) (API docs)
-- **DevOps & Deployment**
-  - [Docker](https://www.docker.com/)
-  - [Azure Container Apps](https://azure.microsoft.com/en-us/products/container-apps/)
-  - [GitHub Actions](https://github.com/features/actions)
 
 ---
 
 ## Project Structure
 
-```
-/
-├── PizzaClient/           # React frontend application
-│   ├── src/               # Frontend source code (components, pages, services)
-│   ├── package.json       # Frontend dependencies and scripts
-│   └── vite.config.js     # Vite configuration
-├── wwwroot/               # Built frontend assets (output from PizzaClient)
-├── Migrations/            # Entity Framework Core migrations
-├── PizzaStore.Tests/      # Backend unit tests
-├── Program.cs             # ASP.NET Core Minimal API entry point
-├── PizzaStore.csproj      # .NET project file
-├── Dockerfile             # Container build instructions
-└── README.md              # Project documentation
-```
+- `/PizzaClient` — React frontend application
+- `/wwwroot` — Built frontend assets (generated from PizzaClient)
+- Other root files — ASP.NET Core backend API
 
 ---
 
-## Setup & Development
+## Technologies Used
+
+- **.NET 9** — ASP.NET Core Minimal API backend
+- **React 19** — Frontend SPA framework
+- **MUI Toolpad** — UI components and rapid prototyping
+- **Vite** — Frontend build tool
+- **Docker** — Containerization for deployment
+- **Azure Container Apps** — Cloud hosting for production deployment
+
+---
+
+## Development
 
 ### Backend
 
-1. **Install .NET 9 SDK**
-   [Download here](https://dotnet.microsoft.com/download/dotnet/9.0)
-
-2. **Run the API locally:**
-   ```bash
-   dotnet run
-   ```
-
-3. The API will be available at `http://localhost:5000` (default) and Swagger UI at `/swagger`.
+```bash
+dotnet run
+```
 
 ### Frontend
 
-1. **Install Node.js (v18+)**  
-   [Download here](https://nodejs.org/)
-
-2. **Install dependencies:**
-   ```bash
-   cd PizzaClient
-   npm install
-   ```
-
-3. **Start the development server:**
-   ```bash
-   npm run dev
-   ```
-   The app will be available at `http://localhost:5173` (default).
+```bash
+cd PizzaClient
+npm install
+npm run dev
+```
 
 ---
 
-## API Documentation
+## Building and Deployment
 
-- **Base URL:** `/api`
-- **Swagger UI:** Available at `/swagger` when running in development mode
+The project is set up to automatically build and deploy to Azure Container Apps.
 
-**Example Endpoints:**
-- `GET /api/pizzas` &mdash; List available pizzas
-- `POST /api/orders` &mdash; Place a new order
-- `GET /api/orders/{id}` &mdash; Retrieve order details
+### Deployed Application
 
-The API follows RESTful conventions and is documented via Swagger UI for easy exploration and testing.
+Access the live application here:  
+**[https://pizzastore.gentlebeach-0aebcbc5.uksouth.azurecontainerapps.io/](https://pizzastore.gentlebeach-0aebcbc5.uksouth.azurecontainerapps.io/)**
 
----
+### How the Build Process Works
 
-## Build & Deployment
-
-### Azure Container Apps
-
-The project is configured for automated deployment to Azure Container Apps using GitHub Actions and Docker.
-
-**Build & Deploy Steps:**
-1. GitHub Actions workflow checks out the code
-2. Installs Node.js and builds the frontend:
+1. The GitHub Actions workflow checks out the code.
+2. It sets up Node.js and builds the React frontend:
    ```bash
    cd PizzaClient
    npm ci
    npm run build
    ```
-   (Build output is placed in `/wwwroot`)
-3. Builds and pushes the Docker container
-4. The container serves both the API and static frontend assets
+   This builds the frontend to the `/wwwroot` directory.
+3. The workflow then builds and pushes the Docker container.
+4. The Docker container includes the built frontend in the `/wwwroot` directory.
+5. In the ASP.NET Core application, the `UseStaticFiles()` middleware serves the frontend files.
+6. The root endpoint is configured to serve the frontend's `index.html`.
 
 ### Manual Build
 
-To build and run the application locally or on your own infrastructure:
+To build the application manually:
 
-1. **Build the frontend:**
+1. Build the frontend:
    ```bash
    cd PizzaClient
    npm install
    npm run build
    ```
-2. **Build the .NET backend:**
+2. Build the .NET application:
    ```bash
    dotnet publish -c Release
    ```
-3. **Build and run the Docker container:**
+3. Build and run the Docker container:
    ```bash
    docker build -t pizzastore:latest .
    docker run -p 80:80 pizzastore:latest
@@ -168,28 +106,19 @@ To build and run the application locally or on your own infrastructure:
 
 ---
 
-## Learning Outcomes
+## API Routes
 
-This project demonstrates:
-
-- Building a modern SPA with React, Material UI, and MUI Toolpad
-- Creating a RESTful API using ASP.NET Core Minimal API (targeting .NET 9)
-- Connecting a frontend SPA to a backend API
-- Configuring CORS for secure cross-origin requests
-- Using Swagger UI for API documentation
-- Implementing CI/CD and containerization for cloud deployment
-
-**Based on the Microsoft Learn module:**  
-[Create a full stack application by using React and minimal API for ASP.NET Core](https://learn.microsoft.com/en-us/training/modules/build-web-api-minimal-spa)
+- The API is accessible under the `/api` route.
+- The Swagger UI is available at `/swagger` when running in development mode.
 
 ---
 
 ## References
 
-- [Microsoft Learn: Build a web API with minimal SPA](https://learn.microsoft.com/en-us/training/modules/build-web-api-minimal-spa)
-- [ASP.NET Core Minimal APIs](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/minimal-apis)
-- [React Documentation](https://react.dev/)
-- [Material UI Documentation](https://mui.com/)
-- [Vite Documentation](https://vitejs.dev/)
-- [Swagger UI](https://swagger.io/tools/swagger-ui/)
-- [Azure Container Apps](https://azure.microsoft.com/en-us/products/container-apps/)
+- **Microsoft Learn Tutorial:**  
+  [Create a full stack application by using React and minimal API for ASP.NET Core](https://learn.microsoft.com/en-us/training/modules/build-web-api-minimal-spa)
+  - Construct a front-end app by using a single-page application (SPA) framework.
+  - Connect an API in ASP.NET Core to an SPA application.
+  - Configure the back-end application to use cross-origin resource sharing (CORS).
+
+---
