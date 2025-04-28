@@ -319,9 +319,9 @@ function PizzaList({
 			const { name, value } = e.target;
 
 			// Special handling for price input validation (allows empty or numeric-like string).
-			// NOTE: Regex /^\$?[0-9,]*\.?[0-9]*$/ might need adjustment based on locale/currency requirements.
+			// NOTE: Regex /^£?[0-9,]*\.?[0-9]*$/ might need adjustment based on locale/currency requirements.
 			if (name === "price") {
-				if (value === "" || /^\$?[0-9,]*\.?[0-9]*$/.test(value)) {
+				if (value === "" || /^£?[0-9,]*\.?[0-9]*$/.test(value)) {
 					setFormData((prev) => ({ ...prev, [name]: value }));
 					// Clear price error if the input becomes valid.
 					if (formErrors[name]) {
@@ -809,11 +809,11 @@ function PizzaList({
 								sx={{ fontWeight: 600, color: theme.palette.success.dark }}
 							>
 								{typeof item.price === "number"
-									? item.price.toLocaleString(undefined, {
-											style: "currency",
-											currency: "USD",
-										}) // NOTE: Hardcoded USD
-									: "—"}
+                                        ? item.price.toLocaleString(undefined, {
+                                            style: "currency",
+                                            currency: "GBP",
+                                        }) 
+                                        : "—"}
 							</TableCell>
 							<TableCell>
 								<Stack direction="row" spacing={1} justifyContent="center">
@@ -1198,11 +1198,11 @@ function PizzaList({
 												}
 												variant="outlined"
 												InputProps={{
-													// NOTE: Hardcoded '$' currency symbol
-													startAdornment: (
-														<InputAdornment position="start">$</InputAdornment>
-													),
-												}}
+                                                        // Changed to '£' currency symbol
+                                                        startAdornment: (
+                                                            <InputAdornment position="start">£</InputAdornment>
+                                                        ),
+                                                    }}
 											/>
 										</Grid>
 										<Grid item xs={12}>

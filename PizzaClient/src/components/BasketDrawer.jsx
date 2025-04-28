@@ -129,20 +129,20 @@ const BasketDrawer = memo(({ open, onClose, onCheckout }) => {
 						sx={{
 							display: "flex",
 							alignItems: "center",
-							gap: 2.5,
+							gap: 1.5, // Reduced gap for more text space
 							p: 2,
 							borderRadius: 2,
 							boxShadow: 1,
 							bgcolor: "background.paper",
 						}}
 					>
-						<Box sx={{ flex: 1 }}>
-							<Typography fontWeight={600} fontSize={17}>{pizza.name}</Typography>
-							<Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
+						<Box sx={{ flex: 2, minWidth: 0, mr: 1, overflow: "hidden" }}>
+							<Typography fontWeight={600} fontSize={17} noWrap={false} sx={{ whiteSpace: "normal", wordBreak: "break-word" }}>{pizza.name}</Typography>
+							<Typography variant="body2" color="text.secondary" sx={{ mb: 0.5, whiteSpace: "normal", wordBreak: "break-word" }}>
 								{pizza.description}
 							</Typography>
 							<Typography variant="caption" color="text.secondary">
-								${pizza.price.toFixed(2)} x {quantity}
+								£{pizza.price.toFixed(2)} x {quantity}
 							</Typography>
 						</Box>
 						<Button
@@ -196,7 +196,7 @@ const BasketDrawer = memo(({ open, onClose, onCheckout }) => {
 				<Divider />
 				<Box sx={footerBoxSx}>
 					<Typography fontWeight={600} sx={totalTypographySx}>
-						Total: ${total.toFixed(2)}
+						Total: £{total.toFixed(2)}
 					</Typography>
 					<Button
 						variant="contained"
