@@ -53,4 +53,3 @@ export function useBasket() {
   return useContext(BasketContext);
 }
 
-export default BasketProvider;

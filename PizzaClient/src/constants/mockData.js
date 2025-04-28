@@ -1,7 +1,7 @@
 // Provides mock data for frontend development and testing purposes.
 
 // Possible order statuses (should align with backend enum/values).
-export const orderStatuses = [
+const orderStatuses = [
   "Pending", "InProgress", "Ready", "Delivered", "Cancelled"
 ];
 

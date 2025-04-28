@@ -3,7 +3,7 @@ export const API_URL = '/api/pizzas';
 
 // --- UI Behavior Constants ---
 export const RECENT_TOPPINGS_LIMIT = 10;
-export const DEBOUNCE_DELAY = 300;
+const DEBOUNCE_DELAY = 300;
 
 // --- Sorting Constants ---
 export const SortType = {
@@ -22,7 +22,7 @@ export const FetchStatus = {
 };
 
 // --- Topping Table Column Definitions ---
-export const TABLE_HEAD_CELLS = [
+const TABLE_HEAD_CELLS = [
   { 
     id: 'name', 
     numeric: false, 

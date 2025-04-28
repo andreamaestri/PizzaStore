@@ -10,7 +10,7 @@
  * @param {string} orderBy Property key to compare.
  * @returns {number} Comparison result (-1, 0, or 1).
  */
-export function descendingComparator(a, b, orderBy) {
+function descendingComparator(a, b, orderBy) {
   const valA = a[orderBy] ?? ''; // Use nullish coalescing for safety.
   const valB = b[orderBy] ?? '';
   if (valB < valA) return -1;
@@ -25,7 +25,7 @@ export function descendingComparator(a, b, orderBy) {
  * @param {string} orderBy The property key to sort by.
  * @returns {(a: Object, b: Object) => number} A comparator function.
  */
-export function getComparator(order, orderBy) {
+function getComparator(order, orderBy) {
   return order === 'desc'
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
