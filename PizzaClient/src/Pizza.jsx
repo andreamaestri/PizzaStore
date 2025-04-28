@@ -1,418 +1,527 @@
 import { LocalPizza as PizzaIcon } from "@mui/icons-material";
 import {
-	Alert,
-	Box,
-	Button,
-	CircularProgress,
-	Dialog,
-	DialogActions,
-	DialogContent,
-	DialogContentText,
-	DialogTitle,
-	Fade,
-	Skeleton,
-	Snackbar,
-	Stack,
-	Typography,
+    Alert,
+    Box,
+    Button,
+    CircularProgress,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Fade,
+    Skeleton,
+    Snackbar,
+    Stack,
+    Typography,
 } from "@mui/material";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
-import PizzaList from "./PizzaList"; // Handles display and form interactions for pizzas
+import PizzaList from "./PizzaList"; // Component responsible for displaying the list and handling individual item interactions.
 
-// --- Constants ---
-// Term used in UI text (notifications, titles, etc.).
-const term = "Pizza";
-// Base URL for the Pizza API.
-const API_URL = "/api/pizzas";
-// Default headers for API requests. Ensure 'Content-Type' matches API expectations.
-// Add 'Authorization' or other headers if required by the API.
-const headers = {
-	"Content-Type": "application/json",
-	// Add any other required headers like Authorization if needed
+// --- Configuration Constants ---
+
+// Defines the singular term used throughout the UI for this data entity.
+const ENTITY_TERM = "Pizza";
+// Base endpoint for the API calls related to this entity.
+const API_BASE_URL = "/api/pizzas";
+// Standard headers for API requests. Content-Type is essential for JSON payloads.
+// Add authentication headers (e.g., 'Authorization') here if required by the API.
+const API_HEADERS = {
+    "Content-Type": "application/json",
+    // Example: 'Authorization': `Bearer ${yourAuthToken}`
 };
 
-// Main component for managing Pizza data (fetching, CRUD operations, display).
+// --- Main Component: Pizza Data Management ---
+
+/**
+ * `Pizza` component manages the state and interactions for a collection of pizza data.
+ * It handles fetching data from an API, performing CRUD operations (Create, Update, Delete),
+ * displaying loading/error states, and providing user feedback via notifications and dialogs.
+ *
+ * This component acts as the data orchestration layer, passing data and handlers down
+ * to presentational components like `PizzaList`.
+ */
 const Pizza = memo(function Pizza() {
-	// --- State ---
-	const [data, setData] = useState([]); // Holds the array of pizza data fetched from the API.
-	const [error, setError] = useState(null); // Stores any error object encountered during API calls.
-	const [loading, setLoading] = useState(true); // Indicates if data fetching or CUD operation is in progress.
-	const [notification, setNotification] = useState({
-		// Manages Snackbar notification state.
-		open: false,
-		message: "",
-		severity: "success",
-	});
-	const [dialogOpen, setDialogOpen] = useState(false); // Controls delete confirmation dialog visibility.
-	const [itemToDeleteId, setItemToDeleteId] = useState(null); // ID of the item pending deletion confirmation.
+    // --- Component State Management ---
 
-	// --- Notification Handling ---
-	// Callback to display a notification message via the Snackbar.
-	const showNotification = useCallback((message, severity = "success") => {
-		setNotification({ open: true, message, severity });
-	}, []);
+    // Holds the array of pizza objects fetched from the API. Initialized as an empty array.
+    const [pizzaData, setPizzaData] = useState([]);
+    // Stores any error object that occurs during API interactions. Null when no error is present.
+    const [apiError, setApiError] = useState(null);
+    // Boolean flag indicating whether an asynchronous operation (fetching, creating, updating, deleting) is currently in progress.
+    const [isLoading, setIsLoading] = useState(true);
+    // State for controlling the visibility and content of the Snackbar notification.
+    const [notificationState, setNotificationState] = useState({
+        isOpen: false,
+        message: "",
+        severity: "success", // Can be 'success', 'error', 'warning', 'info'
+    });
+    // Boolean flag controlling the visibility of the delete confirmation dialog.
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+    // Stores the unique identifier of the item currently pending deletion confirmation. Null if no item is pending deletion.
+    const [pendingDeleteItemId, setPendingDeleteItemId] = useState(null);
 
-	// --- Data Fetching Logic ---
-	// Callback to fetch pizza data from the API.
-	// Sets loading state, handles success/errors, includes a 5s timeout, and clears previous errors.
-	const fetchPizzaData = useCallback(() => {
-		setLoading(true);
-		setError(null); // Clear previous errors before fetching.
-		const controller = new AbortController();
-		const timeoutId = setTimeout(() => controller.abort(), 5000); // Abort fetch after 5 seconds.
-		fetch(API_URL, { signal: controller.signal })
-			.then((response) => {
-				clearTimeout(timeoutId);
-				if (!response.ok) {
-					throw new Error(`HTTP error! status: ${response.status}`);
-				}
-				return response.json();
-			})
-			.then((data) => {
-				setData(data);
-				setLoading(false);
-			})
-			.catch((error) => {
-				clearTimeout(timeoutId);
-				if (error.name === "AbortError") {
-					error = new Error("Request timed out. Please try again.");
-				}
-				console.error("Fetch error:", error);
-				setError(error);
-				setLoading(false);
-				showNotification(
-					`Failed to load ${term} data: ${error.message}`,
-					"error",
-				);
-			});
-		return () => clearTimeout(timeoutId);
-	}, [showNotification]);
+    // --- Utility Callbacks ---
 
-	// Effect to trigger the initial data fetch on component mount.
-	useEffect(() => {
-		fetchPizzaData();
-	}, [fetchPizzaData]);
+    /**
+     * Displays a Snackbar notification with a specified message and severity.
+     * @param {string} message - The message text to display in the notification.
+     * @param {'success' | 'error' | 'warning' | 'info'} [severity='success'] - The type of notification, affecting its appearance.
+     */
+    const displayNotification = useCallback((message, severity = "success") => {
+        setNotificationState({ isOpen: true, message, severity });
+    }, []);
 
-	// --- Memoization ---
-	// Memoize the fetched data array for stability.
-	const memoizedData = useMemo(() => data, [data]);
+    /**
+     * Closes the Snackbar notification.
+     * Prevents closing if the event reason is 'clickaway' to ensure messages are read.
+     * @param {object} event - The event object.
+     * @param {string} reason - The reason the notification is being closed ('timeout', 'clickaway', etc.).
+     */
+    const handleCloseNotification = useCallback(
+        (event, reason) => {
+            if (reason === "clickaway") {
+                return;
+            }
+            setNotificationState({ ...notificationState, isOpen: false });
+        },
+        [notificationState],
+    );
 
-	// Callback to close the notification Snackbar. Prevents closing on 'clickaway'.
-	const handleCloseNotification = useCallback(
-		(event, reason) => {
-			if (reason === "clickaway") {
-				return;
-			}
-			setNotification({ ...notification, open: false });
-		},
-		[notification],
-	);
+    /**
+     * Closes the delete confirmation dialog and resets the ID of the item pending deletion.
+     */
+    const closeDeleteDialog = useCallback(() => {
+        setIsDeleteDialogOpen(false);
+        setPendingDeleteItemId(null);
+    }, []);
 
-	// Callback to close the delete confirmation dialog and reset the pending item ID.
-	const handleCloseDialog = useCallback(() => {
-		setDialogOpen(false);
-		setItemToDeleteId(null);
-	}, []);
+    // --- Data Fetching Logic ---
 
-	// --- CRUD Operation Callbacks ---
+    /**
+     * Initiates the process of fetching pizza data from the configured API endpoint.
+     * Manages loading state, handles successful data retrieval, and captures/reports errors.
+     * Includes a timeout mechanism to prevent indefinite loading.
+     */
+    const fetchPizzaData = useCallback(() => {
+        setIsLoading(true);
+        setApiError(null); // Clear any previous errors before attempting a new fetch.
 
-	/**
-	 * Handles the creation of a new pizza item.
-	 * Sends a POST request to the API.
-	 * Updates local state on success, shows notification, handles errors.
-	 * TODO: Consider implementing optimistic updates for a smoother UX (see comments below).
-	 * 1. Add the new item to `data` state immediately.
-	 * 2. If the API call fails, remove the item from `data` and show an error.
-	 */
-	const handleCreate = useCallback(
-		(item) => {
-			setLoading(true);
-			setError(null);
-			// TODO (Optimistic Update): Add item to local state immediately here.
+        const abortController = new AbortController();
+        // Set a timeout to automatically abort the fetch request if it takes too long.
+        const timeoutId = setTimeout(() => abortController.abort(), 5000); // 5-second timeout
 
-			fetch(API_URL, {
-				method: "POST",
-				headers,
-				// Construct the payload, ensuring properties match the API schema.
-				// Includes parsing for `baseId` and default for `toppings`.
-				body: JSON.stringify({
-					// Ensure payload structure matches backend API requirements.
-					name: item.name,
-					description: item.description,
-					baseId: Number.parseInt(item.baseId) || 1, // Default to baseId 1 if parsing fails.
-					toppings: item.toppings || [],
-				}),
-			})
-				.then((response) => {
-					if (!response.ok) throw new Error("Failed to create item");
-					return response.json();
-				})
-				.then((returnedItem) => {
-					setData((prevData) => [...prevData, returnedItem]); // Add the confirmed item to state.
-					setLoading(false);
-					showNotification(
-						`${item.name || term} added successfully`,
-						"success",
-					);
-				})
-				.catch((error) => {
-					console.error("Create error:", error);
-					setError(error);
-					setLoading(false);
-					showNotification(
-						`Failed to add ${item.name || term}: ${error.message}`,
-						"error",
-					);
-					// TODO (Optimistic Update): Rollback the state change if the API call failed.
-				});
-		},
-		[showNotification],
-	);
+        fetch(API_BASE_URL, { signal: abortController.signal })
+            .then((response) => {
+                clearTimeout(timeoutId); // Clear the timeout if the fetch completes within the limit.
+                if (!response.ok) {
+                    // Throw an error for non-2xx HTTP responses.
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json(); // Parse the JSON response body.
+            })
+            .then((data) => {
+                setPizzaData(data); // Update state with the fetched data.
+                setIsLoading(false); // End loading state.
+            })
+            .catch((error) => {
+                clearTimeout(timeoutId); // Ensure timeout is cleared even on error.
+                let userFacingError = error;
+                // Provide a more user-friendly message for timeout errors.
+                if (error.name === "AbortError") {
+                    userFacingError = new Error("Request timed out. Please check your connection and try again.");
+                }
+                console.error("Data fetch error:", userFacingError);
+                setApiError(userFacingError); // Store the error object in state.
+                setIsLoading(false); // End loading state.
+                // Notify the user about the fetch failure.
+                displayNotification(
+                    `Failed to load ${ENTITY_TERM} data: ${userFacingError.message}`,
+                    "error",
+                );
+            });
 
-	/**
-	 * Handles updating an existing pizza item.
-	 * Sends a PUT request to the API with the updated item data.
-	 * Updates local state on success, shows notification, handles errors.
-	 * TODO: Consider implementing optimistic updates (see comments below).
-	 * 1. Update the item in `data` state immediately.
-	 * 2. If the API call fails, revert the item in `data` to its original state.
-	 */
-	const handleUpdate = useCallback(
-		(updatedItem) => {
-			setLoading(true);
-			setError(null);
-			// Store original data for potential rollback on error (if implementing optimistic updates).
-			// const originalData = [...data]; // Store original for potential rollback.
+        // Cleanup function for useEffect to clear the timeout if the component unmounts.
+        return () => clearTimeout(timeoutId);
+    }, [displayNotification]); // Dependency on displayNotification callback.
 
-			// TODO (Optimistic Update): Update item in local state immediately here.
-			// setData(prevData => prevData.map(item => (item.id === updatedItem.id ? updatedItem : item)));
+    // Effect hook to perform the initial data fetch when the component mounts.
+    // The dependency array ensures this runs only once on mount (or if fetchPizzaData changes, though it's stable).
+    useEffect(() => {
+        fetchPizzaData();
+    }, [fetchPizzaData]);
 
-			fetch(`${API_URL}/${updatedItem.id}`, {
-				method: "PUT",
-				headers,
-				// Construct the payload, ensuring all required fields (including ID) are present.
-				body: JSON.stringify({
-					// Payload structure should match the backend API requirements.
-					id: updatedItem.id, // Ensure ID is included for PUT request.
-					name: updatedItem.name,
-					description: updatedItem.description,
-					baseId: Number.parseInt(updatedItem.baseId) || 1,
-					toppings: updatedItem.toppings || [],
-				}),
-			})
-				.then((response) => {
-					if (!response.ok) throw new Error("Failed to update item");
-					// Assuming PUT returns success status or the updated item.
-					// Update the local state manually if only status is returned.
-					setData((prevData) =>
-						prevData.map((item) =>
-							item.id === updatedItem.id ? updatedItem : item,
-						),
-					); // Update the item in the local state after successful API call.
-					setLoading(false);
-					showNotification(
-						`${updatedItem.name || term} updated successfully`,
-						"success",
-					);
-				})
-				.catch((error) => {
-					console.error("Update error:", error);
-					setError(error);
-					setLoading(false);
-					showNotification(
-						`Failed to update ${updatedItem.name || term}: ${error.message}`,
-						"error",
-					);
-					// TODO (Optimistic Update): Rollback the state change if the API call failed.
-					// setData(originalData);
-				});
-		},
-		[showNotification],
-	);
+    // --- CRUD Operation Handlers ---
 
-	// --- Delete Operation Callbacks ---
-	// Callback to initiate the delete process: sets the item ID and opens the confirmation dialog.
-	const handleDeleteRequest = useCallback((id) => {
-		setItemToDeleteId(id);
-		setDialogOpen(true);
-	}, []);
+    /**
+     * Handles the creation of a new pizza item.
+     * Sends a POST request to the API with the new item data.
+     * Updates the local state upon successful creation and provides user feedback.
+     * Includes basic error handling and notification.
+     *
+     * Note on Optimistic Updates: For improved user experience, consider implementing
+     * optimistic updates. This would involve adding the new item to the local state
+     * *before* the API call completes. If the API call fails, the state would then
+     * be rolled back. This requires careful state management and rollback logic.
+     * Current implementation waits for API confirmation before updating state.
+     *
+     * @param {object} newItem - The data object for the new item to be created.
+     */
+    const handleCreateItem = useCallback(
+        (newItem) => {
+            setIsLoading(true);
+            setApiError(null);
 
-	/**
-	 * Confirms and executes the deletion after user confirmation via the dialog.
-	 * Sends a DELETE request to the API.
-	 * Updates local state on success by filtering out the deleted item.
-	 * Shows notification, handles errors.
-	 * TODO: Consider implementing optimistic updates (see comments below).
-	 * 1. Remove the item from `data` state immediately.
-	 * 2. If the API call fails, re-insert the item into `data`.
-	 */
-	const handleConfirmDelete = useCallback(() => {
-		if (!itemToDeleteId) return;
+            // Construct the payload for the POST request. Ensure property names and types
+            // match the backend API's expected schema. Handle potential missing fields
+            // or type conversions (like parsing baseId to a number).
+            const payload = {
+                name: newItem.name,
+                description: newItem.description,
+                baseId: Number.parseInt(newItem.baseId, 10) || 1, // Parse baseId as integer, default to 1 if invalid.
+                toppings: newItem.toppings || [], // Ensure toppings is an array, default to empty array.
+            };
 
-		const itemToDelete = data.find((item) => item.id === itemToDeleteId);
-		const itemName = itemToDelete?.name || term; // Get name for notification.
-		handleCloseDialog(); // Close dialog immediately.
-		setLoading(true);
-		setError(null);
-		// Store original data for potential rollback (if implementing optimistic updates).
-		// const originalData = [...data]; // Store original for potential rollback.
+            fetch(API_BASE_URL, {
+                method: "POST",
+                headers: API_HEADERS,
+                body: JSON.stringify(payload),
+            })
+                .then((response) => {
+                    if (!response.ok) {
+                        // Attempt to read error body if available, otherwise use status text.
+                        return response.json().catch(() => {
+                            throw new Error(`API error: ${response.statusText}`);
+                        }).then(errorData => {
+                             throw new Error(`API error: ${errorData.message || response.statusText}`);
+                        });
+                    }
+                    return response.json(); // Expect the API to return the newly created item (including its assigned ID).
+                })
+                .then((createdItem) => {
+                    // Add the newly created item (with its server-assigned ID) to the local state.
+                    setPizzaData((prevData) => [...prevData, createdItem]);
+                    setIsLoading(false);
+                    displayNotification(
+                        `${createdItem.name || ENTITY_TERM} added successfully`,
+                        "success",
+                    );
+                })
+                .catch((error) => {
+                    console.error("Create operation failed:", error);
+                    setApiError(error);
+                    setIsLoading(false);
+                    displayNotification(
+                        `Failed to add ${newItem.name || ENTITY_TERM}: ${error.message}`,
+                        "error",
+                    );
+                    // If optimistic update was implemented, rollback the state change here.
+                });
+        },
+        [displayNotification], // Dependency on displayNotification callback.
+    );
 
-		// TODO (Optimistic Update): Remove item from local state immediately here.
-		// setData(prevData => prevData.filter(item => item.id !== itemToDeleteId));
+    /**
+     * Handles the update of an existing pizza item.
+     * Sends a PUT request to the API for the specified item ID with the updated data.
+     * Updates the local state upon successful update and provides user feedback.
+     * Includes basic error handling and notification.
+     *
+     * Note on Optimistic Updates: Similar to creation, optimistic updates could be
+     * applied here. Update the item in the local state *before* the API call, and
+     * rollback if the call fails.
+     *
+     * @param {object} updatedItem - The data object for the item with updated values. Must include the item's ID.
+     */
+    const handleUpdateItem = useCallback(
+        (updatedItem) => {
+            setIsLoading(true);
+            setApiError(null);
 
-		fetch(`${API_URL}/${itemToDeleteId}`, {
-			method: "DELETE",
-			headers,
-		})
-			.then((response) => {
-				if (!response.ok) throw new Error("Failed to delete item");
-				// If the DELETE request is successful, update the local state.
-				setData((prevData) =>
-					prevData.filter((item) => item.id !== itemToDeleteId),
-				);
-				setLoading(false);
-				showNotification(`${itemName} removed successfully`, "success");
-			})
-			.catch((error) => {
-				console.error("Delete error:", error);
-				setError(error);
-				setLoading(false);
-				showNotification(
-					`Failed to remove ${itemName}: ${error.message}`,
-					"error",
-				);
-				// TODO (Optimistic Update): Rollback the state change if the API call failed.
-				// setData(originalData);
-			});
-	}, [itemToDeleteId, data, showNotification, handleCloseDialog]);
+            // Store the original data of the item being updated for potential rollback
+            // if optimistic updates were implemented.
+            // const originalItem = pizzaData.find(item => item.id === updatedItem.id);
 
-	// --- Memoized Render Logic ---
+            // Construct the payload for the PUT request. Ensure all required fields
+            // are included and correctly formatted, including the item's ID.
+            const payload = {
+                 // Ensure payload structure matches backend API requirements.
+                id: updatedItem.id, // ID is crucial for identifying the item to update.
+                name: updatedItem.name,
+                description: updatedItem.description,
+                baseId: Number.parseInt(updatedItem.baseId, 10) || 1,
+                toppings: updatedItem.toppings || [],
+            };
 
-	// Memoized skeleton loading component.
-	const memoizedSkeleton = useMemo(
-		() => (
-			<Box sx={{ p: 2 }}>
-				<Skeleton variant="rectangular" height={60} sx={{ mb: 2 }} />
-				<Skeleton variant="text" height={40} sx={{ mb: 1 }} />
-				<Skeleton variant="text" height={40} sx={{ mb: 1 }} />
-				<Skeleton variant="rectangular" height={120} />
-			</Box>
-		),
-		[],
-	);
+            fetch(`${API_BASE_URL}/${updatedItem.id}`, {
+                method: "PUT",
+                headers: API_HEADERS,
+                body: JSON.stringify(payload),
+            })
+                .then((response) => {
+                     if (!response.ok) {
+                        return response.json().catch(() => {
+                            throw new Error(`API error: ${response.statusText}`);
+                        }).then(errorData => {
+                             throw new Error(`API error: ${errorData.message || response.statusText}`);
+                        });
+                    }
+                    // Assuming a successful PUT returns either a success status or the updated item.
+                    // If it returns the updated item, you could use that instead of the local `updatedItem`.
+                    // For simplicity, we'll use the local `updatedItem` here after confirming success.
+                    return response.json().catch(() => ({})); // Handle cases where API returns no body on success.
+                })
+                .then(() => {
+                    // Update the item in the local state after successful API confirmation.
+                    setPizzaData((prevData) =>
+                        prevData.map((item) =>
+                            item.id === updatedItem.id ? updatedItem : item,
+                        ),
+                    );
+                    setIsLoading(false);
+                    displayNotification(
+                        `${updatedItem.name || ENTITY_TERM} updated successfully`,
+                        "success",
+                    );
+                })
+                .catch((error) => {
+                    console.error("Update operation failed:", error);
+                    setApiError(error);
+                    setIsLoading(false);
+                    displayNotification(
+                        `Failed to update ${updatedItem.name || ENTITY_TERM}: ${error.message}`,
+                        "error",
+                    );
+                    // If optimistic update was implemented, rollback the state change here
+                    // using the stored `originalItem`.
+                    // setData(prevData => prevData.map(item => (item.id === originalItem.id ? originalItem : item)));
+                });
+        },
+        [displayNotification], // Dependency on displayNotification callback.
+    );
 
-	// Memoized main content stack.
-	// NOTE: The dependency array below is large and includes most state/handlers.
-	// This ensures correctness but might be overly sensitive to changes. Consider refining if performance issues arise.
-	const memoizedStack = useMemo(
-		() => (
-			<Stack>
-				{/* Initial Loading State */}
-				{loading && data.length === 0 && !error && memoizedSkeleton}
+    /**
+     * Initiates the deletion process for a specific item by ID.
+     * Sets the ID of the item to be deleted and opens the confirmation dialog.
+     * This separates the user action (clicking delete) from the API call, requiring confirmation.
+     * @param {string | number} itemId - The unique identifier of the item to be deleted.
+     */
+    const requestDeleteItem = useCallback((itemId) => {
+        setPendingDeleteItemId(itemId);
+        setIsDeleteDialogOpen(true);
+    }, []);
 
-				{/* Error State */}
-				{error && !loading && (
-					<Fade in={true} timeout={500}>
-						<Alert
-							severity="error"
-							variant="standard"
-							action={
-								<Button color="inherit" size="small" onClick={fetchPizzaData}>
-									RETRY
-								</Button>
-							}
-						>
-							Failed to load data:{" "}
-							{error?.message || "An unknown error occurred."} Please try again.
-						</Alert>
-					</Fade>
-				)}
-				{/* Content Display */}
-				{(!loading || memoizedData.length > 0) && !error && (
-					<Fade in={!loading || memoizedData.length > 0} timeout={500}>
-						<Box>
-							{/* CUD Loading Indicator (shown over content) */}
-							{loading && memoizedData.length > 0 && (
-								<Box
-									sx={{
-										display: "flex",
-										justifyContent: "center",
-										mb: 2,
-										position: "absolute",
-										top: 80,
-										left: "50%",
-										transform: "translateX(-50%)",
-										zIndex: 1,
-									}}
-								>
-									<CircularProgress size={24} />
-								</Box>
-							)}
-							{/* Render the list component, passing data and handlers */}
-							<PizzaList
-								name={term}
-								data={memoizedData}
-								loading={loading}
-								onCreate={handleCreate}
-								onUpdate={handleUpdate}
-								onDelete={handleDeleteRequest}
-								onRefresh={fetchPizzaData}
-							/>
-						</Box>
-					</Fade>
-				)}
-				{/* Notification Snackbar */}
-				<Snackbar
-					open={notification.open}
-					autoHideDuration={4000}
-					onClose={handleCloseNotification}
-					anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-				>
-					<Alert
-						onClose={handleCloseNotification}
-						severity={notification.severity}
-						sx={{ width: "100%" }}
-					>
-						{notification.message}
-					</Alert>
-				</Snackbar>
-				{/* Delete Confirmation Dialog */}
-				<Dialog open={dialogOpen} onClose={handleCloseDialog}>
-					<DialogTitle>Delete {term}</DialogTitle>
-					<DialogContent>
-						<DialogContentText>
-							Are you sure you want to delete this {term.toLowerCase()}?
-						</DialogContentText>
-					</DialogContent>
-					<DialogActions>
-						<Button onClick={handleCloseDialog}>Cancel</Button>
-						<Button onClick={handleConfirmDelete} color="error">
-							Delete
-						</Button>
-					</DialogActions>
-				</Dialog>
-			</Stack>
-		),
-		[
-			loading,
-			data.length,
-			error,
-			memoizedSkeleton,
-			fetchPizzaData,
-			memoizedData,
-			handleCreate,
-			handleUpdate,
-			handleDeleteRequest,
-			notification.open,
-			notification.severity,
-			notification.message,
-			handleCloseNotification,
-			dialogOpen,
-			handleCloseDialog,
-			handleConfirmDelete,
-		],
-	);
+    /**
+     * Executes the deletion of the item identified by `pendingDeleteItemId` after user confirmation.
+     * Sends a DELETE request to the API.
+     * Updates the local state by removing the deleted item upon successful API response.
+     * Handles errors and provides user feedback.
+     *
+     * Note on Optimistic Updates: For deletion, optimistic updates are common.
+     * Remove the item from the local state *before* the API call. If the call
+     * fails, re-insert the item into the state.
+     */
+    const confirmDeleteItem = useCallback(() => {
+        if (!pendingDeleteItemId) {
+            // Should not happen if dialog logic is correct, but included as a safeguard.
+            console.warn("Attempted to confirm delete without a pending item ID.");
+            return;
+        }
 
-	return memoizedStack;
+        // Find the item to get its name for the notification message before potential state update.
+        const itemToDelete = pizzaData.find((item) => item.id === pendingDeleteItemId);
+        const itemName = itemToDelete?.name || ENTITY_TERM;
+
+        closeDeleteDialog(); // Close the dialog immediately upon confirmation.
+        setIsLoading(true);
+        setApiError(null);
+
+        // Store the item data for potential rollback if optimistic updates were implemented.
+        // const itemToRollback = itemToDelete;
+        // const originalIndex = pizzaData.findIndex(item => item.id === pendingDeleteItemId);
+
+        // Optimistic Update (Example - currently commented out):
+        // Remove the item from the local state immediately.
+        // setPizzaData(prevData => prevData.filter(item => item.id !== pendingDeleteItemId));
+
+
+        fetch(`${API_BASE_URL}/${pendingDeleteItemId}`, {
+            method: "DELETE",
+            headers: API_HEADERS, // DELETE requests might not always need a body, but headers are often required.
+        })
+            .then((response) => {
+                 if (!response.ok) {
+                     return response.json().catch(() => {
+                        throw new Error(`API error: ${response.statusText}`);
+                    }).then(errorData => {
+                         throw new Error(`API error: ${errorData.message || response.statusText}`);
+                    });
+                }
+                // If the API call is successful, update the local state by filtering out the item.
+                // This step is redundant if optimistic update is active, but necessary otherwise.
+                setPizzaData((prevData) =>
+                    prevData.filter((item) => item.id !== pendingDeleteItemId),
+                );
+                setIsLoading(false);
+                displayNotification(`${itemName} removed successfully`, "success");
+                setPendingDeleteItemId(null); // Reset pending ID after successful deletion.
+            })
+            .catch((error) => {
+                console.error("Delete operation failed:", error);
+                setApiError(error);
+                setIsLoading(false);
+                displayNotification(
+                    `Failed to remove ${itemName}: ${error.message}`,
+                    "error",
+                );
+                // If optimistic update was implemented, rollback the state change here.
+                // Re-insert the item at its original position.
+                // setPizzaData(prevData => {
+                //     const newData = [...prevData];
+                //     newData.splice(originalIndex, 0, itemToRollback);
+                //     return newData;
+                // });
+                setPendingDeleteItemId(null); // Reset pending ID even on error.
+            });
+    }, [pendingDeleteItemId, pizzaData, displayNotification, closeDeleteDialog]); // Dependencies include state used and callbacks.
+
+    // --- Memoized Render Elements ---
+
+    // Memoizes the skeleton loading state UI to prevent unnecessary re-renders.
+    const memoizedSkeletonLoader = useMemo(
+        () => (
+            <Box sx={{ p: 2 }}>
+                <Skeleton variant="rectangular" height={60} sx={{ mb: 2 }} />
+                <Skeleton variant="text" height={40} sx={{ mb: 1 }} />
+                <Skeleton variant="text" height={40} sx={{ mb: 1 }} />
+                <Skeleton variant="rectangular" height={120} />
+            </Box>
+        ),
+        [], // Empty dependency array ensures this is created only once.
+    );
+
+    // Memoizes the main content stack, including conditional rendering logic
+    // for loading, error, and data display states.
+    // The dependency array includes all state variables and handlers that
+    // the rendering logic or child components depend on. While potentially large,
+    // this ensures the memoized output is updated when necessary.
+    const memoizedContent = useMemo(
+        () => (
+            <Stack>
+                {/* Conditional rendering: Show skeleton while initially loading and no data is present */}
+                {isLoading && pizzaData.length === 0 && !apiError && memoizedSkeletonLoader}
+
+                {/* Conditional rendering: Show error message if an API error occurred and not currently loading */}
+                {apiError && !isLoading && (
+                    <Fade in={true} timeout={500}>
+                        <Alert
+                            severity="error"
+                            variant="standard"
+                            action={
+                                // Provide a retry button when an error occurs
+                                <Button color="inherit" size="small" onClick={fetchPizzaData}>
+                                    RETRY
+                                </Button>
+                            }
+                        >
+                            Failed to load data:{" "}
+                            {apiError?.message || "An unknown error occurred."} Please try again.
+                        </Alert>
+                    </Fade>
+                )}
+
+                {/* Conditional rendering: Show data list if data is available or if loading is complete and no error */}
+                {(!isLoading || pizzaData.length > 0) && !apiError && (
+                    <Fade in={!isLoading || pizzaData.length > 0} timeout={500}>
+                        <Box>
+                            {/* Show a small loading indicator overlaying the content during CUD operations */}
+                            {isLoading && pizzaData.length > 0 && (
+                                <Box
+                                    sx={{
+                                        display: "flex",
+                                        justifyContent: "center",
+                                        mb: 2,
+                                        position: "absolute", // Position absolutely relative to the parent Box
+                                        top: 80, // Adjust positioning as needed
+                                        left: "50%",
+                                        transform: "translateX(-50%)",
+                                        zIndex: 1, // Ensure indicator is above the list
+                                    }}
+                                >
+                                    <CircularProgress size={24} />
+                                </Box>
+                            )}
+                            {/* Render the PizzaList component, passing necessary data and handlers */}
+                            <PizzaList
+                                entityName={ENTITY_TERM} // Pass the entity term for display in the list component
+                                data={pizzaData} // Pass the fetched pizza data
+                                isLoading={isLoading} // Pass loading state (useful for disabling forms/buttons in list)
+                                onCreate={handleCreateItem} // Pass the create handler
+                                onUpdate={handleUpdateItem} // Pass the update handler
+                                onDeleteRequest={requestDeleteItem} // Pass the handler to request deletion (opens dialog)
+                                onRefresh={fetchPizzaData} // Pass the fetch handler to allow refreshing from the list
+                            />
+                        </Box>
+                    </Fade>
+                )}
+
+                {/* Snackbar component for displaying notifications */}
+                <Snackbar
+                    open={notificationState.isOpen}
+                    autoHideDuration={4000} // Notification automatically hides after 4 seconds
+                    onClose={handleCloseNotification}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "center" }} // Position the snackbar at the bottom center
+                >
+                    <Alert
+                        onClose={handleCloseNotification}
+                        severity={notificationState.severity}
+                        sx={{ width: "100%" }}
+                    >
+                        {notificationState.message}
+                    </Alert>
+                </Snackbar>
+
+                {/* Delete Confirmation Dialog */}
+                <Dialog open={isDeleteDialogOpen} onClose={closeDeleteDialog}>
+                    <DialogTitle>Confirm Delete {ENTITY_TERM}</DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            Are you sure you want to delete this {ENTITY_TERM.toLowerCase()}? This action cannot be undone.
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        {/* Cancel button closes the dialog */}
+                        <Button onClick={closeDeleteDialog}>Cancel</Button>
+                        {/* Delete button confirms the action and triggers the delete API call */}
+                        <Button onClick={confirmDeleteItem} color="error">
+                            Delete
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            </Stack>
+        ),
+        [
+            isLoading, // Re-render if loading state changes
+            pizzaData, // Re-render if pizza data changes (new item, update, delete)
+            apiError, // Re-render if an API error occurs
+            memoizedSkeletonLoader, // Dependency for the skeleton UI element
+            fetchPizzaData, // Dependency for the retry button action
+            handleCreateItem, // Dependency for passing to PizzaList
+            handleUpdateItem, // Dependency for passing to PizzaList
+            requestDeleteItem, // Dependency for passing to PizzaList
+            notificationState.isOpen, // Re-render if notification visibility changes
+            notificationState.severity, // Re-render if notification severity changes
+            notificationState.message, // Re-render if notification message changes
+            handleCloseNotification, // Dependency for passing to Snackbar/Alert
+            isDeleteDialogOpen, // Re-render if dialog visibility changes
+            closeDeleteDialog, // Dependency for dialog close action
+            confirmDeleteItem, // Dependency for dialog confirm action
+        ],
+    );
+
+    // The component renders the memoized content stack.
+    return memoizedContent;
 });
 
+// Export the component for use in other parts of the application.
 export default Pizza;

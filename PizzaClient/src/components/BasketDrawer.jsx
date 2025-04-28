@@ -62,11 +62,13 @@ const BasketDrawer = memo(({ open, onClose, onCheckout }) => {
 	const paperProps = useMemo(
 		() => ({
 			sx: {
-				width: { xs: "100%", sm: 370 },
+				width: { xs: "100%", sm: 420, md: 500 }, // Increased width for larger screens
 				height: "100%",
 				zIndex: 3500,
 				boxShadow:
 					"0px 8px 10px -5px rgba(0,0,0,0.2), 0px 16px 24px 2px rgba(0,0,0,0.14), 0px 6px 30px 5px rgba(0,0,0,0.12)",
+				borderTopLeftRadius: { xs: 0, sm: 16 },
+				borderBottomLeftRadius: { xs: 0, sm: 16 },
 			},
 		}),
 		[],
@@ -74,8 +76,8 @@ const BasketDrawer = memo(({ open, onClose, onCheckout }) => {
 
 	const headerSx = useMemo(
 		() => ({
-			px: 3,
-			py: 2,
+			px: 4, // More padding
+			py: 2.5,
 			display: "flex",
 			alignItems: "center",
 			justifyContent: "space-between",
@@ -99,8 +101,8 @@ const BasketDrawer = memo(({ open, onClose, onCheckout }) => {
 
 	const contentBoxSx = useMemo(
 		() => ({
-			p: 3,
-			pt: 2,
+			p: 4, // More padding
+			pt: 2.5,
 			flex: 1,
 			overflow: "auto",
 			display: "flex",
@@ -109,9 +111,9 @@ const BasketDrawer = memo(({ open, onClose, onCheckout }) => {
 		[],
 	);
 
-	const footerBoxSx = useMemo(() => ({ p: 3, pt: 2 }), []);
+	const footerBoxSx = useMemo(() => ({ p: 4, pt: 2.5 }), []);
 
-	const totalTypographySx = useMemo(() => ({ mb: 2 }), []);
+	const totalTypographySx = useMemo(() => ({ mb: 2.5, fontSize: 20 }), []);
 
 	const emptyBasketTypography = useMemo(
 		() => <Typography color="text.secondary">Basket is empty.</Typography>,
@@ -120,38 +122,50 @@ const BasketDrawer = memo(({ open, onClose, onCheckout }) => {
 
 	const itemsStack = useMemo(
 		() => (
-			<Stack spacing={2}>
+			<Stack spacing={2.5}>
 				{items.map(({ pizza, quantity }) => (
 					<Box
 						key={pizza.id}
-						sx={{ display: "flex", alignItems: "center", gap: 2 }}
+						sx={{
+							display: "flex",
+							alignItems: "center",
+							gap: 2.5,
+							p: 2,
+							borderRadius: 2,
+							boxShadow: 1,
+							bgcolor: "background.paper",
+						}}
 					>
 						<Box sx={{ flex: 1 }}>
-							<Typography fontWeight={500}>{pizza.name}</Typography>
-							<Typography variant="body2" color="text.secondary">
+							<Typography fontWeight={600} fontSize={17}>{pizza.name}</Typography>
+							<Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>
 								{pizza.description}
 							</Typography>
-							<Typography variant="caption">
+							<Typography variant="caption" color="text.secondary">
 								${pizza.price.toFixed(2)} x {quantity}
 							</Typography>
 						</Box>
 						<Button
 							size="small"
+							variant="outlined"
 							onClick={() =>
 								handleUpdateQuantity(pizza.id, Math.max(1, quantity - 1))
 							}
 							disabled={quantity <= 1}
+							sx={{ minWidth: 32, px: 0 }}
 						>
 							-
 						</Button>
-						<Typography>{quantity}</Typography>
+						<Typography sx={{ minWidth: 24, textAlign: "center" }}>{quantity}</Typography>
 						<Button
 							size="small"
+							variant="outlined"
 							onClick={() => handleUpdateQuantity(pizza.id, quantity + 1)}
+							sx={{ minWidth: 32, px: 0 }}
 						>
 							+
 						</Button>
-						<IconButton onClick={() => handleRemoveFromBasket(pizza.id)}>
+						<IconButton onClick={() => handleRemoveFromBasket(pizza.id)} size="small" sx={{ ml: 1 }}>
 							<CloseIcon fontSize="small" />
 						</IconButton>
 					</Box>
