@@ -42,8 +42,8 @@ builder.Services.AddSwaggerGen(c =>
     // Add server information for Azure
     c.AddServer(new OpenApiServer
     {
-        Url = "https://pizzastore20250425164023-gxcmh7cqaccjd3ce.australiaeast-01.azurewebsites.net",
-        Description = "Production API Server"
+        Url = "https://pizzastore.gentlebeach-0aebcbc5.uksouth.azurecontainerapps.io",
+        Description = "Production API Server (Container Apps)"
     });
     // Clean up tags for Azure compatibility
     c.DocumentFilter<TagCleanupDocumentFilter>();
@@ -121,32 +121,40 @@ using (var scope = app.Services.CreateScope())
 
 // --- 4. HTTP Request Pipeline Configuration (Middleware) ---
 
+// Configure CORS to allow frontend to API communication
+app.UseCors(builder => builder
+    .AllowAnyOrigin()
+    .AllowAnyMethod()
+    .AllowAnyHeader());
+
+// Serve static files from wwwroot folder (contains the frontend)
+app.UseStaticFiles();
+
 // Always enable Swagger JSON endpoint for Azure and local use
 app.UseSwagger(c =>
 {
     c.RouteTemplate = "api-docs/{documentName}/swagger.json";
 });
 
-// Enable Swagger UI only in development for security/performance
-if (app.Environment.IsDevelopment())
+// Always enable Swagger UI for easier API testing and documentation
+app.UseSwaggerUI(c =>
 {
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/api-docs/v1/swagger.json", "PizzaStore API V1");
-        c.RoutePrefix = string.Empty;
-    });
-}
+    c.SwaggerEndpoint("/api-docs/v1/swagger.json", "PizzaStore API V1");
+    c.RoutePrefix = "swagger";
+});
 
 // Add standard security middleware
 app.UseHttpsRedirection();
-app.UseCors(); // Ensure CORS policy is configured if needed for frontend interaction
 app.UseAuthentication();
 app.UseAuthorization();
 
 // --- 5. API Endpoint Mapping ---
 
-// Simple root endpoint for basic health check or welcome message.
-app.MapGet("/", () => Results.Ok("Welcome to the PizzaStore API!"));
+// Change the root endpoint to serve index.html instead of returning a welcome message
+app.MapGet("/api", () => Results.Ok("Welcome to the PizzaStore API!"));
+
+// SPA fallback for client-side routing
+app.MapFallbackToFile("index.html");
 
 // Group all pizza-related endpoints under the '/api/pizzas' prefix.
 var pizzaApi = app.MapGroup("/api/pizzas");

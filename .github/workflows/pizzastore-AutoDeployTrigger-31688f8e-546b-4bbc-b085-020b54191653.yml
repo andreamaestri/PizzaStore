@@ -24,6 +24,21 @@ jobs:
       - name: Checkout to the branch
         uses: actions/checkout@v2
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: 'PizzaClient/package-lock.json'      - name: Build React Frontend
+        run: |
+          # Make sure wwwroot directory exists
+          mkdir -p wwwroot
+          cd PizzaClient
+          npm ci
+          npm run build
+          # Check the output
+          ls -la ../wwwroot
+
       - name: Azure Login
         uses: azure/login@v1
         with:
