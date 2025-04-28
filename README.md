@@ -1,7 +1,4 @@
 # PizzaStore
-
-A full-stack pizza ordering application featuring a modern React frontend and an ASP.NET Core Minimal API backend. Built as part of the [Microsoft Learn tutorial: Create a full stack application by using React and minimal API for ASP.NET Core](https://learn.microsoft.com/en-us/training/modules/build-web-api-minimal-spa), this project demonstrates best practices in SPA development, API integration, and cloud deployment.
-
 [![.NET](https://img.shields.io/badge/.NET-9.0-blueviolet)](https://dotnet.microsoft.com/)
 [![React](https://img.shields.io/badge/React-19.0.0-61dafb)](https://react.dev/)
 [![Azure Container Apps](https://img.shields.io/badge/Deployed%20on-Azure%20Container%20Apps-0078d4)](https://azure.microsoft.com/en-us/products/container-apps)
@@ -9,6 +6,11 @@ A full-stack pizza ordering application featuring a modern React frontend and an
 [![Lighthouse Accessibility](https://img.shields.io/badge/Accessibility-98-brightgreen)]()
 [![Lighthouse Best Practices](https://img.shields.io/badge/Best%20Practices-100-brightgreen)]()
 [![Lighthouse SEO](https://img.shields.io/badge/SEO-90-yellowgreen)]()
+
+![Screenshot 2025-04-28 162335](https://github.com/user-attachments/assets/ae8b21a1-af29-4bed-b941-c2bcf431e36f) 
+![Screenshot 2025-04-28 162426](https://github.com/user-attachments/assets/f3ace119-3dad-4a23-a429-41fc4b8ddb42)
+
+A full-stack pizza ordering application featuring a modern React frontend and an ASP.NET Core Minimal API backend. Built as part of the [Microsoft Learn tutorial: Create a full stack application by using React and minimal API for ASP.NET Core](https://learn.microsoft.com/en-us/training/modules/build-web-api-minimal-spa), this project demonstrates best practices in SPA development, API integration, and cloud deployment.
 
 ---
 
@@ -136,6 +138,9 @@ To build and run locally:
 ## Quality Metrics
 
 ### Lighthouse Scores
+![Screenshot 2025-04-28 162305](https://github.com/user-attachments/assets/156afbbd-62f3-4d57-a627-af4189178d10)
+
+
 
 The deployed PizzaStore application has been evaluated using [Google Lighthouse](https://developers.google.com/web/tools/lighthouse) to ensure high standards of web quality. The latest scores for the production deployment are:
 
