@@ -129,9 +129,10 @@ To build and run locally:
 ---
 
 ## API Routes
+![Screenshot 2025-04-28 164943](https://github.com/user-attachments/assets/54889abe-8710-4fd4-bde1-23d2d2891687)
 
 - The API is accessible under the `/api` route.
-- Swagger UI is available at `/swagger` in development mode.
+- Swagger UI is available at `/swagger`.
 
 ---
 
