@@ -426,15 +426,6 @@ const Pizza = memo(function Pizza() {
 	const memoizedContent = useMemo(
 		() => (
 			<Stack>
-				<Box
-					sx={{
-						p: 2,
-						mb: 2,
-						backgroundColor: "primary.light",
-						borderRadius: 1,
-						boxShadow: 1,
-					}}
-				/>
 				{/* Conditional rendering: Show skeleton while initially loading and no data is present */}
 				{isLoading &&
 					pizzaData.length === 0 &&
