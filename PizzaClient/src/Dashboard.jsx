@@ -111,15 +111,21 @@ function Dashboard() {
 	const theme = useTheme();
 	const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 	const navigate = useNavigate();
+	
 	// Helper function to map Toolpad navigation segments to URL paths.
+	// Updated to properly handle the "home" segment consistently
 	const segmentToPath = useCallback((segment) => {
-		return segment === "home" ? "/" : `/${segment}`;
+		if (segment === "home" || segment === "") {
+			return "/";
+		}
+		return `/${segment}`;
 	}, []);
 
 	// Callback triggered by the DashboardLayout when the user navigates via the drawer.
 	const handleNavigationChange = useCallback(
 		(segment) => {
-			navigate(segmentToPath(segment));
+			const path = segmentToPath(segment);
+			navigate(path);
 		},
 		[navigate, segmentToPath],
 	);

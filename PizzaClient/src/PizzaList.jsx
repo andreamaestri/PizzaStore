@@ -1104,7 +1104,7 @@ function PizzaList({
 							px: { xs: 2.5, sm: 4 },
 							borderBottom: "1px solid",
 							borderColor: "divider",
-							borderRadius: "4px",
+							borderRadius: 4,
 							fontWeight: 700,
 							fontSize: "1.35rem",
 							letterSpacing: "-0.01em",

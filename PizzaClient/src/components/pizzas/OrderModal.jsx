@@ -213,12 +213,12 @@ const OrderModal = ({ open, onClose, pizza, onPlaceOrder }) => {
 				</Box>
 			</DialogContent>
 
-			<DialogActions sx={{ px: 3, pb: 2, gap: 1, background: 'transparent', borderTop: '1px solid var(--card-border)' }}>
+			<DialogActions sx={{ px: 3, pb: 2, gap: 1, borderRadius: 4, borderTop: '1px solid var(--card-border)' }}>
 				<Button
 					onClick={onClose}
 					color="secondary"
 					variant="outlined"
-					sx={{ minWidth: 120, fontWeight: 600, borderRadius: 2.5, background: 'none', borderColor: 'var(--card-border)', color: 'text.primary', '&:hover': { background: 'var(--card-hover-shadow)' } }}
+					sx={{ minWidth: 120, fontWeight: 600, borderRadius: 2.5, background: 'none', borderColor: 'text.primary', color: 'text.primary', '&:hover': { background: 'var(--card-hover-shadow)' } }}
 				>
 					Cancel
 				</Button>
@@ -226,7 +226,7 @@ const OrderModal = ({ open, onClose, pizza, onPlaceOrder }) => {
 					onClick={handlePlaceOrder}
 					variant="contained"
 					color="primary"
-					sx={{ minWidth: 140, fontWeight: 600, borderRadius: 2.5, background: 'var(--view-all-orders-bg)', boxShadow: '0 2px 8px var(--view-all-orders-shadow)', '&:hover': { background: 'var(--view-all-orders-hover-bg)', boxShadow: '0 4px 16px var(--view-all-orders-hover-shadow)' } }}
+					sx={{ minWidth: 140, fontWeight: 600, borderRadius: 2.5, background: 'text.secondary', boxShadow: '0 2px 8px var(--view-all-orders-shadow)', '&:hover': { background: 'var(--view-all-orders-hover-bg)', boxShadow: '0 4px 16px var(--view-all-orders-hover-shadow)' } }}
 				>
 					Place Order
 				</Button>
