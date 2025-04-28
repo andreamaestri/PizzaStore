@@ -941,7 +941,7 @@ function PizzaList({
 					<Box sx={headerActionsSx}>
 						<Box>
 							<Typography variant="h4" component="h2" sx={titleSx}>
-								{name}
+								Pizza
 							</Typography>
 							<Typography variant="body1" sx={descriptionSx}>
 								Manage your pizza menu with ease. Add, edit, or remove items as

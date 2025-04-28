@@ -415,9 +415,6 @@ const Pizza = memo(function Pizza() {
                     borderRadius: 1,
                     boxShadow: 1
                 }}>
-                    <Typography variant="h4" component="h1" gutterBottom sx={{ color: 'white' }}>
-                        Pizza List
-                    </Typography>
                 </Box>
                 {/* Conditional rendering: Show skeleton while initially loading and no data is present */}
                 {isLoading && pizzaData.length === 0 && !apiError && memoizedSkeletonLoader}
