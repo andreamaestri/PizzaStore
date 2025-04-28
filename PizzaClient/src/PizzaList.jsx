@@ -1146,7 +1146,7 @@ function PizzaList({
 						sx={{
 							p: 0,
 							background: (theme) =>
-								alpha(theme.palette.background.default, 0.6),
+								alpha(theme.palette.background.default, 0.01),
 							overflowY: "auto",
 							display: "flex",
 							flexDirection: "column",
