@@ -133,13 +133,13 @@ app.UseStaticFiles();
 // Always enable Swagger JSON endpoint for Azure and local use
 app.UseSwagger(c =>
 {
-    c.RouteTemplate = "api-docs/{documentName}/swagger.json";
+    c.RouteTemplate = "swagger/{documentName}/swagger.json";
 });
 
 // Always enable Swagger UI for easier API testing and documentation
 app.UseSwaggerUI(c =>
 {
-    c.SwaggerEndpoint("/api-docs/v1/swagger.json", "PizzaStore API V1");
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "PizzaStore API V1");
     c.RoutePrefix = "swagger";
 });
 
@@ -153,8 +153,22 @@ app.UseAuthorization();
 // Change the root endpoint to serve index.html instead of returning a welcome message
 app.MapGet("/api", () => Results.Ok("Welcome to the PizzaStore API!"));
 
-// SPA fallback for client-side routing
+// SPA fallback for client-side routing, but exclude paths that should be handled by the server
+// This prevents React Router from capturing Swagger and API requests
 app.MapFallbackToFile("index.html");
+
+// Configure middleware order to ensure Swagger endpoints work properly
+app.Use(async (context, next) =>
+{
+    // Skip middleware for Swagger paths
+    if (context.Request.Path.StartsWithSegments("/swagger"))
+    {
+        await next();
+        return;
+    }
+    
+    await next();
+});
 
 // Group all pizza-related endpoints under the '/api/pizzas' prefix.
 var pizzaApi = app.MapGroup("/api/pizzas");
